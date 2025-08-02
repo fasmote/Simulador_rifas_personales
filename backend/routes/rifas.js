@@ -700,4 +700,100 @@ router.post('/:id/regenerate-code', authenticateToken, async (req, res) => {
     }
 });
 
+// FASE 3: Eliminar número individual (solo propietario)
+router.delete('/:id/numbers/:number', authenticateToken, async (req, res) => {
+    try {
+        const rifaId = req.params.id;
+        const number = parseInt(req.params.number);
+
+        console.log(`🗑️ [DELETE NUMBER] Eliminando número ${number} de rifa ${rifaId}`);
+
+        // Verificar que la simulación pertenece al usuario
+        const rifa = await getQuery(
+            'SELECT * FROM rifas WHERE id = ? AND user_id = ?',
+            [rifaId, req.user.id]
+        );
+
+        if (!rifa) {
+            return res.status(404).json({ error: 'Simulación no encontrada o no tienes permisos' });
+        }
+
+        // Verificar que el número existe
+        const existingNumber = await getQuery(
+            'SELECT * FROM rifa_numbers WHERE rifa_id = ? AND number = ?',
+            [rifaId, number]
+        );
+
+        if (!existingNumber) {
+            return res.status(404).json({ error: 'El número especificado no está ocupado' });
+        }
+
+        // Eliminar el número
+        await runQuery(
+            'DELETE FROM rifa_numbers WHERE rifa_id = ? AND number = ?',
+            [rifaId, number]
+        );
+
+        console.log(`✅ [DELETE NUMBER] Número ${number} eliminado exitosamente`);
+
+        res.json({ 
+            message: `Número ${number} eliminado exitosamente`,
+            deleted_number: number,
+            participant_name: existingNumber.participant_name
+        });
+    } catch (error) {
+        console.error('❌ [ERROR] Error eliminando número:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
+
+// FASE 3: Eliminar todos los números de un participante (solo propietario)
+router.delete('/:id/participants/:participantName/numbers', authenticateToken, async (req, res) => {
+    try {
+        const rifaId = req.params.id;
+        const participantName = decodeURIComponent(req.params.participantName);
+
+        console.log(`🗑️ [DELETE PARTICIPANT] Eliminando todos los números de "${participantName}" en rifa ${rifaId}`);
+
+        // Verificar que la simulación pertenece al usuario
+        const rifa = await getQuery(
+            'SELECT * FROM rifas WHERE id = ? AND user_id = ?',
+            [rifaId, req.user.id]
+        );
+
+        if (!rifa) {
+            return res.status(404).json({ error: 'Simulación no encontrada o no tienes permisos' });
+        }
+
+        // Obtener números del participante antes de eliminar
+        const participantNumbers = await allQuery(
+            'SELECT number FROM rifa_numbers WHERE rifa_id = ? AND participant_name = ? ORDER BY number',
+            [rifaId, participantName]
+        );
+
+        if (participantNumbers.length === 0) {
+            return res.status(404).json({ error: 'El participante no tiene números asignados' });
+        }
+
+        // Eliminar todos los números del participante
+        const result = await runQuery(
+            'DELETE FROM rifa_numbers WHERE rifa_id = ? AND participant_name = ?',
+            [rifaId, participantName]
+        );
+
+        const deletedNumbers = participantNumbers.map(n => n.number);
+        console.log(`✅ [DELETE PARTICIPANT] ${deletedNumbers.length} números eliminados para "${participantName}": [${deletedNumbers.join(', ')}]`);
+
+        res.json({ 
+            message: `Todos los números de "${participantName}" han sido eliminados exitosamente`,
+            participant_name: participantName,
+            deleted_numbers: deletedNumbers,
+            total_deleted: deletedNumbers.length
+        });
+    } catch (error) {
+        console.error('❌ [ERROR] Error eliminando números del participante:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
+
 module.exports = router;
