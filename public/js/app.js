@@ -9,6 +9,8 @@ let isAuthMode = 'login';
 let accessedByCode = false;
 // FASE 2: Variable para números con timestamps y tooltips
 let numbersWithTooltips = [];
+// FASE 3: Variable para indicar si estamos en vista de propietario
+let isOwnerView = false;
 
 // API Base URL
 const API_BASE = '/api';
@@ -20,6 +22,61 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ========== FUNCIONES NUEVAS FASE 15C ==========
+
+// FASE 3: Modal de confirmación personalizado
+function showDeleteConfirmation(message, onConfirm) {
+    // Crear modal
+    const modal = document.createElement('div');
+    modal.className = 'delete-confirmation-modal';
+    modal.innerHTML = `
+        <div class="delete-confirmation-content">
+            <h3 class="delete-confirmation-title">🗑️ Confirmar eliminación</h3>
+            <p class="delete-confirmation-message">${message}</p>
+            <div class="delete-confirmation-buttons">
+                <button class="delete-confirmation-btn cancel" onclick="closeDeleteConfirmation()">Cancelar</button>
+                <button class="delete-confirmation-btn confirm" onclick="confirmDelete()">Eliminar</button>
+            </div>
+        </div>
+    `;
+    
+    // Agregar al DOM
+    document.body.appendChild(modal);
+    
+    // Guardar la función de confirmación
+    window.pendingDeleteAction = onConfirm;
+    
+    // Cerrar con ESC
+    document.addEventListener('keydown', handleDeleteModalKeydown);
+    
+    // Cerrar haciendo click fuera del modal
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+            closeDeleteConfirmation();
+        }
+    });
+}
+
+function closeDeleteConfirmation() {
+    const modal = document.querySelector('.delete-confirmation-modal');
+    if (modal) {
+        modal.remove();
+    }
+    window.pendingDeleteAction = null;
+    document.removeEventListener('keydown', handleDeleteModalKeydown);
+}
+
+function confirmDelete() {
+    if (window.pendingDeleteAction) {
+        window.pendingDeleteAction();
+    }
+    closeDeleteConfirmation();
+}
+
+function handleDeleteModalKeydown(e) {
+    if (e.key === 'Escape') {
+        closeDeleteConfirmation();
+    }
+}
 
 // NUEVO: Toggle de contraseña mejorado
 function togglePassword(inputId, button) {
@@ -36,18 +93,26 @@ function togglePassword(inputId, button) {
 
 // NUEVO: Eliminar número específico 
 function removeUserNumber(number, userName, rifaId) {
-    if (confirm(`¿Eliminar el número ${number} de ${userName}?`)) {
-        // Implementar la llamada a la API
-        removeNumberFromRifa(rifaId, number, userName);
-    }
+    showDeleteConfirmation(
+        `¿Eliminar el número <strong>${number}</strong> de <strong>${userName}</strong>?`,
+        () => removeNumberFromRifa(rifaId, number, userName)
+    );
 }
 
 // NUEVO: Eliminar todos los números de un usuario
 function removeAllUserNumbers(userName, rifaId) {
-    if (confirm(`¿Eliminar TODOS los números de ${userName}? Esta acción no se puede deshacer.`)) {
-        // Implementar la llamada a la API
-        removeAllNumbersFromUser(rifaId, userName);
-    }
+    showDeleteConfirmation(
+        `¿Eliminar <strong>TODOS</strong> los números de <strong>${userName}</strong>?<br><small style="color: #666;">Esta acción no se puede deshacer.</small>`,
+        () => removeAllNumbersFromUser(rifaId, userName)
+    );
+}
+
+// FASE 3: Eliminar número desde la grilla principal
+function removeNumberFromGrid(rifaId, number) {
+    showDeleteConfirmation(
+        `¿Eliminar el número <strong>${number.toString().padStart(2, '0')}</strong>?`,
+        () => removeNumberFromRifa(rifaId, number)
+    );
 }
 
 // NUEVO: Función API para eliminar número específico
@@ -56,10 +121,8 @@ async function removeNumberFromRifa(rifaId, number, userName) {
         const response = await fetch(`${API_BASE}/rifas/${rifaId}/numbers/${number}`, {
             method: 'DELETE',
             headers: {
-                'Content-Type': 'application/json',
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-            },
-            body: JSON.stringify({ participant_name: userName })
+            }
         });
         
         const data = await response.json();
@@ -80,7 +143,7 @@ async function removeNumberFromRifa(rifaId, number, userName) {
 // NUEVO: Función API para eliminar todos los números de un usuario
 async function removeAllNumbersFromUser(rifaId, userName) {
     try {
-        const response = await fetch(`${API_BASE}/rifas/${rifaId}/users/${encodeURIComponent(userName)}/numbers`, {
+        const response = await fetch(`${API_BASE}/rifas/${rifaId}/participants/${encodeURIComponent(userName)}/numbers`, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`
@@ -1200,6 +1263,8 @@ async function viewRifa(rifaId) {
         
         console.log(`✅ [DEBUG] Procesando rifa: "${rifa.title}" (Status: ${rifa.status})`);
         
+        // FASE 3: Establecer que estamos en vista de propietario
+        isOwnerView = true;
         // Generar grid de números
         let numbersGridHtml = '';
         for (let i = 0; i <= 99; i++) {
@@ -1562,17 +1627,37 @@ async function loadParticipants(rifaId) {
             
             if (data.participants && data.participants.length > 0) {
                 const participantsHtml = data.participants.map(participant => {
+                    // FASE 3: Números con botones de eliminación individual
                     const numbersDisplay = participant.numbers.sort((a, b) => a - b)
-                        .map(num => `<span style="background: #4caf50; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; margin: 1px;">${num.toString().padStart(2, '0')}</span>`)
+                        .map(num => `
+                            <span style="background: #4caf50; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; margin: 1px; position: relative; display: inline-block;">
+                                ${num.toString().padStart(2, '0')}
+                                <button onclick="removeUserNumber(${num}, '${participant.name}', ${rifaId})" 
+                                        style="background: #ff4444; color: white; border: none; border-radius: 50%; width: 14px; height: 14px; font-size: 0.6rem; line-height: 1; position: absolute; top: -5px; right: -5px; cursor: pointer; display: none;" 
+                                        class="number-delete-btn" title="Eliminar este número">
+                                    ×
+                                </button>
+                            </span>
+                        `)
                         .join(' ');
                     
                     return `
-                        <div style="background: white; border-radius: 8px; padding: 12px; margin-bottom: 10px; border-left: 4px solid #4caf50; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                            <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 8px;">
+                        <div style="background: white; border-radius: 8px; padding: 12px; margin-bottom: 10px; border-left: 4px solid #4caf50; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" 
+                             onmouseenter="this.querySelectorAll('.number-delete-btn').forEach(btn => btn.style.display = 'block')" 
+                             onmouseleave="this.querySelectorAll('.number-delete-btn').forEach(btn => btn.style.display = 'none')">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                                 <strong style="color: #333; font-size: 1rem;">${participant.name}</strong>
-                                <span style="background: #e8f5e8; color: #2e7d32; padding: 4px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: bold;">
-                                    ${participant.total_numbers} número${participant.total_numbers !== 1 ? 's' : ''}
-                                </span>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="background: #e8f5e8; color: #2e7d32; padding: 4px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: bold;">
+                                        ${participant.total_numbers} número${participant.total_numbers !== 1 ? 's' : ''}
+                                    </span>
+                                    <!-- FASE 3: Botón eliminar todos los números -->
+                                    <button onclick="removeAllUserNumbers('${participant.name}', ${rifaId})" 
+                                            style="background: #ff6b6b; color: white; border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.7rem; cursor: pointer; opacity: 0.8;" 
+                                            title="Eliminar todos los números de ${participant.name}">
+                                        🗑️ Eliminar todos
+                                    </button>
+                                </div>
                             </div>
                             <div style="margin-top: 8px;">
                                 ${numbersDisplay}
@@ -1904,6 +1989,22 @@ async function generateRifaGrid(rifa) {
                 
                 console.log(`✅ [FASE 2] Tooltip agregado al número ${i}: ${tooltipMap[i]}`);
             }
+            
+            // FASE 3: Agregar botón X para eliminar número desde la grilla
+            // Solo mostrar para el propietario (cuando estamos en viewRifa, no en viewRifaByCode)
+            if (currentUser && rifa.user_id && currentUser.id === rifa.user_id) {
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'grid-number-delete';
+                deleteBtn.innerHTML = '×';
+                deleteBtn.title = `Eliminar número ${i.toString().padStart(2, '0')}`;
+                deleteBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    removeNumberFromGrid(rifa.id, i);
+                };
+                cell.appendChild(deleteBtn);
+                
+                console.log(`✅ [FASE 3] Botón X agregado al número ${i}`);
+            }
         } else {
             cell.className = 'number-cell';
             if (!isCompleted) {
@@ -2023,4 +2124,249 @@ function clearCodeSelection() {
     });
     selectedNumbers = [];
     updateCart();
+}
+
+// ========== FASE 1 + FASE 3: VISTA COMPLETA DE RIFA CON GESTIÓN ==========
+
+// FASE 1: Cargar lista de participantes para vista administrativa
+async function loadParticipants(rifaId) {
+    try {
+        console.log(`📋 [FASE 1] Cargando participantes para rifa ${rifaId}`);
+        
+        const response = await fetch(`${API_BASE}/rifas/${rifaId}/participants`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            console.log(`✅ [FASE 1] ${data.participants.length} participantes cargados`);
+            return data.participants;
+        } else {
+            console.warn('⚠️ [FASE 1] Error cargando participantes');
+            return [];
+        }
+    } catch (error) {
+        console.error('❌ [FASE 1] Error:', error);
+        return [];
+    }
+}
+
+// FASE 1 + FASE 3: Función principal para ver detalles de rifa con gestión
+async function viewRifa(rifaId) {
+    console.log(`🔍 [VIEW RIFA] Iniciando vista de rifa ${rifaId}`);
+    
+    // Validar ID
+    if (!rifaId || rifaId === 'undefined' || rifaId === 'null') {
+        console.error('❌ [ERROR] ID de rifa inválido:', rifaId);
+        showNotification('Error: ID de simulación inválido', 'error');
+        return;
+    }
+    
+    // Validar autenticación
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        console.error('❌ [ERROR] No hay token de autenticación');
+        showNotification('Debes iniciar sesión para ver esta simulación', 'error');
+        showAuthModal();
+        return;
+    }
+    
+    // Mostrar loading
+    document.getElementById('mainContainer').innerHTML = `
+        <div class="loading">
+            <p>🔄 Cargando detalles de la simulación...</p>
+        </div>
+    `;
+    
+    try {
+        // Obtener datos de la rifa
+        const response = await fetch(`${API_BASE}/rifas/my/${rifaId}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Error ${response.status}: ${errorText}`);
+        }
+        
+        const data = await response.json();
+        if (!data.rifa) {
+            throw new Error('Datos de simulación no encontrados');
+        }
+        
+        const rifa = data.rifa;
+        const isCompleted = rifa.status === 'completed';
+        const winnerNumber = rifa.winner ? rifa.winner.number : null;
+        const progressPercent = Math.round((rifa.numbers_sold / 100) * 100);
+        
+        console.log(`✅ [VIEW RIFA] Procesando: "${rifa.title}" (Status: ${rifa.status})`);
+        
+        // FASE 1: Cargar participantes
+        const participants = await loadParticipants(rifaId);
+        
+        // Generar HTML de participantes con botones de eliminación
+        let participantsHtml = '';
+        if (participants.length > 0) {
+            participantsHtml = `
+                <div style="margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #4caf50;">
+                    <h4 style="color: #333; margin: 0 0 15px 0; display: flex; align-items: center; gap: 10px;">
+                        👥 Lista de Participantes 
+                        <span style="background: #4caf50; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem;">${participants.length}</span>
+                        <button class="btn-small" onclick="loadParticipants(${rifaId}).then(p => viewRifa(${rifaId}))" 
+                                style="background: #2196f3; color: white; margin-left: auto;" title="Actualizar lista">
+                            🔄 Actualizar
+                        </button>
+                    </h4>
+                    <div style="max-height: 300px; overflow-y: auto;">`;
+            
+            participants.forEach(participant => {
+                const numbersText = participant.numbers.map(n => n.toString().padStart(2, '0')).join(', ');
+                participantsHtml += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: white; border-radius: 6px; margin: 8px 0; border: 1px solid #ddd;">
+                        <div>
+                            <strong style="color: #333;">${participant.participant_name}</strong>
+                            <div style="font-size: 0.85rem; color: #666; margin-top: 2px;">
+                                📅 ${participant.first_participation} • ${participant.total_numbers} número${participant.total_numbers > 1 ? 's' : ''}
+                            </div>
+                            <div style="font-size: 0.9rem; color: #4caf50; margin-top: 4px; font-family: monospace;">
+                                [${numbersText}]
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 5px; flex-direction: column;">
+                            <button class="btn-small" 
+                                    onclick="removeAllUserNumbers('${participant.participant_name}', ${rifaId})" 
+                                    style="background: #ff6b6b; color: white; font-size: 0.75rem; padding: 4px 8px;" 
+                                    title="Eliminar todos los números de ${participant.participant_name}">
+                                🗑️ Todos
+                            </button>
+                        </div>
+                    </div>`;
+            });
+            
+            participantsHtml += `
+                    </div>
+                </div>`;
+        } else {
+            participantsHtml = `
+                <div style="margin-top: 20px; padding: 20px; background: #fff3cd; border-radius: 8px; text-align: center;">
+                    <p style="color: #856404; margin: 0;">👥 Aún no hay participantes en esta simulación</p>
+                </div>`;
+        }
+        
+        // Renderizar vista completa
+        document.getElementById('mainContainer').innerHTML = `
+            <div class="page-header">
+                <h1>🎯 ${rifa.title}</h1>
+                <p class="subtitle">${rifa.description}</p>
+                ${isCompleted ? `<p style="background: #4caf50; color: white; padding: 10px; border-radius: 8px; text-align: center; margin-top: 10px;">
+                    🏆 ¡SIMULACIÓN COMPLETADA! Ganador: Número ${winnerNumber} (${rifa.winner ? rifa.winner.participant_name : 'N/A'})
+                </p>` : ''}
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <button class="btn btn-secondary" onclick="navigateTo('perfil')">
+                    ← Volver a Mis Simulaciones
+                </button>
+                <button class="btn btn-primary" onclick="editRifa(${rifaId})" style="margin-left: 10px;">
+                    ✏️ Editar
+                </button>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 350px; gap: 30px;" class="rifa-details-grid">
+                <div class="numbers-section">
+                    <h3 style="margin-bottom: 15px;">🎯 Números de la Simulación</h3>
+                    <div class="numbers-grid" id="numbersGrid">
+                        <!-- Se genera con generateRifaGrid() -->
+                    </div>
+                    
+                    <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                        <h4 style="color: #333; margin-bottom: 10px;">📊 Estadísticas</h4>
+                        <p style="margin: 5px 0;">• Números ocupados: ${rifa.numbers_sold}/100</p>
+                        <p style="margin: 5px 0;">• Progreso: ${progressPercent}%</p>
+                        <p style="margin: 5px 0;">• Código de acceso: ${rifa.access_code || 'No disponible'}</p>
+                    </div>
+                    
+                    ${participantsHtml}
+                </div>
+                
+                <div class="cart-section">
+                    <div class="cart-header">
+                        <span class="cart-icon">🎯</span>
+                        <h3 class="cart-title">${isCompleted ? 'Resultado Final' : 'Información'}</h3>
+                    </div>
+                    
+                    ${isCompleted ? `
+                    <div style="margin-bottom: 20px; padding: 15px; background: #fff3cd; border-radius: 8px; text-align: center; border: 2px solid #ffd700;">
+                        <h4 style="color: #856404; margin: 0 0 10px 0; font-size: 1.1rem;">🏆 ¡GANADOR!</h4>
+                        <div style="font-size: 2.5rem; font-weight: bold; color: #ffd700; margin: 10px 0;">${winnerNumber}</div>
+                        <p style="color: #856404; margin: 0; font-weight: bold; font-size: 1.1rem;">${rifa.winner ? rifa.winner.participant_name : 'N/A'}</p>
+                    </div>` : ''}
+                    
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: #333; margin-bottom: 10px;">📝 Descripción</h4>
+                        <p style="color: #666; line-height: 1.5;">${rifa.description}</p>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: #333; margin-bottom: 10px;">📈 Progreso</h4>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${progressPercent}%"></div>
+                        </div>
+                        <p class="progress-text">${rifa.numbers_sold}/100 números</p>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: #333; margin-bottom: 10px;">🔑 Código de Acceso</h4>
+                        <div class="access-code-display" style="display: flex; align-items: center; justify-content: space-between;">
+                            <span id="displayCode">${rifa.access_code || 'GENERANDO...'}</span>
+                            <button class="copy-code-btn" onclick="copyCode('${rifa.access_code}')" title="Copiar código">
+                                📋
+                            </button>
+                        </div>
+                        <p style="font-size: 0.8rem; color: #666; text-align: center;">Comparte este código para que otros participen</p>
+                    </div>
+                    
+                    ${!isCompleted ? `
+                    <button class="btn btn-success" style="width: 100%; margin-bottom: 10px;" onclick="drawRifaWinner(${rifaId})">
+                        🏆 Realizar Sorteo
+                    </button>` : `
+                    <div style="text-align: center; padding: 15px; background: #e8f5e8; border-radius: 8px; margin-bottom: 10px;">
+                        <p style="color: #2e7d32; font-weight: bold; margin: 0;">✓ Sorteo Completado</p>
+                    </div>`}
+                    
+                    <button class="btn btn-primary" style="width: 100%;" onclick="editRifa(${rifaId})">
+                        ✏️ Editar Simulación
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        // FASE 2 + FASE 3: Generar grid con tooltips y botones X
+        await generateRifaGrid(rifa);
+        
+        console.log('✅ [VIEW RIFA] Vista cargada exitosamente con FASE 1 + FASE 2 + FASE 3');
+        
+    } catch (error) {
+        console.error('❌ [ERROR] Error en viewRifa:', error);
+        
+        document.getElementById('mainContainer').innerHTML = `
+            <div style="background: white; border-radius: 15px; padding: 30px; text-align: center; margin: 20px 0;">
+                <div style="font-size: 3rem; margin-bottom: 20px;">❌</div>
+                <h3 style="color: #333; margin-bottom: 15px;">Error Cargando Simulación</h3>
+                <p style="color: #666; margin-bottom: 20px;">${error.message}</p>
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <button class="btn btn-primary" onclick="viewRifa(${rifaId})">🔄 Reintentar</button>
+                    <button class="btn btn-secondary" onclick="navigateTo('perfil')">← Volver</button>
+                </div>
+            </div>
+        `;
+        
+        showNotification(error.message, 'error');
+    }
 }

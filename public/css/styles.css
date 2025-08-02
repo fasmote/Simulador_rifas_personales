@@ -871,6 +871,7 @@ h1 {
 .number-cell.sold {
     cursor: help;                                         /* Cursor que indica información disponible */
     transition: all 0.2s ease;                          /* Transición suave para efectos hover */
+    position: relative;                                   /* FASE 3: Para posicionar botón X */
 }
 
 /* Efecto hover para números ocupados */
@@ -878,4 +879,130 @@ h1 {
     transform: scale(1.05);                              /* Ligeramente más grande al hacer hover */
     box-shadow: 0 4px 8px rgba(255, 87, 87, 0.3);      /* Sombra roja sutil */
     border-color: #ff3757;                               /* Borde rojo para destacar */
+}
+
+/* FASE 3: Estilos para modal de confirmación personalizado */
+.delete-confirmation-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    animation: modalFadeIn 0.2s ease-out;
+}
+
+.delete-confirmation-content {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 400px;
+    min-width: 300px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    transform: translateY(-10px);
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+.delete-confirmation-title {
+    color: #ff6b6b;
+    margin: 0 0 12px 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.delete-confirmation-message {
+    color: #333;
+    margin: 0 0 20px 0;
+    line-height: 1.4;
+}
+
+.delete-confirmation-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.delete-confirmation-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+}
+
+.delete-confirmation-btn.cancel {
+    background: #f8f9fa;
+    color: #666;
+    border: 1px solid #ddd;
+}
+
+.delete-confirmation-btn.cancel:hover {
+    background: #e9ecef;
+}
+
+.delete-confirmation-btn.confirm {
+    background: #ff6b6b;
+    color: white;
+}
+
+.delete-confirmation-btn.confirm:hover {
+    background: #ff5252;
+    transform: translateY(-1px);
+}
+
+/* FASE 3: Botón X para números ocupados en la grilla */
+.grid-number-delete {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 18px;
+    height: 18px;
+    background: #ff4444;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.grid-number-delete:hover {
+    background: #ff2222;
+    transform: scale(1.1);
+}
+
+/* Mostrar botón X solo cuando el número ocupado está en hover */
+.number-cell.sold:hover .grid-number-delete {
+    display: flex;
+}
+
+/* Animaciones para los modales */
+@keyframes modalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
