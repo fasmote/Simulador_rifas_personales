@@ -416,22 +416,73 @@ router.post('/access/:code/numbers', async (req, res) => {
     }
 });
 
-// Obtener números de una simulación
+// Obtener números de una simulación CON TIMESTAMPS (FASE 2)
 router.get('/:id/numbers', async (req, res) => {
     try {
         const numbers = await allQuery(`
-            SELECT number, participant_name, selected_at 
+            SELECT 
+                number, 
+                participant_name, 
+                selected_at,
+                datetime(selected_at, 'localtime') as selected_at_local
             FROM rifa_numbers 
             WHERE rifa_id = ? 
             ORDER BY number
         `, [req.params.id]);
 
-        res.json({ numbers });
+        // Formatear timestamps para tooltips
+        const numbersWithTooltips = numbers.map(num => ({
+            ...num,
+            tooltip: `Elegido por ${num.participant_name} el ${formatDateForTooltip(num.selected_at_local)}`
+        }));
+
+        res.json({ numbers: numbersWithTooltips });
     } catch (error) {
         console.error('Error obteniendo números:', error);
         res.status(500).json({ error: 'Error interno del servidor' });
     }
 });
+
+// FASE 2: Función helper para formatear fechas en tooltips
+// Esta función toma un timestamp de SQLite y lo convierte a formato argentino legible
+// Entrada: "2025-08-02 15:30:45" (formato SQLite datetime)
+// Salida: "02/08/2025 a las 15:30" (formato argentino DD/MM/YYYY a las HH:MM)
+function formatDateForTooltip(dateString) {
+    if (!dateString) return 'fecha desconocida';
+    
+    try {
+        // dateString viene en formato: "2025-08-02 15:30:45"
+        // Separamos fecha y hora
+        const [datePart, timePart] = dateString.split(' ');
+        const [year, month, day] = datePart.split('-');
+        const [hours, minutes] = timePart.split(':');
+        
+        // Creamos objeto Date (month-1 porque Date usa meses 0-11)
+        const date = new Date(year, month - 1, day, hours, minutes);
+        
+        // Configuración para formato argentino
+        const dateOptions = { 
+            day: '2-digit',      // 02
+            month: '2-digit',    // 08  
+            year: 'numeric'      // 2025
+        };
+        
+        const timeOptions = { 
+            hour: '2-digit',     // 15
+            minute: '2-digit',   // 30
+            hour12: false        // Formato 24 horas
+        };
+        
+        // Formateo con locale argentino
+        const formattedDate = date.toLocaleDateString('es-AR', dateOptions);
+        const formattedTime = date.toLocaleTimeString('es-AR', timeOptions);
+        
+        return `${formattedDate} a las ${formattedTime}`;
+    } catch (error) {
+        console.error('Error formateando fecha:', error);
+        return 'fecha inválida';
+    }
+}
 
 // Realizar sorteo (solo propietario)
 router.post('/:id/draw', authenticateToken, async (req, res) => {

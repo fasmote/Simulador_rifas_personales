@@ -817,3 +817,65 @@ h1 {
         font-size: 0.9rem;
     }
 }
+
+/* FASE 2: Estilos para tooltips con timestamps */
+/* Estos estilos proporcionan una experiencia visual elegante
+   para los tooltips que muestran información de participaciones */
+
+/* Estilo principal del tooltip */
+.custom-tooltip {
+    position: fixed;                                      /* Posición fija para evitar problemas con scroll */
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Gradiente elegante púrpura-azul */
+    color: white;                                         /* Texto blanco para contraste */
+    padding: 8px 12px;                                   /* Espacio interno cómodo */
+    border-radius: 8px;                                  /* Bordes redondeados */
+    font-size: 0.85rem;                                  /* Tamaño de fuente legible */
+    font-weight: 500;                                    /* Peso medio para mejor legibilidad */
+    z-index: 1000;                                       /* Por encima de otros elementos */
+    pointer-events: none;                                /* No interfiere con eventos del mouse */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);         /* Sombra sutil para profundidad */
+    white-space: nowrap;                                 /* Evita que el texto se corte */
+    transform: translateX(-50%);                         /* Centrado horizontal */
+    max-width: 300px;                                    /* Ancho máximo para evitar tooltips muy largos */
+    text-align: center;                                  /* Texto centrado */
+    border: 1px solid rgba(255, 255, 255, 0.2);         /* Borde sutil semi-transparente */
+    animation: tooltipFadeIn 0.2s ease-out;             /* Animación de entrada suave */
+}
+
+/* Flecha del tooltip apuntando hacia abajo */
+.custom-tooltip::after {
+    content: '';                                          /* Pseudo-elemento vacío */
+    position: absolute;                                   /* Posición absoluta relativa al tooltip */
+    top: 100%;                                           /* Justo debajo del tooltip */
+    left: 50%;                                           /* Centrado horizontalmente */
+    transform: translateX(-50%);                         /* Ajuste fino del centrado */
+    border: 6px solid transparent;                       /* Bordes transparentes para crear triángulo */
+    border-top-color: #667eea;                          /* Solo el borde superior visible */
+}
+
+/* Animación de aparición del tooltip */
+@keyframes tooltipFadeIn {
+    from {
+        opacity: 0;                                       /* Inicia invisible */
+        transform: translateX(-50%) translateY(-5px);     /* Ligeramente arriba */
+    }
+    to {
+        opacity: 1;                                       /* Termina completamente visible */
+        transform: translateX(-50%) translateY(0);        /* En posición final */
+    }
+}
+
+/* FASE 2: Mejorar hover de números ocupados para indicar tooltip disponible */
+/* Estos estilos mejoran la UX indicando que hay información disponible */
+
+.number-cell.sold {
+    cursor: help;                                         /* Cursor que indica información disponible */
+    transition: all 0.2s ease;                          /* Transición suave para efectos hover */
+}
+
+/* Efecto hover para números ocupados */
+.number-cell.sold:hover {
+    transform: scale(1.05);                              /* Ligeramente más grande al hacer hover */
+    box-shadow: 0 4px 8px rgba(255, 87, 87, 0.3);      /* Sombra roja sutil */
+    border-color: #ff3757;                               /* Borde rojo para destacar */
+}

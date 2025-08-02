@@ -7,6 +7,8 @@ let winnerNumber = null;
 let currentRifa = null;
 let isAuthMode = 'login';
 let accessedByCode = false;
+// FASE 2: Variable para números con timestamps y tooltips
+let numbersWithTooltips = [];
 
 // API Base URL
 const API_BASE = '/api';
@@ -1833,7 +1835,34 @@ async function viewRifaByCode(rifa, accessCode) {
     updateCart();
 }
 
-function generateRifaGrid(rifa) {
+// FASE 2: Función para obtener números con timestamps desde la API
+// Esta función consulta el endpoint /api/rifas/:id/numbers para obtener
+// información detallada de cada número ocupado incluyendo timestamps
+// Parámetro: rifaId - ID de la rifa de la cual obtener los números
+// Retorna: Array de objetos con {number, participant_name, tooltip}
+async function loadNumbersWithTimestamps(rifaId) {
+    try {
+        const response = await fetch(`${API_BASE}/rifas/${rifaId}/numbers`);
+        if (response.ok) {
+            const data = await response.json();
+            // Guardamos en variable global para uso posterior
+            numbersWithTooltips = data.numbers || [];
+            console.log('✅ [FASE 2] Números con timestamps cargados:', numbersWithTooltips.length);
+            return numbersWithTooltips;
+        } else {
+            console.warn('⚠️ [FASE 2] Error cargando timestamps de números');
+            numbersWithTooltips = [];
+            return [];
+        }
+    } catch (error) {
+        console.error('❌ [FASE 2] Error obteniendo timestamps:', error);
+        numbersWithTooltips = [];
+        return [];
+    }
+}
+
+// FASE 2: Generar grid con tooltips de timestamps
+async function generateRifaGrid(rifa) {
     const grid = document.getElementById('numbersGrid');
     if (!grid) return;
     
@@ -1841,6 +1870,15 @@ function generateRifaGrid(rifa) {
     
     const isCompleted = rifa.status === 'completed';
     const winnerNumber = rifa.winner ? rifa.winner.number : null;
+    
+    // FASE 2: Cargar números con timestamps
+    await loadNumbersWithTimestamps(rifa.id);
+    
+    // Crear mapa de números con sus tooltips
+    const tooltipMap = {};
+    numbersWithTooltips.forEach(numData => {
+        tooltipMap[numData.number] = numData.tooltip;
+    });
     
     for (let i = 0; i <= 99; i++) {
         const cell = document.createElement('div');
@@ -1854,6 +1892,18 @@ function generateRifaGrid(rifa) {
             cell.className = 'number-cell winner';
         } else if (isSelected) {
             cell.className = 'number-cell sold';
+            
+            // FASE 2: Agregar tooltip con timestamp para números ocupados
+            if (tooltipMap[i]) {
+                cell.title = tooltipMap[i];
+                cell.setAttribute('data-tooltip', tooltipMap[i]);
+                
+                // Agregar event listeners para tooltip custom
+                cell.addEventListener('mouseenter', showTooltip);
+                cell.addEventListener('mouseleave', hideTooltip);
+                
+                console.log(`✅ [FASE 2] Tooltip agregado al número ${i}: ${tooltipMap[i]}`);
+            }
         } else {
             cell.className = 'number-cell';
             if (!isCompleted) {
@@ -1862,6 +1912,54 @@ function generateRifaGrid(rifa) {
         }
         
         grid.appendChild(cell);
+    }
+    
+    console.log('🎯 [FASE 2] Grid generado con', Object.keys(tooltipMap).length, 'tooltips');
+}
+
+// FASE 2: Funciones para mostrar/ocultar tooltips personalizados
+// Estas funciones manejan la visualización de tooltips informativos
+// cuando el usuario hace hover sobre números ocupados en la grilla
+
+/**
+ * Muestra un tooltip personalizado con información del número
+ * @param {Event} event - Evento mouseenter del elemento
+ * Funcionalidad:
+ * 1. Extrae el texto del tooltip del atributo data-tooltip
+ * 2. Crea un elemento div con clase custom-tooltip
+ * 3. Posiciona el tooltip centrado arriba del número
+ * 4. Lo agrega al DOM con animación CSS
+ */
+function showTooltip(event) {
+    const tooltip = event.target.getAttribute('data-tooltip');
+    if (!tooltip) return;
+    
+    // Crear elemento tooltip
+    const tooltipElement = document.createElement('div');
+    tooltipElement.className = 'custom-tooltip';
+    tooltipElement.textContent = tooltip;
+    tooltipElement.id = 'activeTooltip';
+    
+    // Posicionar tooltip centrado arriba del número
+    const rect = event.target.getBoundingClientRect();
+    tooltipElement.style.left = rect.left + (rect.width / 2) + 'px';
+    tooltipElement.style.top = (rect.top - 40) + 'px';
+    
+    document.body.appendChild(tooltipElement);
+}
+
+/**
+ * Oculta el tooltip activo si existe
+ * Se ejecuta en evento mouseleave
+ * Funcionalidad:
+ * 1. Busca el tooltip activo por ID
+ * 2. Lo remueve del DOM si existe
+ * 3. Permite que la animación CSS se ejecute naturalmente
+ */
+function hideTooltip() {
+    const tooltip = document.getElementById('activeTooltip');
+    if (tooltip) {
+        tooltip.remove();
     }
 }
 

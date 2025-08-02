@@ -1,17 +1,14 @@
-# 🎲 Simula RIFA Personal - TalentoTech
+# 🎲 SimulaRifas - Proyecto Personal
 
 ![Estado del Proyecto](https://img.shields.io/badge/Estado-En%20Desarrollo%20Activo-brightgreen)
-![Versión](https://img.shields.io/badge/Versión-1.1.0--FASE1-blue)
+![Versión](https://img.shields.io/badge/Versión-2.0%20FASE%202-blue)
 ![Licencia](https://img.shields.io/badge/Licencia-MIT-green)
-![Roadmap](https://img.shields.io/badge/Roadmap-FASE%201%20COMPLETADA-success)
 
-**Simulador de Rifas Educativo** - Proyecto Final Integrador del curso Node.js de TalentoTech
+**Simulador de Rifas Educativo** - Proyecto personal de desarrollo full-stack con Node.js
 
 ## 📋 Descripción
 
-Simula RIFA Personal es una aplicación web educativa que simula el funcionamiento de rifas y sorteos sin involucrar dinero real. Desarrollada como proyecto final para el curso de Node.js de TalentoTech, implementa una arquitectura completa con frontend interactivo y backend robusto.
-
-**🚀 NUEVO**: Implementación de roadmap por fases con mejoras incrementales.
+SimulaRifas es una aplicación web educativa que simula el funcionamiento de rifas y sorteos sin involucrar dinero real. Desarrollada como proyecto personal para perfeccionar habilidades de desarrollo full-stack, implementa una arquitectura completa con frontend interactivo y backend robusto.
 
 ### 🎯 Características Principales
 
@@ -19,64 +16,14 @@ Simula RIFA Personal es una aplicación web educativa que simula el funcionamien
 - **Gestión de Usuarios**: Sistema de autenticación con JWT
 - **Rifas Privadas**: Creación y gestión de simulaciones con códigos de acceso
 - **Rifas Públicas**: Contenido de demostración accesible sin registro
-- **🆕 Vista Administrativa (FASE 1)**: Lista completa de participantes para el propietario
 - **API RESTful**: Backend modular con arquitectura MVC
 - **Responsive Design**: Adaptable a dispositivos móviles y desktop
-
-## 🆕 **FASES DE DESARROLLO**
-
-### ✅ **FASE 1: Vista Administrativa** (COMPLETADA)
-- **Objetivo**: El propietario puede ver quién eligió qué números
-- **Funcionalidades implementadas**:
-  - Lista completa de participantes en "Mis Simulaciones"
-  - Visualización: Usuario → Números elegidos
-  - Timestamps de primera participación
-  - Estadísticas: total participantes y números vendidos
-  - Botón "Actualizar" para refrescar datos
-  - Auto-carga automática al ver detalles de rifa
-
-### 📅 **FASE 2: Timestamps Informativos** (PRÓXIMA)
-- **Objetivo**: Mostrar cuándo se eligió cada número
-- **Funcionalidades planificadas**:
-  - Hover sobre números para ver timestamp
-  - Tooltip: "Elegido por [Usuario] el [fecha] a las [hora]"
-
-### 📅 **FASE 3: Gestión de Números** (PLANIFICADA)
-- **Objetivo**: Eliminar números individuales o por usuario
-- **Funcionalidades planificadas**:
-  - Botón eliminar número individual
-  - Botón eliminar todos los números de un usuario
-  - Confirmación antes de eliminar
-
-**🗺️ Roadmap Completo**: Ver [ROADMAP_COMPLETO.md](ROADMAP_COMPLETO.md) para todas las 220 fases planificadas.
-
-## 🎯 Funcionalidades por Sección
-
-### Para Usuarios Anónimos
-- ✅ Simulador de demostración
-- ✅ Visualización de rifas públicas
-- ✅ Acceso por código a rifas privadas
-
-### Para Usuarios Registrados
-- ✅ Crear simulaciones personalizadas
-- ✅ Gestionar rifas (editar, eliminar)
-- ✅ Códigos de acceso únicos
-- ✅ Realizar sorteos automatizados
-- ✅ **NUEVO**: Vista administrativa de participantes
-- ✅ Estadísticas de participación
-
-### API Backend
-- ✅ Autenticación JWT
-- ✅ CRUD completo de rifas
-- ✅ Participación en rifas
-- ✅ Sorteos automatizados
-- ✅ **NUEVO**: Endpoint `/api/rifas/:id/participants` para lista de participantes
-- ✅ Manejo de errores
+- **FASE 2 NUEVA**: **Tooltips con Timestamps** - Información detallada de participaciones
 
 ## 🚀 Demo en Vivo
 
 - **Frontend**: [https://talento-tech-simula-rifas.vercel.app/](https://talento-tech-simula-rifas.vercel.app/)
-- **Repositorio**: [https://github.com/fasmote/TalentoTech-SimulaRifas](https://github.com/fasmote/TalentoTech-SimulaRifas)
+- **Repositorio**: [https://github.com/fasmote/Simulador_rifas_personales](https://github.com/fasmote/Simulador_rifas_personales)
 
 ## 🛠️ Tecnologías Utilizadas
 
@@ -90,7 +37,7 @@ Simula RIFA Personal es una aplicación web educativa que simula el funcionamien
 - **Node.js** - Entorno de ejecución
 - **Express.js** - Framework web
 - **JWT** - Autenticación de usuarios
-- **JSON** - Almacenamiento de datos (migración a Firebase en progreso)
+- **SQLite** - Base de datos (migración a Firebase en progreso)
 - **CORS** - Configuración de dominios cruzados
 
 ### Deploy y Herramientas
@@ -101,25 +48,27 @@ Simula RIFA Personal es una aplicación web educativa que simula el funcionamien
 ## 📁 Estructura del Proyecto
 
 ```
-TT_rifas_LIMPIA_LIMPIA/
-├── public/                  # Archivos estáticos
+SimulaRifas_Personal/
+├── public/                  # Archivos estáticos frontend
 │   ├── css/
-│   │   └── styles.css      # Estilos principales
+│   │   └── styles.css      # Estilos principales + FASE 2 tooltips
 │   ├── js/
-│   │   ├── app.js          # Lógica principal
+│   │   ├── app.js          # Lógica principal + FASE 2 timestamps
 │   │   └── rifas.js        # Funciones de rifas
 │   └── index.html          # Página principal
-├── backend/                 # Servidor Node.js (en desarrollo)
+├── backend/                 # Servidor Node.js
 │   ├── controllers/        # Lógica de negocio
 │   ├── models/             # Modelos de datos
-│   ├── routes/             # Rutas de la API
+│   ├── routes/             # Rutas de la API + FASE 2 endpoints
 │   ├── services/           # Servicios de datos
+│   ├── database/           # Base de datos SQLite
 │   └── server.js           # Servidor principal
 ├── docs/                   # Documentación
+├── CHANGELOG.md            # Registro de cambios por fases
+├── ROADMAP_COMPLETO.md     # Planificación de desarrollo
 ├── .gitignore              # Archivos ignorados
 ├── .env.example            # Variables de entorno
-├── README.md               # Este archivo
-└── PRODUCTO.md             # Requerimientos detallados
+└── README.md               # Este archivo
 ```
 
 ## 🚀 Instalación y Configuración
@@ -133,8 +82,8 @@ TT_rifas_LIMPIA_LIMPIA/
 
 1. **Clonar el repositorio**
    ```bash
-   git clone https://github.com/fasmote/TalentoTech-SimulaRifas.git
-   cd TalentoTech-SimulaRifas
+   git clone https://github.com/fasmote/Simulador_rifas_personales.git
+   cd Simulador_rifas_personales
    ```
 
 2. **Instalar dependencias del backend**
@@ -149,21 +98,30 @@ TT_rifas_LIMPIA_LIMPIA/
    # Editar .env con tus configuraciones
    ```
 
-4. **Iniciar el servidor backend**
+4. **Inicializar base de datos**
+   ```bash
+   npm run init-db
+   npm run demo-content
+   ```
+
+5. **Iniciar el servidor backend**
    ```bash
    npm run dev
    ```
 
-5. **Abrir el frontend**
+6. **Abrir el frontend**
    - Abrir `public/index.html` en el navegador
    - O usar un servidor local como Live Server
+   - URL: `http://localhost:3000`
 
 ### Scripts Disponibles
 
 ```bash
 npm run dev          # Iniciar servidor en modo desarrollo
 npm start            # Iniciar servidor en producción
+npm run init-db      # Inicializar base de datos
 npm run demo-content # Crear contenido de demostración
+npm run reset-demo   # Resetear DB + contenido demo
 npm test             # Ejecutar pruebas
 ```
 
@@ -180,19 +138,6 @@ npm test             # Ejecutar pruebas
 2. **Crear Simulaciones**: Título y descripción personalizados
 3. **Compartir Código**: Código de 6 caracteres para participantes
 4. **Gestionar**: Editar, ver estadísticas y realizar sorteos
-5. **🆕 Vista Administrativa**: Ver lista completa de participantes con números elegidos
-
-### 🆕 **NUEVO - Vista Administrativa (FASE 1)**
-1. **Inicia sesión** y ve a "Mis Simulaciones"
-2. **Haz clic** en "Ver Detalles" de cualquier simulación
-3. **Observa** la sección "👥 Lista de Participantes" (lado izquierdo)
-4. **Visualiza**:
-   - Nombre de cada participante
-   - Números elegidos por participante
-   - Total de números por participante
-   - Fecha de primera participación
-   - Estadísticas globales
-5. **Botón 🔄 Actualizar** para refrescar datos en tiempo real
 
 ### 🔑 Acceso por Código
 1. Ve a "Acceder por Código"
@@ -200,12 +145,19 @@ npm test             # Ejecutar pruebas
 3. Selecciona números y participa
 4. El propietario puede realizar el sorteo
 
+### 🆕 **FASE 2: Tooltips con Timestamps**
+- **Hover sobre números ocupados** para ver información detallada
+- **Formato**: "Elegido por [Usuario] el [fecha] a las [hora]"
+- **Diseño elegante** con animaciones y gradientes
+- **Cursor indicativo** para números con información disponible
+
 ## 🎯 Funcionalidades Principales
 
 ### Para Usuarios Anónimos
 - ✅ Simulador de demostración
 - ✅ Visualización de rifas públicas
 - ✅ Acceso por código a rifas privadas
+- ✅ **NUEVO**: Tooltips informativos en hover
 
 ### Para Usuarios Registrados
 - ✅ Crear simulaciones personalizadas
@@ -213,6 +165,8 @@ npm test             # Ejecutar pruebas
 - ✅ Códigos de acceso únicos
 - ✅ Realizar sorteos automatizados
 - ✅ Estadísticas de participación
+- ✅ **FASE 1**: Vista administrativa de participantes
+- ✅ **FASE 2**: Información de timestamps detallada
 
 ### API Backend
 - ✅ Autenticación JWT
@@ -220,6 +174,7 @@ npm test             # Ejecutar pruebas
 - ✅ Participación en rifas
 - ✅ Sorteos automatizados
 - ✅ Manejo de errores
+- ✅ **FASE 2**: Endpoints con timestamps formateados
 
 ## 🔧 API Endpoints
 
@@ -246,7 +201,8 @@ DELETE /api/rifas/:id      # Eliminar rifa
 GET  /api/rifas/access/:code     # Acceder por código
 POST /api/rifas/:id/participate  # Participar en rifa
 POST /api/rifas/:id/draw         # Realizar sorteo
-GET  /api/rifas/:id/participants # 🆕 NUEVO: Lista de participantes (solo propietario)
+GET  /api/rifas/:id/numbers      # FASE 2: Números con timestamps
+GET  /api/rifas/:id/participants # FASE 1: Lista de participantes
 ```
 
 ## 🔒 Seguridad y Consideraciones
@@ -269,29 +225,50 @@ GET  /api/rifas/:id/participants # 🆕 NUEVO: Lista de participantes (solo prop
 - Sistema de autenticación
 - CRUD de rifas y usuarios
 - Simulador interactivo
-- Deploy en Vercel
-- **🆕 FASE 1**: Vista administrativa de participantes
+- **FASE 1**: Vista administrativa de participantes
+- **FASE 2**: Tooltips con timestamps informativos
 
 ### 🔄 En Progreso
-- **FASE 2**: Timestamps informativos (hover en números)
-- **FASE 3**: Gestión de números (eliminar individual/por usuario)
-- **Migración**: Firebase/Firestore (planificada)
+- **FASE 3**: Gestión avanzada de números
+- API RESTful independiente
+- Migración a Firebase/Firestore
 
 ### 📋 Próximas Features
+- **FASE 3**: Eliminar números individuales/por usuario
 - **FASE 4**: Colores por participante
 - **FASE 5**: Layout responsivo mejorado
-- **FASE 6**: Botón sorteo directo
 - Notificaciones push
 - Analytics de rifas
-- Exportación de resultados
 - Modo oscuro
-- Internacionalización
 
-**🗺️ Ver roadmap completo**: [ROADMAP_COMPLETO.md](ROADMAP_COMPLETO.md) - 220 fases planificadas
+## 🗺️ Roadmap de Desarrollo
+
+El proyecto sigue un roadmap estructurado en **200 fases** organizadas en **11 bloques**:
+
+### **BLOQUE I: FUNDACIÓN SÓLIDA** *(Fases 1-20)*
+- ✅ **FASE 1**: Vista Administrativa *(COMPLETADA)*
+- ✅ **FASE 2**: Timestamps Informativos *(COMPLETADA)*
+- 🔄 **FASE 3**: Gestión de Números *(En desarrollo)*
+
+### **BLOQUE II: EXPERIENCIA PREMIUM** *(Fases 21-40)*
+- Temas y personalización
+- PWA y funcionalidades móviles
+
+Para ver el roadmap completo, consulta [ROADMAP_COMPLETO.md](ROADMAP_COMPLETO.md)
+
+## 📊 Registro de Cambios
+
+Para ver todos los cambios detallados por fase, consulta [CHANGELOG.md](CHANGELOG.md)
+
+### Últimos Cambios (FASE 2)
+- ✅ **Backend**: Endpoint `/api/rifas/:id/numbers` con timestamps
+- ✅ **Frontend**: Tooltips interactivos con información de participaciones
+- ✅ **CSS**: Estilos elegantes con animaciones y efectos hover
+- ✅ **UX**: Cursor indicativo para números con información disponible
 
 ## 🤝 Contribución
 
-Este proyecto es parte de un curso educativo, pero las contribuciones son bienvenidas:
+Este es un proyecto personal de aprendizaje, pero las contribuciones son bienvenidas:
 
 1. Fork del repositorio
 2. Crear rama feature (`git checkout -b feature/AmazingFeature`)
@@ -305,30 +282,37 @@ Este proyecto está bajo la Licencia MIT. Ver `LICENSE` para más detalles.
 
 ## 👨‍💻 Autor
 
-**Claudio** - Estudiante TalentoTech Node.js
+**Claudio** - Desarrollador Full Stack
 - GitHub: [@fasmote](https://github.com/fasmote)
-- Proyecto: [TalentoTech-SimulaRifas](https://github.com/fasmote/TalentoTech-SimulaRifas)
+- Proyecto: [Simulador_rifas_personales](https://github.com/fasmote/Simulador_rifas_personales)
 
 ## 🙏 Agradecimientos
 
-- **TalentoTech** por la excelente formación en Node.js
-- **Profesores y compañeros** por el apoyo constante
 - **Comunidad open source** por las herramientas utilizadas
+- **MDN Web Docs** por la documentación completa
+- **Node.js Community** por el ecosistema robusto
 
 ## 📞 Soporte
 
 Si tienes problemas o preguntas:
 
 1. Revisa la documentación en `PRODUCTO.md`
-2. Busca en [Issues](https://github.com/fasmote/TalentoTech-SimulaRifas/issues)
+2. Busca en [Issues](https://github.com/fasmote/Simulador_rifas_personales/issues)
 3. Crea un nuevo issue si es necesario
+
+## 🔗 Links Útiles
+
+- [Documentación Técnica](PRODUCTO.md)
+- [Roadmap Completo](ROADMAP_COMPLETO.md)
+- [Registro de Cambios](CHANGELOG.md)
+- [Demo en Vivo](https://talento-tech-simula-rifas.vercel.app/)
 
 ---
 
 <div align="center">
 
-**🎲 SimulaRifas - Aprendiendo Node.js con TalentoTech 🎲**
+**🎲 SimulaRifas - Proyecto Personal de Desarrollo Full-Stack 🎲**
 
-[Demo](https://talento-tech-simula-rifas.vercel.app/) • [Documentación](PRODUCTO.md) • [Reporte de Bug](https://github.com/fasmote/TalentoTech-SimulaRifas/issues)
+[Demo](https://talento-tech-simula-rifas.vercel.app/) • [Documentación](PRODUCTO.md) • [Reporte de Bug](https://github.com/fasmote/Simulador_rifas_personales/issues)
 
 </div>
