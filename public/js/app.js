@@ -1249,6 +1249,17 @@ async function viewRifa(rifaId) {
                         <p style="margin: 5px 0;">• Progreso: ${progressPercent}%</p>
                         <p style="margin: 5px 0;">• Código de acceso: ${rifa.access_code || 'No disponible'}</p>
                     </div>
+                    
+                    <!-- FASE 1: Lista de Participantes -->
+                    <div style="margin-top: 20px; padding: 15px; background: #e8f5e8; border-radius: 8px; border-left: 4px solid #4caf50;">
+                        <h4 style="color: #333; margin-bottom: 15px; display: flex; align-items: center;">
+                            <span style="margin-right: 8px;">👥</span> Lista de Participantes
+                            <button class="btn" onclick="loadParticipants(${rifaId})" style="background: #4caf50; color: white; padding: 5px 10px; font-size: 0.8rem; margin-left: 10px;">🔄 Actualizar</button>
+                        </h4>
+                        <div id="participantsList" style="max-height: 300px; overflow-y: auto;">
+                            <p style="color: #666; text-align: center; font-style: italic;">Cargando participantes...</p>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="cart-section">
@@ -1304,6 +1315,9 @@ async function viewRifa(rifaId) {
         `;
         
         console.log('✅ [DEBUG] Vista cargada exitosamente');
+        
+        // FASE 1: Cargar automáticamente la lista de participantes
+        setTimeout(() => loadParticipants(rifaId), 500);
         
     } catch (error) {
         console.error('❌ [ERROR] Error en viewRifa:', error);
@@ -1526,6 +1540,80 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+// FASE 1: Cargar lista de participantes (Vista Administrativa)
+async function loadParticipants(rifaId) {
+    const participantsList = document.getElementById('participantsList');
+    if (!participantsList) return;
+    
+    participantsList.innerHTML = '<p style="color: #666; text-align: center; font-style: italic;">Cargando participantes...</p>';
+    
+    try {
+        const response = await fetch(`${API_BASE}/rifas/${rifaId}/participants`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            
+            if (data.participants && data.participants.length > 0) {
+                const participantsHtml = data.participants.map(participant => {
+                    const numbersDisplay = participant.numbers.sort((a, b) => a - b)
+                        .map(num => `<span style="background: #4caf50; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; margin: 1px;">${num.toString().padStart(2, '0')}</span>`)
+                        .join(' ');
+                    
+                    return `
+                        <div style="background: white; border-radius: 8px; padding: 12px; margin-bottom: 10px; border-left: 4px solid #4caf50; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 8px;">
+                                <strong style="color: #333; font-size: 1rem;">${participant.name}</strong>
+                                <span style="background: #e8f5e8; color: #2e7d32; padding: 4px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: bold;">
+                                    ${participant.total_numbers} número${participant.total_numbers !== 1 ? 's' : ''}
+                                </span>
+                            </div>
+                            <div style="margin-top: 8px;">
+                                ${numbersDisplay}
+                            </div>
+                            <div style="font-size: 0.75rem; color: #888; margin-top: 8px;">
+                                Primera participación: ${new Date(participant.first_participation).toLocaleString('es-AR')}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                participantsList.innerHTML = `
+                    <div style="margin-bottom: 15px; text-align: center; font-size: 0.9rem; color: #666;">
+                        Total: <strong>${data.total_participants} participante${data.total_participants !== 1 ? 's' : ''}</strong> | 
+                        <strong>${data.total_numbers_sold} número${data.total_numbers_sold !== 1 ? 's' : ''}</strong> seleccionado${data.total_numbers_sold !== 1 ? 's' : ''}
+                    </div>
+                    ${participantsHtml}
+                `;
+            } else {
+                participantsList.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #666;">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">👥</div>
+                        <p style="margin: 0; font-style: italic;">Aún no hay participantes en esta simulación</p>
+                    </div>
+                `;
+            }
+        } else {
+            const error = await response.json();
+            participantsList.innerHTML = `
+                <div style="text-align: center; padding: 15px; background: #ffebee; border-radius: 8px; color: #c62828;">
+                    ❌ Error: ${error.error || 'No se pudieron cargar los participantes'}
+                </div>
+            `;
+        }
+    } catch (error) {
+        console.error('Error cargando participantes:', error);
+        participantsList.innerHTML = `
+            <div style="text-align: center; padding: 15px; background: #ffebee; border-radius: 8px; color: #c62828;">
+                ❌ Error de conexión
+            </div>
+        `;
+    }
+}
 
 // NUEVA FUNCIÓN: Copiar código al portapapeles
 async function copyCode(code) {

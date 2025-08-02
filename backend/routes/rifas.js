@@ -559,6 +559,53 @@ router.post('/:id/participate', async (req, res) => {
     }
 });
 
+// FASE 1: Obtener lista de participantes agrupada por usuario (solo propietario)
+router.get('/:id/participants', authenticateToken, async (req, res) => {
+    try {
+        const rifaId = req.params.id;
+
+        // Verificar que la simulación pertenece al usuario
+        const rifa = await getQuery(
+            'SELECT * FROM rifas WHERE id = ? AND user_id = ?',
+            [rifaId, req.user.id]
+        );
+
+        if (!rifa) {
+            return res.status(404).json({ error: 'Simulación no encontrada o no tienes permisos' });
+        }
+
+        // Obtener participantes agrupados por nombre
+        const participants = await allQuery(`
+            SELECT 
+                participant_name,
+                GROUP_CONCAT(number ORDER BY number) as numbers,
+                COUNT(*) as total_numbers,
+                MIN(selected_at) as first_participation
+            FROM rifa_numbers 
+            WHERE rifa_id = ? 
+            GROUP BY participant_name
+            ORDER BY first_participation ASC
+        `, [rifaId]);
+
+        // Procesar los números para cada participante
+        const participantsFormatted = participants.map(participant => ({
+            name: participant.participant_name,
+            numbers: participant.numbers ? participant.numbers.split(',').map(num => parseInt(num)) : [],
+            total_numbers: participant.total_numbers,
+            first_participation: participant.first_participation
+        }));
+
+        res.json({ 
+            participants: participantsFormatted,
+            total_participants: participants.length,
+            total_numbers_sold: participants.reduce((sum, p) => sum + p.total_numbers, 0)
+        });
+    } catch (error) {
+        console.error('Error obteniendo participantes:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
+
 // Regenerar código de acceso
 router.post('/:id/regenerate-code', authenticateToken, async (req, res) => {
     try {

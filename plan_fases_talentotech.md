@@ -19,15 +19,25 @@ Cumplir con los requerimientos del PDF del proyecto final:
 
 ---
 
-## 🚨 **Estado Actual - Fase 15g**
+## 💥 **Estado Actual - FASE 1 COMPLETADA**
 
-### **✅ PROBLEMAS RESUELTOS**
+### **✅ FASE 1: Vista Administrativa - COMPLETADA (Agosto 2025)**
+- **✅ Funcionalidad implementada**: Lista de participantes para propietarios
+- **✅ Archivo modificado**: `public/js/app.js` - Nueva función `loadParticipants()`
+- **✅ Backend**: Ruta `/api/rifas/:id/participants` ya existía
+- **✅ UI**: Sección "Lista de Participantes" en "Mis Simulaciones"
+- **✅ Features**: Timestamps, estadísticas, botón actualizar, auto-carga
+
+### **✅ PROBLEMAS RESUELTOS ANTERIORMENTE**
 - ✅ **Funcionalidad "Crear"** - Era hardcodeada, ahora funcional
 - ✅ **Función viewRifa()** - Corregido endpoint de `/rifas/:id` a `/rifas/my/:id`
 - ✅ **Función editRifa()** - Usando endpoint correcto `/rifas/my/:id`
 - ✅ **Event listeners** - Formularios de crear y editar funcionando
 - ✅ **Backend endpoints** - Agregado `/rifas/my/:id` para rifas del usuario
 - ✅ **Acceso por código** - Corregido problema de IDs duplicados y event listeners
+
+### **📅 PRÓXIMA FASE**
+- **FASE 2**: Timestamps informativos (hover en números para ver cuándo fueron elegidos)
 
 ### **🟡 MEJORAS NECESARIAS**
 - 🟡 Sección "Rifas Públicas" requiere contenido demo

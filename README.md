@@ -1,14 +1,17 @@
-# 🎲 SimulaRifas - TalentoTech
+# 🎲 Simula RIFA Personal - TalentoTech
 
-![Estado del Proyecto](https://img.shields.io/badge/Estado-En%20Desarrollo-yellow)
-![Versión](https://img.shields.io/badge/Versión-1.0.0-blue)
+![Estado del Proyecto](https://img.shields.io/badge/Estado-En%20Desarrollo%20Activo-brightgreen)
+![Versión](https://img.shields.io/badge/Versión-1.1.0--FASE1-blue)
 ![Licencia](https://img.shields.io/badge/Licencia-MIT-green)
+![Roadmap](https://img.shields.io/badge/Roadmap-FASE%201%20COMPLETADA-success)
 
 **Simulador de Rifas Educativo** - Proyecto Final Integrador del curso Node.js de TalentoTech
 
 ## 📋 Descripción
 
-SimulaRifas es una aplicación web educativa que simula el funcionamiento de rifas y sorteos sin involucrar dinero real. Desarrollada como proyecto final para el curso de Node.js de TalentoTech, implementa una arquitectura completa con frontend interactivo y backend robusto.
+Simula RIFA Personal es una aplicación web educativa que simula el funcionamiento de rifas y sorteos sin involucrar dinero real. Desarrollada como proyecto final para el curso de Node.js de TalentoTech, implementa una arquitectura completa con frontend interactivo y backend robusto.
+
+**🚀 NUEVO**: Implementación de roadmap por fases con mejoras incrementales.
 
 ### 🎯 Características Principales
 
@@ -16,8 +19,59 @@ SimulaRifas es una aplicación web educativa que simula el funcionamiento de rif
 - **Gestión de Usuarios**: Sistema de autenticación con JWT
 - **Rifas Privadas**: Creación y gestión de simulaciones con códigos de acceso
 - **Rifas Públicas**: Contenido de demostración accesible sin registro
+- **🆕 Vista Administrativa (FASE 1)**: Lista completa de participantes para el propietario
 - **API RESTful**: Backend modular con arquitectura MVC
 - **Responsive Design**: Adaptable a dispositivos móviles y desktop
+
+## 🆕 **FASES DE DESARROLLO**
+
+### ✅ **FASE 1: Vista Administrativa** (COMPLETADA)
+- **Objetivo**: El propietario puede ver quién eligió qué números
+- **Funcionalidades implementadas**:
+  - Lista completa de participantes en "Mis Simulaciones"
+  - Visualización: Usuario → Números elegidos
+  - Timestamps de primera participación
+  - Estadísticas: total participantes y números vendidos
+  - Botón "Actualizar" para refrescar datos
+  - Auto-carga automática al ver detalles de rifa
+
+### 📅 **FASE 2: Timestamps Informativos** (PRÓXIMA)
+- **Objetivo**: Mostrar cuándo se eligió cada número
+- **Funcionalidades planificadas**:
+  - Hover sobre números para ver timestamp
+  - Tooltip: "Elegido por [Usuario] el [fecha] a las [hora]"
+
+### 📅 **FASE 3: Gestión de Números** (PLANIFICADA)
+- **Objetivo**: Eliminar números individuales o por usuario
+- **Funcionalidades planificadas**:
+  - Botón eliminar número individual
+  - Botón eliminar todos los números de un usuario
+  - Confirmación antes de eliminar
+
+**🗺️ Roadmap Completo**: Ver [ROADMAP_COMPLETO.md](ROADMAP_COMPLETO.md) para todas las 220 fases planificadas.
+
+## 🎯 Funcionalidades por Sección
+
+### Para Usuarios Anónimos
+- ✅ Simulador de demostración
+- ✅ Visualización de rifas públicas
+- ✅ Acceso por código a rifas privadas
+
+### Para Usuarios Registrados
+- ✅ Crear simulaciones personalizadas
+- ✅ Gestionar rifas (editar, eliminar)
+- ✅ Códigos de acceso únicos
+- ✅ Realizar sorteos automatizados
+- ✅ **NUEVO**: Vista administrativa de participantes
+- ✅ Estadísticas de participación
+
+### API Backend
+- ✅ Autenticación JWT
+- ✅ CRUD completo de rifas
+- ✅ Participación en rifas
+- ✅ Sorteos automatizados
+- ✅ **NUEVO**: Endpoint `/api/rifas/:id/participants` para lista de participantes
+- ✅ Manejo de errores
 
 ## 🚀 Demo en Vivo
 
@@ -126,6 +180,19 @@ npm test             # Ejecutar pruebas
 2. **Crear Simulaciones**: Título y descripción personalizados
 3. **Compartir Código**: Código de 6 caracteres para participantes
 4. **Gestionar**: Editar, ver estadísticas y realizar sorteos
+5. **🆕 Vista Administrativa**: Ver lista completa de participantes con números elegidos
+
+### 🆕 **NUEVO - Vista Administrativa (FASE 1)**
+1. **Inicia sesión** y ve a "Mis Simulaciones"
+2. **Haz clic** en "Ver Detalles" de cualquier simulación
+3. **Observa** la sección "👥 Lista de Participantes" (lado izquierdo)
+4. **Visualiza**:
+   - Nombre de cada participante
+   - Números elegidos por participante
+   - Total de números por participante
+   - Fecha de primera participación
+   - Estadísticas globales
+5. **Botón 🔄 Actualizar** para refrescar datos en tiempo real
 
 ### 🔑 Acceso por Código
 1. Ve a "Acceder por Código"
@@ -179,6 +246,7 @@ DELETE /api/rifas/:id      # Eliminar rifa
 GET  /api/rifas/access/:code     # Acceder por código
 POST /api/rifas/:id/participate  # Participar en rifa
 POST /api/rifas/:id/draw         # Realizar sorteo
+GET  /api/rifas/:id/participants # 🆕 NUEVO: Lista de participantes (solo propietario)
 ```
 
 ## 🔒 Seguridad y Consideraciones
@@ -202,18 +270,24 @@ POST /api/rifas/:id/draw         # Realizar sorteo
 - CRUD de rifas y usuarios
 - Simulador interactivo
 - Deploy en Vercel
+- **🆕 FASE 1**: Vista administrativa de participantes
 
 ### 🔄 En Progreso
-- **Fase 16**: Arquitectura MVC backend
-- **Fase 17**: API RESTful independiente
-- **Fase 18**: Migración a Firebase/Firestore
+- **FASE 2**: Timestamps informativos (hover en números)
+- **FASE 3**: Gestión de números (eliminar individual/por usuario)
+- **Migración**: Firebase/Firestore (planificada)
 
 ### 📋 Próximas Features
+- **FASE 4**: Colores por participante
+- **FASE 5**: Layout responsivo mejorado
+- **FASE 6**: Botón sorteo directo
 - Notificaciones push
 - Analytics de rifas
 - Exportación de resultados
 - Modo oscuro
 - Internacionalización
+
+**🗺️ Ver roadmap completo**: [ROADMAP_COMPLETO.md](ROADMAP_COMPLETO.md) - 220 fases planificadas
 
 ## 🤝 Contribución
 

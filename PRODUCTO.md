@@ -1,17 +1,20 @@
-# PRODUCTO - SimulaRifas TalentoTech
-## Proyecto Final Integrador Node.js
+# PRODUCTO - Simula RIFA Personal TalentoTech
+## Proyecto Final Integrador Node.js + Roadmap de Mejoras
 
 ### 📋 **Información del Proyecto**
-- **Nombre**: SimulaRifas - Simulador de Rifas Educativo
+- **Nombre**: Simula RIFA Personal - Simulador de Rifas Educativo
 - **Curso**: TalentoTech - Programación Backend con Node.js
 - **Repositorio**: https://github.com/fasmote/TalentoTech-SimulaRifas.git
 - **Deploy**: [URL de producción - Vercel]
+- **🆕 Versión Actual**: 1.1.0-FASE1 (Vista Administrativa implementada)
 
 ---
 
 ## 🎯 **Descripción del Producto**
 
-**SimulaRifas** es una aplicación web educativa que simula el funcionamiento de rifas y sorteos sin involucrar dinero real. Diseñada con fines educativos para aprender desarrollo web full-stack, cumpliendo con la normativa argentina de juegos.
+**Simula RIFA Personal** es una aplicación web educativa que simula el funcionamiento de rifas y sorteos sin involucrar dinero real. Diseñada con fines educativos para aprender desarrollo web full-stack, cumpliendo con la normativa argentina de juegos.
+
+**🚀 NOVEDAD**: Implementación de roadmap estructurado con 220 fases de mejoras incrementales.
 
 ### **Funcionalidades Principales**
 
@@ -36,7 +39,46 @@
 - Vista de todas las simulaciones creadas
 - Estadísticas de participación
 - Exportación de resultados
-- Gestión de participantes
+- **🆕 NUEVO (FASE 1)**: Gestión detallada de participantes
+
+---
+
+## 🆕 **FASES DE DESARROLLO IMPLEMENTADAS**
+
+### ✅ **FASE 1: Vista Administrativa** (COMPLETADA - Agosto 2025)
+
+**Objetivo**: Permitir al propietario ver quién eligió qué números en sus simulaciones.
+
+**Funcionalidades implementadas**:
+- **Lista de participantes**: Sección dedicada en "Mis Simulaciones"
+- **Visualización clara**: Usuario → Números elegidos
+- **Timestamps**: Fecha y hora de primera participación
+- **Estadísticas**: Total participantes y números vendidos
+- **Actualización manual**: Botón "Actualizar" para refrescar datos
+- **Auto-carga**: Datos se cargan automáticamente al ver detalles
+
+**Archivos modificados**:
+- `public/js/app.js` - Nueva función `loadParticipants()`
+- Backend ya tenía ruta `/api/rifas/:id/participants` implementada
+
+**Beneficios**:
+- ✅ Transparencia total para organizadores
+- ✅ Control completo de participaciones
+- ✅ Base sólida para futuras mejoras
+- ✅ Experiencia de usuario mejorada
+
+### 📅 **PRÓXIMAS FASES PLANIFICADAS**
+
+**FASE 2: Timestamps Informativos**
+- Hover sobre números para ver cuándo fueron elegidos
+- Tooltip: "Elegido por [Usuario] el [fecha] a las [hora]"
+
+**FASE 3: Gestión de Números**
+- Eliminar números individuales
+- Eliminar todos los números de un usuario
+- Confirmaciones antes de eliminar
+
+**🗺️ Roadmap Completo**: Ver [ROADMAP_COMPLETO.md](ROADMAP_COMPLETO.md) para las 220 fases planificadas.
 
 ---
 
@@ -62,6 +104,7 @@
 - **DELETE** `/api/rifas/:id` - Eliminar rifa
 - **POST** `/api/rifas/:id/participate` - Participar en rifa
 - **POST** `/api/rifas/:id/draw` - Realizar sorteo
+- **🆕 GET** `/api/rifas/:id/participants` - **NUEVO**: Lista de participantes (FASE 1)
 
 #### ✅ **3. Autenticación y Seguridad**
 - Tokens JWT para autenticación
