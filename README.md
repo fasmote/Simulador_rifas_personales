@@ -1,7 +1,7 @@
 # 🎲 SimulaRifas - Proyecto Personal
 
 ![Estado del Proyecto](https://img.shields.io/badge/Estado-En%20Desarrollo%20Activo-brightgreen)
-![Versión](https://img.shields.io/badge/Versión-2.0%20FASE%202-blue)
+![Versión](https://img.shields.io/badge/Versión-3.0%20FASE%203-blue)
 ![Licencia](https://img.shields.io/badge/Licencia-MIT-green)
 
 **Simulador de Rifas Educativo** - Proyecto personal de desarrollo full-stack con Node.js
@@ -18,7 +18,8 @@ SimulaRifas es una aplicación web educativa que simula el funcionamiento de rif
 - **Rifas Públicas**: Contenido de demostración accesible sin registro
 - **API RESTful**: Backend modular con arquitectura MVC
 - **Responsive Design**: Adaptable a dispositivos móviles y desktop
-- **FASE 2 NUEVA**: **Tooltips con Timestamps** - Información detallada de participaciones
+- **FASE 3 NUEVA**: **Gestión de Números** - Eliminar números individuales o por usuario
+- **FASE 2**: **Tooltips con Timestamps** - Información detallada de participaciones
 
 ## 🚀 Demo en Vivo
 
@@ -51,15 +52,15 @@ SimulaRifas es una aplicación web educativa que simula el funcionamiento de rif
 SimulaRifas_Personal/
 ├── public/                  # Archivos estáticos frontend
 │   ├── css/
-│   │   └── styles.css      # Estilos principales + FASE 2 tooltips
+│   │   └── styles.css      # Estilos principales + FASE 2 tooltips + FASE 3 modales
 │   ├── js/
-│   │   ├── app.js          # Lógica principal + FASE 2 timestamps
+│   │   ├── app.js          # Lógica principal + FASE 2 timestamps + FASE 3 gestión
 │   │   └── rifas.js        # Funciones de rifas
 │   └── index.html          # Página principal
 ├── backend/                 # Servidor Node.js
 │   ├── controllers/        # Lógica de negocio
 │   ├── models/             # Modelos de datos
-│   ├── routes/             # Rutas de la API + FASE 2 endpoints
+│   ├── routes/             # Rutas de la API + FASE 2 endpoints + FASE 3 DELETE
 │   ├── services/           # Servicios de datos
 │   ├── database/           # Base de datos SQLite
 │   └── server.js           # Servidor principal
@@ -151,6 +152,12 @@ npm test             # Ejecutar pruebas
 - **Diseño elegante** con animaciones y gradientes
 - **Cursor indicativo** para números con información disponible
 
+### 🆕 **FASE 3: Gestión de Números**
+- **Botón "X"** en números ocupados de la grilla para eliminar individual
+- **Botón "Eliminar todos"** por usuario en lista de participantes
+- **Modal de confirmación elegante** con gradientes y animaciones
+- **Auto-actualización** de vista después de eliminaciones
+
 ## 🎯 Funcionalidades Principales
 
 ### Para Usuarios Anónimos
@@ -167,6 +174,7 @@ npm test             # Ejecutar pruebas
 - ✅ Estadísticas de participación
 - ✅ **FASE 1**: Vista administrativa de participantes
 - ✅ **FASE 2**: Información de timestamps detallada
+- ✅ **FASE 3**: Gestión completa de números (eliminar individual/por usuario)
 
 ### API Backend
 - ✅ Autenticación JWT
@@ -175,6 +183,7 @@ npm test             # Ejecutar pruebas
 - ✅ Sorteos automatizados
 - ✅ Manejo de errores
 - ✅ **FASE 2**: Endpoints con timestamps formateados
+- ✅ **FASE 3**: Endpoints DELETE para gestión de números
 
 ## 🔧 API Endpoints
 
@@ -203,6 +212,8 @@ POST /api/rifas/:id/participate  # Participar en rifa
 POST /api/rifas/:id/draw         # Realizar sorteo
 GET  /api/rifas/:id/numbers      # FASE 2: Números con timestamps
 GET  /api/rifas/:id/participants # FASE 1: Lista de participantes
+DELETE /api/rifas/:id/numbers/:number # FASE 3: Eliminar número individual
+DELETE /api/rifas/:id/participants/:user/numbers # FASE 3: Eliminar todos los números de usuario
 ```
 
 ## 🔒 Seguridad y Consideraciones
@@ -227,16 +238,17 @@ GET  /api/rifas/:id/participants # FASE 1: Lista de participantes
 - Simulador interactivo
 - **FASE 1**: Vista administrativa de participantes
 - **FASE 2**: Tooltips con timestamps informativos
+- **FASE 3**: Gestión completa de números (eliminar individual/por usuario)
 
 ### 🔄 En Progreso
-- **FASE 3**: Gestión avanzada de números
+- **FASE 4**: Colores por participante
+- **FASE 18**: Migración a Firebase/Firestore
 - API RESTful independiente
-- Migración a Firebase/Firestore
 
 ### 📋 Próximas Features
-- **FASE 3**: Eliminar números individuales/por usuario
-- **FASE 4**: Colores por participante
+- **FASE 4**: Colores únicos por participante
 - **FASE 5**: Layout responsivo mejorado
+- **FASE 6**: Botón sorteo directo
 - Notificaciones push
 - Analytics de rifas
 - Modo oscuro
@@ -248,7 +260,8 @@ El proyecto sigue un roadmap estructurado en **200 fases** organizadas en **11 b
 ### **BLOQUE I: FUNDACIÓN SÓLIDA** *(Fases 1-20)*
 - ✅ **FASE 1**: Vista Administrativa *(COMPLETADA)*
 - ✅ **FASE 2**: Timestamps Informativos *(COMPLETADA)*
-- 🔄 **FASE 3**: Gestión de Números *(En desarrollo)*
+- ✅ **FASE 3**: Gestión de Números *(COMPLETADA)*
+- 📅 **FASE 4**: Colores por Participante *(PRÓXIMA)*
 
 ### **BLOQUE II: EXPERIENCIA PREMIUM** *(Fases 21-40)*
 - Temas y personalización
@@ -260,11 +273,11 @@ Para ver el roadmap completo, consulta [ROADMAP_COMPLETO.md](ROADMAP_COMPLETO.md
 
 Para ver todos los cambios detallados por fase, consulta [CHANGELOG.md](CHANGELOG.md)
 
-### Últimos Cambios (FASE 2)
-- ✅ **Backend**: Endpoint `/api/rifas/:id/numbers` con timestamps
-- ✅ **Frontend**: Tooltips interactivos con información de participaciones
-- ✅ **CSS**: Estilos elegantes con animaciones y efectos hover
-- ✅ **UX**: Cursor indicativo para números con información disponible
+### Últimos Cambios (FASE 3)
+- ✅ **Backend**: Endpoints DELETE para eliminación de números
+- ✅ **Frontend**: Modal de confirmación elegante + botones X en grilla
+- ✅ **Gestión**: Eliminar números individuales o todos por usuario
+- ✅ **UX**: Auto-actualización de vista + feedback visual completo
 
 ## 🤝 Contribución
 
