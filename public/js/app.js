@@ -153,7 +153,7 @@ async function removeAllNumbersFromUser(rifaId, userName) {
         const data = await response.json();
         
         if (response.ok) {
-            showNotification(`Todos los números de ${userName} han sido eliminados`);
+            showNotification(`Todos los números de ${userName} eliminados (${data.total_deleted} números)`);
             // Recargar vista de detalles
             viewRifa(rifaId);
         } else {
