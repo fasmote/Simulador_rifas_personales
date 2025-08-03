@@ -4,6 +4,17 @@ const { authenticateToken, optionalAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
+// FASE 2: Función para formatear fechas con formato argentino
+function formatDateForTooltip(date) {
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
+}
+
 // Función para generar código de acceso
 const generateAccessCode = () => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -610,52 +621,7 @@ router.post('/:id/participate', async (req, res) => {
     }
 });
 
-// FASE 1: Obtener lista de participantes agrupada por usuario (solo propietario)
-router.get('/:id/participants', authenticateToken, async (req, res) => {
-    try {
-        const rifaId = req.params.id;
 
-        // Verificar que la simulación pertenece al usuario
-        const rifa = await getQuery(
-            'SELECT * FROM rifas WHERE id = ? AND user_id = ?',
-            [rifaId, req.user.id]
-        );
-
-        if (!rifa) {
-            return res.status(404).json({ error: 'Simulación no encontrada o no tienes permisos' });
-        }
-
-        // Obtener participantes agrupados por nombre
-        const participants = await allQuery(`
-            SELECT 
-                participant_name,
-                GROUP_CONCAT(number ORDER BY number) as numbers,
-                COUNT(*) as total_numbers,
-                MIN(selected_at) as first_participation
-            FROM rifa_numbers 
-            WHERE rifa_id = ? 
-            GROUP BY participant_name
-            ORDER BY first_participation ASC
-        `, [rifaId]);
-
-        // Procesar los números para cada participante
-        const participantsFormatted = participants.map(participant => ({
-            name: participant.participant_name,
-            numbers: participant.numbers ? participant.numbers.split(',').map(num => parseInt(num)) : [],
-            total_numbers: participant.total_numbers,
-            first_participation: participant.first_participation
-        }));
-
-        res.json({ 
-            participants: participantsFormatted,
-            total_participants: participants.length,
-            total_numbers_sold: participants.reduce((sum, p) => sum + p.total_numbers, 0)
-        });
-    } catch (error) {
-        console.error('Error obteniendo participantes:', error);
-        res.status(500).json({ error: 'Error interno del servidor' });
-    }
-});
 
 // Regenerar código de acceso
 router.post('/:id/regenerate-code', authenticateToken, async (req, res) => {
@@ -696,6 +662,57 @@ router.post('/:id/regenerate-code', authenticateToken, async (req, res) => {
         });
     } catch (error) {
         console.error('Error regenerando código:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
+
+// FASE 1: Obtener lista de participantes (solo propietario)
+router.get('/:id/participants', authenticateToken, async (req, res) => {
+    try {
+        const rifaId = req.params.id;
+
+        console.log(`📋 [FASE 1] Obteniendo participantes para rifa ${rifaId}`);
+
+        // Verificar que la simulación pertenece al usuario
+        const rifa = await getQuery(
+            'SELECT * FROM rifas WHERE id = ? AND user_id = ?',
+            [rifaId, req.user.id]
+        );
+
+        if (!rifa) {
+            return res.status(404).json({ error: 'Simulación no encontrada o no tienes permisos' });
+        }
+
+        // Obtener participantes agrupados
+        const participantsRaw = await allQuery(`
+            SELECT 
+                participant_name,
+                MIN(selected_at) as first_participation,
+                COUNT(*) as total_numbers,
+                GROUP_CONCAT(number ORDER BY number) as numbers_list
+            FROM rifa_numbers 
+            WHERE rifa_id = ? 
+            GROUP BY participant_name 
+            ORDER BY first_participation ASC
+        `, [rifaId]);
+
+        // Formatear datos para el frontend
+        const participants = participantsRaw.map(p => ({
+            participant_name: p.participant_name || 'Usuario sin nombre',
+            first_participation: p.first_participation,
+            total_numbers: p.total_numbers,
+            numbers: p.numbers_list ? p.numbers_list.split(',').map(n => parseInt(n)) : []
+        }));
+
+        console.log(`✅ [FASE 1] ${participants.length} participantes procesados para rifa ${rifaId}`);
+
+        res.json({ 
+            participants,
+            total_participants: participants.length,
+            total_numbers_sold: participants.reduce((sum, p) => sum + p.total_numbers, 0)
+        });
+    } catch (error) {
+        console.error('❌ [ERROR] Error obteniendo participantes:', error);
         res.status(500).json({ error: 'Error interno del servidor' });
     }
 });

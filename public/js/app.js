@@ -2142,14 +2142,14 @@ async function loadParticipants(rifaId) {
         if (response.ok) {
             const data = await response.json();
             console.log(`✅ [FASE 1] ${data.participants.length} participantes cargados`);
-            return data.participants;
+            return data; // Devolver el objeto completo con participants, total_participants, etc.
         } else {
             console.warn('⚠️ [FASE 1] Error cargando participantes');
-            return [];
+            return { participants: [], total_participants: 0, total_numbers_sold: 0 };
         }
     } catch (error) {
         console.error('❌ [FASE 1] Error:', error);
-        return [];
+        return { participants: [], total_participants: 0, total_numbers_sold: 0 };
     }
 }
 
@@ -2208,7 +2208,8 @@ async function viewRifa(rifaId) {
         console.log(`✅ [VIEW RIFA] Procesando: "${rifa.title}" (Status: ${rifa.status})`);
         
         // FASE 1: Cargar participantes
-        const participants = await loadParticipants(rifaId);
+        const participantsData = await loadParticipants(rifaId);
+        const participants = participantsData.participants || [];
         
         // Generar HTML de participantes con botones de eliminación
         let participantsHtml = '';
@@ -2232,7 +2233,7 @@ async function viewRifa(rifaId) {
                         <div>
                             <strong style="color: #333;">${participant.participant_name}</strong>
                             <div style="font-size: 0.85rem; color: #666; margin-top: 2px;">
-                                📅 ${participant.first_participation} • ${participant.total_numbers} número${participant.total_numbers > 1 ? 's' : ''}
+                                📅 ${new Date(participant.first_participation).toLocaleString('es-AR')} • ${participant.total_numbers} número${participant.total_numbers > 1 ? 's' : ''}
                             </div>
                             <div style="font-size: 0.9rem; color: #4caf50; margin-top: 4px; font-family: monospace;">
                                 [${numbersText}]
