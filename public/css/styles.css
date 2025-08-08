@@ -1006,3 +1006,39 @@ h1 {
         transform: translateY(0) scale(1);
     }
 }
+
+/* FASE 3.1a: Modal de confirmación principal */
+.delete-confirmation-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    animation: modalFadeIn 0.2s ease;
+}
+
+.delete-confirmation-content {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    max-width: 420px;
+    width: 90%;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    animation: modalSlideIn 0.3s ease;
+    /* FASE 3.1a: Posición dinámica para evitar tapar el número */
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    transition: all 0.3s ease;
+}
+
+/* FASE 3.1a: Asegurar que los números con botón X tengan posición relativa */
+.number-cell.sold {
+    position: relative;
+}

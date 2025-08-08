@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // ========== FUNCIONES NUEVAS FASE 15C ==========
 
 // FASE 3: Modal de confirmación personalizado
-function showDeleteConfirmation(message, onConfirm) {
+function showDeleteConfirmation(message, onConfirm, event) {
     // Crear modal
     const modal = document.createElement('div');
     modal.className = 'delete-confirmation-modal';
@@ -41,6 +41,29 @@ function showDeleteConfirmation(message, onConfirm) {
     
     // Agregar al DOM
     document.body.appendChild(modal);
+    
+    // FASE 3.1a: Posicionar el modal de manera inteligente
+    const modalContent = modal.querySelector('.delete-confirmation-content');
+    if (event && event.target) {
+        const rect = event.target.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        const viewportWidth = window.innerWidth;
+        
+        // Si el click fue en la mitad superior, mostrar el modal abajo
+        // Si fue en la mitad inferior, mostrar el modal arriba
+        if (rect.top < viewportHeight / 2) {
+            modalContent.style.top = '60%';
+        } else {
+            modalContent.style.top = '30%';
+        }
+        
+        // Ajustar posición horizontal si está muy a los lados
+        if (rect.left < 100) {
+            modalContent.style.left = '55%';
+        } else if (rect.right > viewportWidth - 100) {
+            modalContent.style.left = '45%';
+        }
+    }
     
     // Guardar la función de confirmación
     window.pendingDeleteAction = onConfirm;
@@ -108,16 +131,20 @@ function removeAllUserNumbers(userName, rifaId) {
 }
 
 // FASE 3: Eliminar número desde la grilla principal
-function removeNumberFromGrid(rifaId, number) {
+function removeNumberFromGrid(rifaId, number, event) {
     showDeleteConfirmation(
         `¿Eliminar el número <strong>${number.toString().padStart(2, '0')}</strong>?`,
-        () => removeNumberFromRifa(rifaId, number)
+        () => removeNumberFromRifa(rifaId, number),
+        event
     );
 }
 
 // NUEVO: Función API para eliminar número específico
 async function removeNumberFromRifa(rifaId, number, userName) {
     try {
+        // FASE 3.1a: Guardar posición del scroll antes de recargar
+        const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+        
         const response = await fetch(`${API_BASE}/rifas/${rifaId}/numbers/${number}`, {
             method: 'DELETE',
             headers: {
@@ -128,9 +155,14 @@ async function removeNumberFromRifa(rifaId, number, userName) {
         const data = await response.json();
         
         if (response.ok) {
-            showNotification(`Número ${number} eliminado de ${userName}`);
+            showNotification(`Número ${number} eliminado${userName ? ' de ' + userName : ''}`);
             // Recargar vista de detalles
-            viewRifa(rifaId);
+            await viewRifa(rifaId);
+            
+            // FASE 3.1a: Restaurar posición del scroll después de recargar
+            setTimeout(() => {
+                window.scrollTo(0, scrollPosition);
+            }, 100);
         } else {
             showNotification(data.error || 'Error eliminando número', 'error');
         }
@@ -143,6 +175,9 @@ async function removeNumberFromRifa(rifaId, number, userName) {
 // NUEVO: Función API para eliminar todos los números de un usuario
 async function removeAllNumbersFromUser(rifaId, userName) {
     try {
+        // FASE 3.1a: Guardar posición del scroll antes de recargar
+        const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+        
         const response = await fetch(`${API_BASE}/rifas/${rifaId}/participants/${encodeURIComponent(userName)}/numbers`, {
             method: 'DELETE',
             headers: {
@@ -155,7 +190,12 @@ async function removeAllNumbersFromUser(rifaId, userName) {
         if (response.ok) {
             showNotification(`Todos los números de ${userName} eliminados (${data.total_deleted} números)`);
             // Recargar vista de detalles
-            viewRifa(rifaId);
+            await viewRifa(rifaId);
+            
+            // FASE 3.1a: Restaurar posición del scroll después de recargar
+            setTimeout(() => {
+                window.scrollTo(0, scrollPosition);
+            }, 100);
         } else {
             showNotification(data.error || 'Error eliminando números', 'error');
         }
@@ -1999,7 +2039,8 @@ async function generateRifaGrid(rifa) {
                 deleteBtn.title = `Eliminar número ${i.toString().padStart(2, '0')}`;
                 deleteBtn.onclick = function(e) {
                     e.stopPropagation();
-                    removeNumberFromGrid(rifa.id, i);
+                    // FASE 3.1a: Pasar el evento para posicionar el modal inteligentemente
+                    removeNumberFromGrid(rifa.id, i, e);
                 };
                 cell.appendChild(deleteBtn);
                 
