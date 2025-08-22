@@ -1147,9 +1147,13 @@ async function viewPublicRifa(rifaId) {
                             <h3 class="cart-title">Información</h3>
                         </div>
                         
-                        <div style="margin-bottom: 20px;">
-                            <h4 style="color: #333; margin-bottom: 10px;">📝 Descripción</h4>
-                            <p style="color: #666; line-height: 1.5; font-size: 0.9rem;">${rifa.description}</p>
+                        <!-- FASE 3.2c: Título prominente en vista de participante -->
+                        <div class="rifa-title-section">
+                            <h3 class="rifa-title-main">
+                                <span class="rifa-title-emoji">🎯</span>
+                                ${rifa.title}
+                            </h3>
+                            <p class="rifa-description-text">${rifa.description}</p>
                         </div>
                         
                         <div class="rifa-progress" style="margin-bottom: 20px;">
@@ -1375,6 +1379,16 @@ async function viewRifa(rifaId) {
                         <h3 class="cart-title">${isCompleted ? 'Resultado Final' : 'Información'}</h3>
                     </div>
                     
+                    <!-- FASE 3.2d: Título prominente en panel de información -->
+                    <div style="margin-bottom: 20px; padding: 15px; background: linear-gradient(135deg, #f8f9fa, #e9ecef); border-radius: 10px; border-left: 4px solid #667eea; text-align: center;">
+                        <h3 style="color: #333; margin: 0 0 8px 0; font-size: 1.2rem; font-weight: bold;">
+                            🎯 ${rifa.title}
+                        </h3>
+                        <p style="color: #666; margin: 0; font-style: italic; font-size: 0.9rem;">
+                            ${rifa.description}
+                        </p>
+                    </div>
+                    
                     ${isCompleted ? `
                     <div style="margin-bottom: 20px; padding: 15px; background: #fff3cd; border-radius: 8px; text-align: center; border: 2px solid #ffd700;">
                         <h4 style="color: #856404; margin: 0 0 10px 0; font-size: 1.1rem;">🏆 ¡GANADOR!</h4>
@@ -1382,9 +1396,13 @@ async function viewRifa(rifaId) {
                         <p style="color: #856404; margin: 0; font-weight: bold; font-size: 1.1rem;">${rifa.winner.participant_name}</p>
                     </div>` : ''}
                     
-                    <div style="margin-bottom: 20px;">
-                        <h4 style="color: #333; margin-bottom: 10px;">📝 Descripción</h4>
-                        <p style="color: #666; line-height: 1.5;">${rifa.description}</p>
+                    <!-- FASE 3.2c: Título prominente de la rifa -->
+                    <div class="rifa-title-section">
+                        <h3 class="rifa-title-main">
+                            <span class="rifa-title-emoji">🎯</span>
+                            ${rifa.title}
+                        </h3>
+                        <p class="rifa-description-text">${rifa.description}</p>
                     </div>
                     
                     <div style="margin-bottom: 20px;">
@@ -1829,9 +1847,13 @@ async function viewRifaByCode(rifa, accessCode) {
     const creatorDisplay = creatorName.charAt(0).toUpperCase() + creatorName.slice(1);
     
     document.getElementById('mainContainer').innerHTML = `
-        <div class="page-header">
-            <h1>🎯 ${rifa.title}</h1>
-            <p class="subtitle">Simulación privada - Acceso por código: ${accessCode}</p>
+        <!-- FASE 3.2c: Título prominente con nuevas clases CSS -->
+        <div class="rifa-title-section">
+            <h1 class="rifa-title-main">
+                <span class="rifa-title-emoji">🎯</span>
+                ${rifa.title}
+            </h1>
+            <p class="rifa-description-text">Simulación privada - Acceso por código: ${accessCode}</p>
             
             <!-- FEAT FASE 15W-PLUS: Badge del creador visible -->
             <div style="background: linear-gradient(45deg, #667eea, #764ba2); color: white; padding: 12px 20px; border-radius: 25px; display: inline-block; margin: 15px 0; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
@@ -1877,12 +1899,21 @@ async function viewRifaByCode(rifa, accessCode) {
             </div>
             
             <div class="cart-section">
-                <div class="cart-header">
-                    <span class="cart-icon">🎯</span>
-                    <h3 class="cart-title">${isCompleted ? 'Resultado Final' : 'Números Seleccionados'}</h3>
-                    <div class="cart-count" id="cartCount">0</div>
+            <div class="cart-header">
+            <span class="cart-icon">🎯</span>
+            <h3 class="cart-title">Información</h3>
+            </div>
+            
+                <!-- FASE 3.2e: Título prominente en panel derecho -->
+                <div style="background: linear-gradient(135deg, #f8f9fa, #e9ecef); border-radius: 10px; padding: 15px; margin-bottom: 20px; border-left: 4px solid #667eea; text-align: center;">
+                    <h3 style="color: #333; margin: 0 0 8px 0; font-size: 1.3rem; font-weight: bold;">
+                    🎯 ${rifa.title}
+                </h3>
+                <p style="color: #666; margin: 0; font-style: italic; font-size: 0.9rem;">
+                        ${rifa.description}
+                    </p>
                 </div>
-                
+            
                 ${isCompleted ? `
                 <div style="margin-bottom: 20px; padding: 15px; background: #fff3cd; border-radius: 8px; text-align: center; border: 2px solid #ffd700;">
                     <h4 style="color: #856404; margin: 0 0 10px 0; font-size: 1.1rem;">🏆 ¡GANADOR!</h4>
@@ -1891,15 +1922,16 @@ async function viewRifaByCode(rifa, accessCode) {
                 </div>
                 ` : ''}
                 
+                <div class="cart-header" style="margin-top: 20px;">
+                    <span class="cart-icon">📋</span>
+                    <h3 class="cart-title">${isCompleted ? 'Resultado Final' : 'Números Seleccionados'}</h3>
+                    <div class="cart-count" id="cartCount">0</div>
+                </div>
+                
                 <div class="cart-items" id="cartItems">
                     <div class="empty-cart">
                         No has seleccionado números aún
                     </div>
-                </div>
-                
-                <div style="margin-bottom: 20px;">
-                    <h4 style="color: #333; margin-bottom: 10px;">📝 Descripción</h4>
-                    <p style="color: #666; line-height: 1.5;">${rifa.description}</p>
                 </div>
                 
                 <!-- FEAT FASE 15W-PLUS: Información del creador en sidebar -->
@@ -2303,9 +2335,13 @@ async function viewRifa(rifaId) {
         
         // Renderizar vista completa
         document.getElementById('mainContainer').innerHTML = `
-            <div class="page-header">
-                <h1>🎯 ${rifa.title}</h1>
-                <p class="subtitle">${rifa.description}</p>
+            <!-- FASE 3.2c: Título prominente con nuevas clases CSS -->
+            <div class="rifa-title-section">
+                <h1 class="rifa-title-main">
+                    <span class="rifa-title-emoji">🎯</span>
+                    ${rifa.title}
+                </h1>
+                <p class="rifa-description-text">${rifa.description}</p>
                 ${isCompleted ? `<p style="background: #4caf50; color: white; padding: 10px; border-radius: 8px; text-align: center; margin-top: 10px;">
                     🏆 ¡SIMULACIÓN COMPLETADA! Ganador: Número ${winnerNumber} (${rifa.winner ? rifa.winner.participant_name : 'N/A'})
                 </p>` : ''}
@@ -2343,17 +2379,21 @@ async function viewRifa(rifaId) {
                         <h3 class="cart-title">${isCompleted ? 'Resultado Final' : 'Información'}</h3>
                     </div>
                     
+                    <!-- FASE 3.2c: Título prominente PRINCIPAL en el panel derecho -->
+                    <div class="rifa-title-section">
+                        <h3 class="rifa-title-main">
+                            <span class="rifa-title-emoji">🎯</span>
+                            ${rifa.title}
+                        </h3>
+                        <p class="rifa-description-text">${rifa.description}</p>
+                    </div>
+                    
                     ${isCompleted ? `
                     <div style="margin-bottom: 20px; padding: 15px; background: #fff3cd; border-radius: 8px; text-align: center; border: 2px solid #ffd700;">
                         <h4 style="color: #856404; margin: 0 0 10px 0; font-size: 1.1rem;">🏆 ¡GANADOR!</h4>
                         <div style="font-size: 2.5rem; font-weight: bold; color: #ffd700; margin: 10px 0;">${winnerNumber}</div>
                         <p style="color: #856404; margin: 0; font-weight: bold; font-size: 1.1rem;">${rifa.winner ? rifa.winner.participant_name : 'N/A'}</p>
                     </div>` : ''}
-                    
-                    <div style="margin-bottom: 20px;">
-                        <h4 style="color: #333; margin-bottom: 10px;">📝 Descripción</h4>
-                        <p style="color: #666; line-height: 1.5;">${rifa.description}</p>
-                    </div>
                     
                     <div style="margin-bottom: 20px;">
                         <h4 style="color: #333; margin-bottom: 10px;">📈 Progreso</h4>

@@ -1042,3 +1042,78 @@ h1 {
 .number-cell.sold {
     position: relative;
 }
+
+/* FASE 3.2c: Estilos para títulos prominentes de rifas */
+.page-header {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 25px 30px;
+    border-radius: 15px;
+    margin-bottom: 25px;
+    text-align: center;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.page-header h1 {
+    font-size: 2.2rem;
+    font-weight: bold;
+    margin: 0 0 10px 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    line-height: 1.2;
+}
+
+.page-header .subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin: 0;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+/* FASE 3.2c: Título de rifa PROMINENTE y VISIBLE */
+.rifa-title-section {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border-radius: 15px;
+    padding: 25px 30px;
+    margin-bottom: 25px;
+    border-left: 5px solid #ffffff;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    text-align: center;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.rifa-title-main {
+    color: white;
+    font-size: 2.2rem;
+    font-weight: bold;
+    margin: 0 0 10px 0;
+    line-height: 1.2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.rifa-title-emoji {
+    font-size: 2.5rem;
+    animation: pulse 2s infinite;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.rifa-description-text {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.1rem;
+    line-height: 1.5;
+    margin: 0;
+    font-style: italic;
+    font-weight: 500;
+}
+
+/* Animación para el emoji del título */
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
