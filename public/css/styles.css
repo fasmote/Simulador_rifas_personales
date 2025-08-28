@@ -567,6 +567,36 @@ h1 {
     margin-bottom: 30px;
 }
 
+/* FASE 5: Rifas grid responsivo */
+@media (max-width: 768px) {
+    .rifas-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        margin-bottom: 25px;
+    }
+}
+
+@media (max-width: 480px) {
+    .rifas-grid {
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .rifa-card {
+        padding: 20px;
+        border-radius: 12px;
+    }
+    
+    .rifa-card h3 {
+        font-size: 1.2rem;
+    }
+    
+    .rifa-description {
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+}
+
 .rifa-card {
     background: white;
     border-radius: 15px;
@@ -766,21 +796,30 @@ h1 {
         font-size: 2rem;
     }
 
+    /* FASE 5: Grid optimizado para tablets */
     .numbers-grid {
         grid-template-columns: repeat(10, 1fr);
+        gap: 6px;
+        max-width: 100%;
+        margin: 0 auto;
     }
 
     .number-cell {
-        font-size: 1rem;
+        font-size: 0.95rem;
+        min-height: 40px;
+        border-width: 1px;
     }
 
     .controls {
         justify-content: center;
+        flex-wrap: wrap;
+        gap: 8px;
     }
 
     .btn {
-        padding: 10px 16px;
+        padding: 12px 20px;
         font-size: 0.9rem;
+        min-width: 120px;
     }
 }
 
@@ -808,17 +847,77 @@ h1 {
         display: none;
     }
 
+    /* FASE 5: Grid optimizado para moviles pequenos */
     .numbers-grid {
         grid-template-columns: repeat(8, 1fr);
-        gap: 4px;
+        gap: 3px;
+        padding: 0 5px;
     }
 
     .number-cell {
+        font-size: 0.85rem;
+        min-height: 35px;
+        border-radius: 6px;
+        font-weight: 600;
+    }
+    
+    /* FASE 5: Botones mas grandes para touch */
+    .btn {
+        padding: 14px 24px;
+        font-size: 1rem;
+        min-width: 140px;
+        border-radius: 10px;
+        margin: 5px;
+    }
+    
+    /* FASE 5: Controles mas espaciados */
+    .controls {
+        gap: 12px;
+        margin-bottom: 25px;
+    }
+    
+    /* FASE 5: Titulos mas pequenos en movil */
+    .page-header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .rifa-title-main {
+        font-size: 1.8rem;
+        flex-direction: column;
+        gap: 8px;
+    }
+}
+
+/* ========== FASE 5: BREAKPOINT ADICIONAL PARA TABLETS ========== */
+@media (min-width: 481px) and (max-width: 1024px) {
+    /* FASE 5: Optimización específica para tablets */
+    .main-content {
+        grid-template-columns: 1fr 300px;
+        gap: 25px;
+    }
+    
+    .numbers-grid {
+        grid-template-columns: repeat(10, 1fr);
+        gap: 5px;
+    }
+    
+    .number-cell {
         font-size: 0.9rem;
+        min-height: 38px;
+    }
+    
+    .btn {
+        padding: 11px 18px;
+        font-size: 0.95rem;
+    }
+    
+    .container {
+        padding: 15px;
     }
 }
 
 /* FASE 2: Estilos para tooltips con timestamps */
+/* FASE 5: Tooltips responsivos mejorados */
 /* Estos estilos proporcionan una experiencia visual elegante
    para los tooltips que muestran información de participaciones */
 
@@ -865,6 +964,26 @@ h1 {
     }
 }
 
+/* FASE 5: Media queries para tooltips responsivos */
+@media (max-width: 768px) {
+    .custom-tooltip {
+        font-size: 0.8rem;
+        padding: 6px 10px;
+        max-width: 250px;
+        white-space: normal;
+        word-wrap: break-word;
+    }
+}
+
+@media (max-width: 480px) {
+    .custom-tooltip {
+        font-size: 0.75rem;
+        padding: 5px 8px;
+        max-width: 200px;
+        border-radius: 6px;
+    }
+}
+
 /* FASE 2: Mejorar hover de números ocupados para indicar tooltip disponible */
 /* Estos estilos mejoran la UX indicando que hay información disponible */
 
@@ -902,10 +1021,12 @@ h1 {
     padding: 24px;
     max-width: 400px;
     min-width: 300px;
+    width: 90%;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     text-align: center;
     transform: translateY(-10px);
     animation: modalSlideIn 0.3s ease-out;
+    margin: 0 10px;
 }
 
 .delete-confirmation-title {
@@ -1004,6 +1125,54 @@ h1 {
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
+    }
+}
+
+/* FASE 5: Media queries para modales responsivos */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        max-width: 90vw;
+        padding: 30px 20px;
+        margin: 0 10px;
+    }
+    
+    .delete-confirmation-content {
+        padding: 20px;
+        min-width: 250px;
+        width: 95%;
+        max-width: 90vw;
+    }
+    
+    .delete-confirmation-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .delete-confirmation-btn {
+        width: 100%;
+        padding: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-content {
+        padding: 25px 15px;
+        border-radius: 15px;
+    }
+    
+    .delete-confirmation-content {
+        padding: 18px;
+        min-width: 200px;
+        border-radius: 10px;
+    }
+    
+    .delete-confirmation-title {
+        font-size: 1.1rem;
+    }
+    
+    .delete-confirmation-message {
+        font-size: 0.9rem;
     }
 }
 
