@@ -11,6 +11,8 @@ let accessedByCode = false;
 let numbersWithTooltips = [];
 // FASE 3: Variable para indicar si estamos en vista de propietario
 let isOwnerView = false;
+// FASE 4: Variable para mapear usuarios a colores únicos
+let userColorMap = {};
 
 // API Base URL
 const API_BASE = '/api';
@@ -523,7 +525,8 @@ function generateNumbersGrid() {
 
 function toggleNumber(number) {
     const cell = document.getElementById(`number-${number}`);
-    if (!cell || cell.classList.contains('sold')) return;
+    // FASE 4: Verificar si el número está ocupado (sold o cualquier color de usuario)
+    if (!cell || cell.classList.contains('sold') || cell.className.includes('user-color-')) return;
     
     const index = selectedNumbers.indexOf(number);
     
@@ -579,7 +582,8 @@ function selectRandomNumber() {
     for (let i = 0; i <= 99; i++) {
         if (!selectedNumbers.includes(i)) {
             const cell = document.getElementById(`number-${i}`);
-            if (cell && !cell.classList.contains('sold')) {
+            // FASE 4: Verificar que no esté ocupado (sold o cualquier color de usuario)
+            if (cell && !cell.classList.contains('sold') && !cell.className.includes('user-color-')) {
                 available.push(i);
             }
         }
@@ -1992,6 +1996,62 @@ async function viewRifaByCode(rifa, accessCode) {
     updateCart();
 }
 
+// ========== FASE 4: SISTEMA DE COLORES ÚNICOS POR PARTICIPANTE ==========
+
+/**
+ * FASE 4: Asigna un color único a cada participante
+ * Utiliza un sistema de 12 colores rotativos para diferenciar usuarios
+ * @param {string} participantName - Nombre del participante
+ * @returns {number} - Número del color (1-12) para usar en CSS
+ */
+function assignUserColor(participantName) {
+    // Si ya tiene color asignado, devolverlo
+    if (userColorMap[participantName]) {
+        return userColorMap[participantName];
+    }
+    
+    // Obtener todos los colores ya asignados
+    const usedColors = Object.values(userColorMap);
+    
+    // Buscar el primer color disponible (1-12)
+    for (let i = 1; i <= 12; i++) {
+        if (!usedColors.includes(i)) {
+            userColorMap[participantName] = i;
+            console.log(`🎨 [FASE 4] Usuario "${participantName}" asignado color ${i}`);
+            return i;
+        }
+    }
+    
+    // Si todos los colores están usados, usar rotativo
+    const colorNumber = (Object.keys(userColorMap).length % 12) + 1;
+    userColorMap[participantName] = colorNumber;
+    console.log(`🎨 [FASE 4] Usuario "${participantName}" asignado color rotativo ${colorNumber}`);
+    return colorNumber;
+}
+
+/**
+ * FASE 4: Obtiene el color asignado de un participante
+ * @param {string} participantName - Nombre del participante
+ * @returns {number|null} - Número de color asignado o null si no tiene
+ */
+function getUserColor(participantName) {
+    return userColorMap[participantName] || null;
+}
+
+/**
+ * FASE 4: Resetea el mapa de colores de usuarios
+ * Se llama al cargar una nueva rifa para empezar con colores frescos
+ */
+function resetUserColors() {
+    const previousCount = Object.keys(userColorMap).length;
+    userColorMap = {};
+    if (previousCount > 0) {
+        console.log(`🔄 [FASE 4] Mapa de colores reseteado (${previousCount} usuarios)`);
+    }
+}
+
+// ========== FASE 2: TIMESTAMPS Y TOOLTIPS ==========
+
 // FASE 2: Función para obtener números con timestamps desde la API
 // Esta función consulta el endpoint /api/rifas/:id/numbers para obtener
 // información detallada de cada número ocupado incluyendo timestamps
@@ -2018,7 +2078,7 @@ async function loadNumbersWithTimestamps(rifaId) {
     }
 }
 
-// FASE 2: Generar grid con tooltips de timestamps
+// FASE 2 + FASE 4: Generar grid con tooltips de timestamps y colores por usuario
 async function generateRifaGrid(rifa) {
     const grid = document.getElementById('numbersGrid');
     if (!grid) return;
@@ -2028,14 +2088,21 @@ async function generateRifaGrid(rifa) {
     const isCompleted = rifa.status === 'completed';
     const winnerNumber = rifa.winner ? rifa.winner.number : null;
     
+    // FASE 4: Resetear colores para nueva rifa
+    resetUserColors();
+    
     // FASE 2: Cargar números con timestamps
     await loadNumbersWithTimestamps(rifa.id);
     
-    // Crear mapa de números con sus tooltips
+    // FASE 2 + FASE 4: Crear mapas de números con tooltips y participantes
     const tooltipMap = {};
+    const participantMap = {}; // FASE 4: Mapa número -> participante
     numbersWithTooltips.forEach(numData => {
         tooltipMap[numData.number] = numData.tooltip;
+        participantMap[numData.number] = numData.participant_name; // FASE 4: Guardar participante
     });
+    
+    console.log(`🎨 [FASE 4] Procesando ${Object.keys(participantMap).length} números con participantes`);
     
     for (let i = 0; i <= 99; i++) {
         const cell = document.createElement('div');
@@ -2048,7 +2115,17 @@ async function generateRifaGrid(rifa) {
         if (isWinner) {
             cell.className = 'number-cell winner';
         } else if (isSelected) {
-            cell.className = 'number-cell sold';
+            // FASE 4: Asignar color único por participante en lugar de 'sold' genérico
+            const participantName = participantMap[i];
+            if (participantName) {
+                const colorNumber = assignUserColor(participantName);
+                cell.className = `number-cell user-color-${colorNumber}`;
+                console.log(`🎨 [FASE 4] Número ${i} -> ${participantName} -> color-${colorNumber}`);
+            } else {
+                // Fallback a sold si no hay participante identificado
+                cell.className = 'number-cell sold';
+                console.warn(`⚠️ [FASE 4] Número ${i} sin participante identificado, usando 'sold'`);
+            }
             
             // FASE 2: Agregar tooltip con timestamp para números ocupados
             if (tooltipMap[i]) {
@@ -2088,7 +2165,12 @@ async function generateRifaGrid(rifa) {
         grid.appendChild(cell);
     }
     
-    console.log('🎯 [FASE 2] Grid generado con', Object.keys(tooltipMap).length, 'tooltips');
+    console.log(`🎯 [FASE 4] Grid generado con ${Object.keys(tooltipMap).length} tooltips y ${Object.keys(userColorMap).length} usuarios con colores únicos`);
+    
+    // FASE 4: Mostrar mapa de colores en consola para debug
+    if (Object.keys(userColorMap).length > 0) {
+        console.log('🎨 [FASE 4] Mapa de colores de usuarios:', userColorMap);
+    }
 }
 
 // FASE 2: Funciones para mostrar/ocultar tooltips personalizados

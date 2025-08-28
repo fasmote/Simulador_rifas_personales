@@ -46,6 +46,20 @@
 - **Diseño elegante** con gradientes y animaciones
 - **Cursor indicativo** para números con información disponible
 
+#### 🗑️ **Gestión Avanzada de Números (FASE 3)**
+- **Eliminación individual**: Botones × visibles en cada número ocupado
+- **Eliminación masiva**: Botón "Eliminar todos" por usuario
+- **Modal de confirmación**: Elegante con posicionamiento inteligente
+- **Auto-actualización**: Vista se recarga automáticamente
+- **Animaciones**: Efectos hover y active en botones de eliminación
+
+#### 🎨 **Colores por Participante (FASE 4)**
+- **12 colores únicos**: Gradientes distintivos para cada participante
+- **Asignación automática**: Cada usuario recibe un color del 1 al 12
+- **Identificación visual**: Fácil reconocimiento de participantes
+- **Mapa persistente**: Colores se mantienen durante toda la sesión
+- **Reseteo inteligente**: Colores se reinician al cambiar de simulación
+
 #### 🗑️ **Gestión de Números (FASE 3)**
 - **Eliminación individual** con botones "X" en números ocupados de la grilla
 - **Eliminación masiva** con botón "Eliminar todos" por usuario
