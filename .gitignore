@@ -101,8 +101,12 @@ ACTIVAR_*.bat
 EJECUTAR_*.bat
 INICIAR.bat
 
+# Carpetas locales de usuario (screenshots y logs personales)
+_screenshot/
+_log/
+
 # Mantener solo archivos esenciales para producción
 # README.md - ✓
-# PRODUCTO.md - ✓  
+# PRODUCTO.md - ✓
 # LICENSE - ✓
 # .env.example - ✓
