@@ -13,6 +13,10 @@ let numbersWithTooltips = [];
 let isOwnerView = false;
 // FASE 4: Variable para mapear usuarios a colores únicos
 let userColorMap = {};
+// FASE 4.1: Variable para modo de visualización de colores
+// 'simple' = 2 colores (ocupado/disponible)
+// 'multi' = 12 colores únicos por participante
+let colorMode = 'multi'; // Por defecto, modo multi-color (FASE 4)
 
 // API Base URL
 const API_BASE = '/api';
@@ -1843,9 +1847,10 @@ async function handleAccessCodeSubmit(e) {
 // ========== FUNCIÓN ACCESO POR CÓDIGO ==========
 
 async function viewRifaByCode(rifa, accessCode) {
+    currentRifa = rifa; // FASE 4.1: Guardar rifa actual para toggleColorMode()
     const isCompleted = rifa.status === 'completed';
     const winnerNumber = rifa.winner ? rifa.winner.number : null;
-    
+
     // FEAT FASE 15W-PLUS: Información del creador
     const creatorName = rifa.creator_username || rifa.creator_name || 'Usuario Anónimo';
     const creatorDisplay = creatorName.charAt(0).toUpperCase() + creatorName.slice(1);
@@ -1883,6 +1888,28 @@ async function viewRifaByCode(rifa, accessCode) {
         
         <div style="display: grid; grid-template-columns: 1fr 350px; gap: 30px;" class="rifa-details-grid">
             <div class="numbers-section">
+                <!-- FASE 4.1: Toggle para modo de colores (también en vista por código) -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+                    <h3 style="margin: 0;">🎯 Números de la Simulación</h3>
+                    <div class="color-mode-toggle-container">
+                        <span class="color-mode-label">Visualización:</span>
+                        <div class="color-mode-toggle">
+                            <button
+                                class="color-mode-btn ${colorMode === 'simple' ? 'active' : ''}"
+                                onclick="toggleColorMode('simple')"
+                                title="Modo simple: 2 colores (ocupado/disponible)">
+                                2 colores
+                            </button>
+                            <button
+                                class="color-mode-btn ${colorMode === 'multi' ? 'active' : ''}"
+                                onclick="toggleColorMode('multi')"
+                                title="Modo multi-color: color único por participante">
+                                ${Object.keys(userColorMap).length || 12} colores
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="controls">
                     <button class="btn btn-secondary" onclick="selectRandomNumberForCode()">
                         🎯 Elegir al Azar
@@ -1896,7 +1923,7 @@ async function viewRifaByCode(rifa, accessCode) {
                     </button>
                     ` : ''}
                 </div>
-                
+
                 <div class="numbers-grid" id="numbersGrid">
                     <!-- Los números se generan con JavaScript -->
                 </div>
@@ -2050,6 +2077,60 @@ function resetUserColors() {
     }
 }
 
+// ========== FASE 4.1: TOGGLE DE MODOS DE COLOR ==========
+
+/**
+ * FASE 4.1: Cambia entre modo simple (2 colores) y modo multi-color (12 colores)
+ *
+ * @param {string} mode - 'simple' o 'multi'
+ *
+ * Funcionalidad:
+ * - Modo 'simple': Todos los números ocupados usan la misma clase 'sold' (gris)
+ * - Modo 'multi': Cada participante tiene un color único (user-color-1 a user-color-12)
+ *
+ * Educativo:
+ * Esta función es un ejemplo de cómo manejar diferentes modos de visualización
+ * sin recargar la página. Usa manipulación del DOM para actualizar los estilos
+ * de los botones del toggle y regenera la grilla con el nuevo modo.
+ *
+ * Proceso:
+ * 1. Actualiza la variable global colorMode
+ * 2. Actualiza las clases CSS de los botones del toggle (active/inactive)
+ * 3. Regenera la grilla de números con el nuevo modo de color
+ */
+function toggleColorMode(mode) {
+    // Validar que el modo sea válido
+    if (mode !== 'simple' && mode !== 'multi') {
+        console.error('❌ [FASE 4.1] Modo inválido:', mode);
+        return;
+    }
+
+    // Actualizar variable global
+    colorMode = mode;
+    console.log(`🎨 [FASE 4.1] Modo de color cambiado a: ${mode}`);
+
+    // Actualizar clases active de los botones del toggle
+    // Buscamos todos los botones del toggle en el documento
+    const buttons = document.querySelectorAll('.color-mode-btn');
+    buttons.forEach(btn => {
+        // Obtenemos el onclick del botón para saber qué modo representa
+        const btnMode = btn.getAttribute('onclick').includes("'simple'") ? 'simple' : 'multi';
+
+        // Agregar o quitar clase 'active' según corresponda
+        if (btnMode === mode) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+
+    // Regenerar la grilla con el nuevo modo
+    // currentRifa es una variable global que contiene la rifa actual
+    if (currentRifa) {
+        generateRifaGrid(currentRifa);
+    }
+}
+
 // ========== FASE 2: TIMESTAMPS Y TOOLTIPS ==========
 
 // FASE 2: Función para obtener números con timestamps desde la API
@@ -2115,16 +2196,24 @@ async function generateRifaGrid(rifa) {
         if (isWinner) {
             cell.className = 'number-cell winner';
         } else if (isSelected) {
-            // FASE 4: Asignar color único por participante en lugar de 'sold' genérico
+            // FASE 4.1: Respetar modo de color seleccionado
             const participantName = participantMap[i];
-            if (participantName) {
-                const colorNumber = assignUserColor(participantName);
-                cell.className = `number-cell user-color-${colorNumber}`;
-                console.log(`🎨 [FASE 4] Número ${i} -> ${participantName} -> color-${colorNumber}`);
-            } else {
-                // Fallback a sold si no hay participante identificado
+
+            if (colorMode === 'simple') {
+                // Modo simple: todos los números ocupados usan la clase 'sold' (gris)
                 cell.className = 'number-cell sold';
-                console.warn(`⚠️ [FASE 4] Número ${i} sin participante identificado, usando 'sold'`);
+                console.log(`🎨 [FASE 4.1] Número ${i} -> modo SIMPLE (sold)`);
+            } else {
+                // Modo multi: asignar color único por participante (FASE 4)
+                if (participantName) {
+                    const colorNumber = assignUserColor(participantName);
+                    cell.className = `number-cell user-color-${colorNumber}`;
+                    console.log(`🎨 [FASE 4.1] Número ${i} -> ${participantName} -> color-${colorNumber} (modo MULTI)`);
+                } else {
+                    // Fallback a sold si no hay participante identificado
+                    cell.className = 'number-cell sold';
+                    console.warn(`⚠️ [FASE 4.1] Número ${i} sin participante identificado, usando 'sold'`);
+                }
             }
             
             // FASE 2: Agregar tooltip con timestamp para números ocupados
@@ -2356,10 +2445,11 @@ async function viewRifa(rifaId) {
         }
         
         const rifa = data.rifa;
+        currentRifa = rifa; // FASE 4.1: Guardar rifa actual para toggleColorMode()
         const isCompleted = rifa.status === 'completed';
         const winnerNumber = rifa.winner ? rifa.winner.number : null;
         const progressPercent = Math.round((rifa.numbers_sold / 100) * 100);
-        
+
         console.log(`✅ [VIEW RIFA] Procesando: "${rifa.title}" (Status: ${rifa.status})`);
         
         // FASE 1: Cargar participantes
@@ -2440,7 +2530,29 @@ async function viewRifa(rifaId) {
             
             <div style="display: grid; grid-template-columns: 1fr 350px; gap: 30px;" class="rifa-details-grid">
                 <div class="numbers-section">
-                    <h3 style="margin-bottom: 15px;">🎯 Números de la Simulación</h3>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+                        <h3 style="margin: 0;">🎯 Números de la Simulación</h3>
+
+                        <!-- FASE 4.1: Toggle para modo de colores -->
+                        <div class="color-mode-toggle-container">
+                            <span class="color-mode-label">Visualización:</span>
+                            <div class="color-mode-toggle">
+                                <button
+                                    class="color-mode-btn ${colorMode === 'simple' ? 'active' : ''}"
+                                    onclick="toggleColorMode('simple')"
+                                    title="Modo simple: 2 colores (ocupado/disponible)">
+                                    2 colores
+                                </button>
+                                <button
+                                    class="color-mode-btn ${colorMode === 'multi' ? 'active' : ''}"
+                                    onclick="toggleColorMode('multi')"
+                                    title="Modo multi-color: color único por participante">
+                                    ${Object.keys(userColorMap).length || 12} colores
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="numbers-grid" id="numbersGrid">
                         <!-- Se genera con generateRifaGrid() -->
                     </div>

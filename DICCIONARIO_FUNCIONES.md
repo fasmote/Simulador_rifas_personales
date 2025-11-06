@@ -93,6 +93,48 @@ graph TB
 | `showDeleteConfirmation()` | app.js:25 | - | `.delete-confirmation-modal` |
 | `removeNumberFromGrid()` | app.js:125 | DELETE /api/rifas/:id/numbers/:number | Grid con botón X |
 
+### 🎨 **FASE 4: Colores por Participante**
+| Función | Archivo | Propósito | CSS |
+|---------|---------|-----------|-----|
+| `assignUserColor(participantName)` | app.js:2033 | Asigna color único a usuario | `.user-color-1` a `.user-color-12` |
+| `getUserColor(participantName)` | app.js:2063 | Obtiene color asignado | - |
+| `resetUserColors()` | app.js:2071 | Resetea mapa de colores | Variable `userColorMap` |
+
+**Variables globales relacionadas:**
+- `userColorMap` (app.js:15): Objeto que mapea usuario → número de color (1-12)
+- **12 colores únicos** definidos en `styles.css` (líneas 1100-1240)
+
+### 🎚️ **FASE 4.1: Toggle de Modos de Color**
+| Función | Archivo | Propósito | CSS Responsive |
+|---------|---------|-----------|----------------|
+| `toggleColorMode(mode)` | app.js:2100 | Cambia entre modo simple/multi | `.color-mode-toggle`, `.color-mode-btn` |
+
+**Variables globales relacionadas:**
+- `colorMode` (app.js:19): String 'simple' o 'multi' para modo de visualización
+- `currentRifa` (app.js:7): Rifa actual para regenerar grilla
+
+**Modos disponibles:**
+- **'simple'**: 2 colores (disponible/ocupado) - clase `.sold`
+- **'multi'**: 12 colores únicos por participante - clases `.user-color-1` a `.user-color-12`
+
+**CSS Relacionado:**
+| Clase CSS | Archivo | Propósito | Responsive |
+|-----------|---------|-----------|------------|
+| `.color-mode-toggle-container` | styles.css:1304 | Container principal | Flexbox con wrap |
+| `.color-mode-label` | styles.css:1317 | Label "Visualización:" | Oculto en mobile < 480px |
+| `.color-mode-toggle` | styles.css:1330 | Grupo de botones | Background gris claro |
+| `.color-mode-btn` | styles.css:1344 | Botones individuales | Padding adaptativo |
+| `.color-mode-btn.active` | styles.css:1372 | Botón seleccionado | Gradiente morado/azul |
+
+**Media Queries:**
+- `@media (max-width: 768px)`: Reduce padding y fuente en tablets
+- `@media (max-width: 480px)`: Oculta label, optimiza botones
+- `@media (max-width: 360px)`: Padding mínimo para móviles pequeños
+
+**Integración:**
+- Toggle visible en `viewRifa()` (línea 2450) y `viewRifaByCode()` (línea 1892)
+- Modifica comportamiento de `generateRifaGrid()` (línea 2201-2216)
+
 ### 🔔 **SISTEMA DE NOTIFICACIONES**
 | Función | Archivo | Propósito | CSS |
 |---------|---------|-----------|-----|
@@ -194,6 +236,31 @@ rifa_numbers: id, rifa_id, participant_name, number, selected_at
 .grid-number-delete - Botón X en grilla
 ```
 
+### **🎨 FASE 4: Colores por Participante**
+```css
+.user-color-1 - Gradiente azul/cyan (Primer usuario)
+.user-color-2 - Gradiente verde/esmeralda
+.user-color-3 - Gradiente amarillo/naranja
+.user-color-4 - Gradiente rojo/rosa
+.user-color-5 - Gradiente púrpura/violeta
+.user-color-6 - Gradiente índigo/azul profundo
+.user-color-7 - Gradiente turquesa/menta
+.user-color-8 - Gradiente coral/salmón
+.user-color-9 - Gradiente lavanda/lila
+.user-color-10 - Gradiente dorado/ámbar
+.user-color-11 - Gradiente magenta/fucsia
+.user-color-12 - Gradiente teal/verde azulado
+```
+
+### **🎚️ FASE 4.1: Toggle de Colores**
+```css
+.color-mode-toggle-container - Container toggle (flexbox)
+.color-mode-label - Label "Visualización:"
+.color-mode-toggle - Grupo de botones
+.color-mode-btn - Botón individual
+.color-mode-btn.active - Botón seleccionado
+```
+
 ---
 
 ## 🚦 **ESTADO ACTUAL DEL PROYECTO**
@@ -203,6 +270,8 @@ rifa_numbers: id, rifa_id, participant_name, number, selected_at
 - ✅ **FASE 1**: Vista administrativa con lista de participantes
 - ✅ **FASE 2**: Tooltips con timestamps informativos
 - ✅ **FASE 3**: Gestión de números con eliminación individual/masiva
+- ✅ **FASE 4**: Colores únicos por participante (12 gradientes)
+- ✅ **FASE 4.1**: Toggle de modos de color (simple/multi-color)
 
 ### **🐛 BUGS CORREGIDOS EN FASE 3**
 - ✅ **"undefined" en participantes**: Problema de referencia corregido
@@ -211,8 +280,9 @@ rifa_numbers: id, rifa_id, participant_name, number, selected_at
 - ✅ **Función loadParticipants**: Corregida estructura de retorno
 
 ### **🎯 PRÓXIMAS FASES**
-- 📅 **FASE 4**: Colores únicos por participante
 - 📅 **FASE 5**: Layout responsivo mejorado
+- 📅 **FASE 6**: Botón sorteo directo desde "Mis Simulaciones"
+- 📅 **FASE 7**: Sistema de fechas programadas
 - 📅 **FASE 18**: Migración a Firebase/Firestore
 
 ---
@@ -228,6 +298,14 @@ console.log('Numbers with Tooltips:', numbersWithTooltips);
 
 // FASE 3: Debug eliminación
 console.log('🗑️ [DELETE] Eliminando número:', number, 'de usuario:', userName);
+
+// FASE 4: Debug colores
+console.log('🎨 [FASE 4] Mapa de colores:', userColorMap);
+console.log('🎨 [FASE 4] Color de usuario:', getUserColor('nombreUsuario'));
+
+// FASE 4.1: Debug toggle de modos
+console.log('🎚️ [FASE 4.1] Modo de color actual:', colorMode);
+console.log('🎚️ [FASE 4.1] Rifa actual:', currentRifa);
 ```
 
 ### **Network Tab**
