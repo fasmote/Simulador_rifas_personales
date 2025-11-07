@@ -1888,25 +1888,20 @@ async function viewRifaByCode(rifa, accessCode) {
         
         <div style="display: grid; grid-template-columns: 1fr 350px; gap: 30px;" class="rifa-details-grid">
             <div class="numbers-section">
-                <!-- FASE 4.1: Toggle para modo de colores (también en vista por código) -->
+                <!-- FASE 4.1: Toggle switch 3D para modo de colores (también en vista por código) -->
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
                     <h3 style="margin: 0;">🎯 Números de la Simulación</h3>
-                    <div class="color-mode-toggle-container">
-                        <span class="color-mode-label">Visualización:</span>
-                        <div class="color-mode-toggle">
-                            <button
-                                class="color-mode-btn ${colorMode === 'simple' ? 'active' : ''}"
-                                onclick="toggleColorMode('simple')"
-                                title="Modo simple: 2 colores (ocupado/disponible)">
-                                2 colores
-                            </button>
-                            <button
-                                class="color-mode-btn ${colorMode === 'multi' ? 'active' : ''}"
-                                onclick="toggleColorMode('multi')"
-                                title="Modo multi-color: color único por participante">
-                                ${Object.keys(userColorMap).length || 12} colores
-                            </button>
-                        </div>
+                    <div class="color-toggle-switch-container">
+                        <span class="color-toggle-label">Colores únicos:</span>
+                        <label class="color-toggle-switch">
+                            <input
+                                type="checkbox"
+                                id="colorModeSwitch"
+                                ${colorMode === 'multi' ? 'checked' : ''}
+                                onchange="toggleColorMode(this.checked ? 'multi' : 'simple')">
+                            <span class="color-toggle-slider"></span>
+                        </label>
+                        <span class="color-toggle-status">${colorMode === 'multi' ? 'ON' : 'OFF'}</span>
                     </div>
                 </div>
 
@@ -2109,19 +2104,20 @@ function toggleColorMode(mode) {
     colorMode = mode;
     console.log(`🎨 [FASE 4.1] Modo de color cambiado a: ${mode}`);
 
-    // Actualizar clases active de los botones del toggle
-    // Buscamos todos los botones del toggle en el documento
-    const buttons = document.querySelectorAll('.color-mode-btn');
-    buttons.forEach(btn => {
-        // Obtenemos el onclick del botón para saber qué modo representa
-        const btnMode = btn.getAttribute('onclick').includes("'simple'") ? 'simple' : 'multi';
+    // Actualizar estado del switch (checkbox)
+    // El switch debe estar checked cuando mode === 'multi'
+    const switchCheckbox = document.getElementById('colorModeSwitch');
+    if (switchCheckbox) {
+        switchCheckbox.checked = (mode === 'multi');
+    }
 
-        // Agregar o quitar clase 'active' según corresponda
-        if (btnMode === mode) {
-            btn.classList.add('active');
-        } else {
-            btn.classList.remove('active');
-        }
+    // Actualizar texto del status (ON/OFF)
+    // Buscamos todos los elementos de status en el documento
+    const statusElements = document.querySelectorAll('.color-toggle-status');
+    statusElements.forEach(statusEl => {
+        // OFF = modo simple (2 colores)
+        // ON = modo multi (12 colores)
+        statusEl.textContent = (mode === 'multi') ? 'ON' : 'OFF';
     });
 
     // Regenerar la grilla con el nuevo modo
@@ -2533,23 +2529,18 @@ async function viewRifa(rifaId) {
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
                         <h3 style="margin: 0;">🎯 Números de la Simulación</h3>
 
-                        <!-- FASE 4.1: Toggle para modo de colores -->
-                        <div class="color-mode-toggle-container">
-                            <span class="color-mode-label">Visualización:</span>
-                            <div class="color-mode-toggle">
-                                <button
-                                    class="color-mode-btn ${colorMode === 'simple' ? 'active' : ''}"
-                                    onclick="toggleColorMode('simple')"
-                                    title="Modo simple: 2 colores (ocupado/disponible)">
-                                    2 colores
-                                </button>
-                                <button
-                                    class="color-mode-btn ${colorMode === 'multi' ? 'active' : ''}"
-                                    onclick="toggleColorMode('multi')"
-                                    title="Modo multi-color: color único por participante">
-                                    ${Object.keys(userColorMap).length || 12} colores
-                                </button>
-                            </div>
+                        <!-- FASE 4.1: Toggle switch 3D para modo de colores -->
+                        <div class="color-toggle-switch-container">
+                            <span class="color-toggle-label">Colores únicos:</span>
+                            <label class="color-toggle-switch">
+                                <input
+                                    type="checkbox"
+                                    id="colorModeSwitch"
+                                    ${colorMode === 'multi' ? 'checked' : ''}
+                                    onchange="toggleColorMode(this.checked ? 'multi' : 'simple')">
+                                <span class="color-toggle-slider"></span>
+                            </label>
+                            <span class="color-toggle-status">${colorMode === 'multi' ? 'ON' : 'OFF'}</span>
                         </div>
                     </div>
 

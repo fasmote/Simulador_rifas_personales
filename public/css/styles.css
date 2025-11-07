@@ -1292,95 +1292,150 @@ h1 {
 }
 
 /* ========================================
-   FASE 4.1: TOGGLE DE MODOS DE COLOR
+   FASE 4.1: TOGGLE SWITCH 3D PARA MODOS DE COLOR
+   Switch tipo iOS/Android moderno
    ======================================== */
 
 /**
- * Container principal del toggle
- * - Flexbox para alinear label y botones
+ * Container principal del toggle switch
+ * - Flexbox para alinear label, switch y status
  * - Gap para espaciado responsivo
  * - Responsive: se ajusta en mobile y desktop
  */
-.color-mode-toggle-container {
+.color-toggle-switch-container {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     flex-wrap: wrap; /* Permite que se ajuste en pantallas pequeñas */
 }
 
 /**
- * Label descriptivo "Visualización:"
- * - Color gris medio para no competir con los botones
+ * Label "Colores únicos:"
+ * - Color gris medio para no competir con el switch
  * - Tamaño de fuente adecuado
- * - Se oculta en mobile muy pequeño (< 400px)
+ * - Se oculta en mobile muy pequeño (< 480px)
  */
-.color-mode-label {
+.color-toggle-label {
     color: #666;
     font-size: 0.9rem;
     font-weight: 500;
-    white-space: nowrap; /* Evita que se parta el texto */
-}
-
-/**
- * Container de los botones del toggle
- * - Flexbox para alinear botones horizontalmente
- * - Border-radius para apariencia de grupo
- * - Background sutil para agrupar visualmente
- */
-.color-mode-toggle {
-    display: flex;
-    background: #f0f0f0;
-    border-radius: 8px;
-    padding: 3px;
-    gap: 3px;
-}
-
-/**
- * Botones individuales del toggle (2 colores / 12 colores)
- * - Padding adaptativo para diferentes tamaños de pantalla
- * - Transiciones suaves para hover y active
- * - Border-radius para esquinas redondeadas
- */
-.color-mode-btn {
-    padding: 8px 16px;
-    border: none;
-    background: transparent;
-    color: #666;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    border-radius: 6px;
-    transition: all 0.3s ease;
     white-space: nowrap;
 }
 
 /**
- * Efecto hover en botones
- * - Background sutil para feedback visual
+ * Switch principal (contenedor del input checkbox + slider)
+ * - Position relative para el slider absoluto
+ * - Dimensiones del switch: 52px x 28px
  */
-.color-mode-btn:hover {
-    background: rgba(102, 126, 234, 0.1);
-    color: #667eea;
+.color-toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 52px;
+    height: 28px;
 }
 
 /**
- * Estado activo del botón seleccionado
- * - Gradiente vibrante que coincide con el tema del sitio
- * - Color blanco para máximo contraste
- * - Sombra para efecto elevado
+ * Ocultar el checkbox nativo
+ * - Usamos el slider visual en su lugar
+ * - Pero mantenemos funcionalidad del checkbox
  */
-.color-mode-btn.active {
+.color-toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/**
+ * Slider del switch (la parte que se desliza)
+ * - Position absolute para cubrir todo el label
+ * - Background gris cuando está OFF
+ * - Border-radius para forma redondeada
+ * - Transition suave para animación
+ * - Cursor pointer para indicar interactividad
+ * - Box-shadow para efecto 3D
+ */
+.color-toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 28px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/**
+ * Círculo del slider (el botón que se mueve)
+ * - Position absolute dentro del slider
+ * - Tamaño 22px (un poco más pequeño que el slider)
+ * - Background blanco para contraste
+ * - Box-shadow para efecto 3D elevado
+ * - Transition para animación suave al deslizar
+ */
+.color-toggle-slider:before {
+    content: "";
+    position: absolute;
+    height: 22px;
+    width: 22px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/**
+ * Estado hover del slider
+ * - Background ligeramente más oscuro para feedback
+ */
+.color-toggle-switch:hover .color-toggle-slider {
+    background-color: #bbb;
+}
+
+/**
+ * Estado CHECKED (ON) - Modo multi-color activo
+ * - Background con gradiente vibrante (tema del sitio)
+ * - El círculo se mueve a la derecha
+ */
+.color-toggle-switch input:checked + .color-toggle-slider {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    box-shadow: inset 0 2px 6px rgba(102, 126, 234, 0.3);
 }
 
 /**
- * Efecto hover en botón activo
- * - Se mantiene el gradiente pero con sombra más fuerte
+ * Posición del círculo cuando está CHECKED
+ * - Se mueve 24px a la derecha (52px - 22px - 6px)
  */
-.color-mode-btn.active:hover {
-    box-shadow: 0 3px 12px rgba(102, 126, 234, 0.4);
+.color-toggle-switch input:checked + .color-toggle-slider:before {
+    transform: translateX(24px);
+    box-shadow: 0 2px 6px rgba(102, 126, 234, 0.4);
+}
+
+/**
+ * Estado focus para accesibilidad (teclado)
+ * - Outline para navegación con Tab
+ */
+.color-toggle-switch input:focus + .color-toggle-slider {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+/**
+ * Label de status "ON" / "OFF"
+ * - Muestra el estado actual textualmente
+ * - Color dinámico según el estado
+ * - Font bold para visibilidad
+ */
+.color-toggle-status {
+    color: #666;
+    font-size: 0.85rem;
+    font-weight: 600;
+    min-width: 35px; /* Evita saltos de layout entre ON/OFF */
+    text-align: left;
 }
 
 /* ========================================
@@ -1389,48 +1444,64 @@ h1 {
 
 /**
  * Tablets y móviles grandes (< 768px)
- * - Reduce padding en botones para ahorrar espacio
- * - Ajusta tamaño de fuente
+ * - Reduce tamaño de fuente
  */
 @media (max-width: 768px) {
-    .color-mode-btn {
-        padding: 6px 12px;
-        font-size: 0.8rem;
+    .color-toggle-label {
+        font-size: 0.85rem;
     }
 
-    .color-mode-label {
-        font-size: 0.85rem;
+    .color-toggle-status {
+        font-size: 0.8rem;
     }
 }
 
 /**
  * Móviles pequeños (< 480px)
- * - Oculta el label "Visualización:" para ahorrar espacio
- * - Los botones son auto-descriptivos
+ * - Oculta el label "Colores únicos:" para ahorrar espacio
+ * - El switch y status son auto-descriptivos
  */
 @media (max-width: 480px) {
-    .color-mode-label {
-        display: none; /* Ahorra espacio en mobile pequeño */
+    .color-toggle-label {
+        display: none;
     }
 
-    .color-mode-btn {
-        padding: 6px 10px;
-        font-size: 0.75rem;
+    .color-toggle-switch {
+        width: 48px;
+        height: 26px;
+    }
+
+    .color-toggle-slider:before {
+        height: 20px;
+        width: 20px;
+    }
+
+    .color-toggle-switch input:checked + .color-toggle-slider:before {
+        transform: translateX(22px);
     }
 }
 
 /**
  * Móviles muy pequeños (< 360px)
- * - Padding mínimo para caber en pantallas muy pequeñas
+ * - Switch aún más compacto
  */
 @media (max-width: 360px) {
-    .color-mode-btn {
-        padding: 5px 8px;
-        font-size: 0.7rem;
+    .color-toggle-switch {
+        width: 44px;
+        height: 24px;
     }
 
-    .color-mode-toggle {
-        padding: 2px;
-        gap: 2px;
+    .color-toggle-slider:before {
+        height: 18px;
+        width: 18px;
+    }
+
+    .color-toggle-switch input:checked + .color-toggle-slider:before {
+        transform: translateX(20px);
+    }
+
+    .color-toggle-status {
+        font-size: 0.75rem;
+        min-width: 30px;
     }
 }
