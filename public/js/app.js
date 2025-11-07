@@ -119,12 +119,16 @@ function handleDeleteModalKeydown(e) {
  */
 function showNameInputModal() {
     return new Promise((resolve, reject) => {
+        // LOG: Debug para verificar que la función se ejecuta
+        console.log('🎯 [DEBUG] showNameInputModal ejecutándose...');
+
         // Crear modal con el mismo estilo que otros modales de la app
         const modal = document.createElement('div');
         modal.className = 'modal'; // Usa la clase existente de modales
+        modal.id = 'nameInputModal'; // ID único para fácil selección
         modal.style.display = 'flex'; // Mostrar inmediatamente
         modal.innerHTML = `
-            <div class="modal-content name-input-modal">
+            <div class="modal-content">
                 <h2 style="text-align: center; margin-bottom: 10px;">👤 Ingresa tu nombre</h2>
                 <p style="text-align: center; color: #666; margin-bottom: 20px; font-size: 0.9rem;">
                     Para participar en esta simulación, necesitamos tu nombre
@@ -137,9 +141,10 @@ function showNameInputModal() {
                         class="form-input"
                         required
                         autofocus
+                        maxlength="50"
                         style="width: 100%; margin-bottom: 20px;">
                     <div class="modal-buttons">
-                        <button type="button" class="btn btn-secondary" onclick="closeNameInputModal(null)">
+                        <button type="button" class="btn btn-secondary" id="cancelNameBtn">
                             Cancelar
                         </button>
                         <button type="submit" class="btn btn-success">
@@ -152,15 +157,26 @@ function showNameInputModal() {
 
         // Agregar al DOM
         document.body.appendChild(modal);
+        console.log('✅ [DEBUG] Modal agregado al DOM');
 
         // Focus automático en el input
         setTimeout(() => {
             const input = document.getElementById('participantNameInput');
-            if (input) input.focus();
+            if (input) {
+                input.focus();
+                console.log('✅ [DEBUG] Input enfocado');
+            }
         }, 100);
 
-        // Guardar la función resolve en window para acceder desde los botones
-        window.nameInputResolve = resolve;
+        // Función interna para cerrar y resolver
+        const closeAndResolve = (name) => {
+            console.log('🎯 [DEBUG] Cerrando modal con nombre:', name);
+            const modalElement = document.getElementById('nameInputModal');
+            if (modalElement) {
+                modalElement.remove();
+            }
+            resolve(name);
+        };
 
         // Manejar el submit del formulario
         const form = document.getElementById('nameInputForm');
@@ -169,14 +185,22 @@ function showNameInputModal() {
             const input = document.getElementById('participantNameInput');
             const name = input.value.trim();
             if (name) {
-                closeNameInputModal(name);
+                closeAndResolve(name);
+            } else {
+                input.focus();
             }
+        });
+
+        // Botón cancelar
+        const cancelBtn = document.getElementById('cancelNameBtn');
+        cancelBtn.addEventListener('click', () => {
+            closeAndResolve(null);
         });
 
         // Cerrar con ESC
         const handleEsc = (e) => {
             if (e.key === 'Escape') {
-                closeNameInputModal(null);
+                closeAndResolve(null);
                 document.removeEventListener('keydown', handleEsc);
             }
         };
@@ -185,24 +209,23 @@ function showNameInputModal() {
         // Cerrar haciendo click fuera del modal
         modal.addEventListener('click', function(e) {
             if (e.target === modal) {
-                closeNameInputModal(null);
+                closeAndResolve(null);
             }
         });
+
+        console.log('✅ [DEBUG] Event listeners agregados');
     });
 }
 
 /**
- * Cierra el modal de input de nombre y resuelve la promesa
- * @param {string|null} name - Nombre ingresado o null si se cancela
+ * DEPRECATED: Esta función ya no se usa, el modal se cierra internamente
+ * La dejo aquí por compatibilidad pero no debería llamarse
  */
 function closeNameInputModal(name) {
-    const modal = document.querySelector('.modal.name-input-modal, .modal:has(.name-input-modal)');
+    console.warn('⚠️ [DEBUG] closeNameInputModal llamada (deprecated)');
+    const modal = document.getElementById('nameInputModal');
     if (modal) {
         modal.remove();
-    }
-    if (window.nameInputResolve) {
-        window.nameInputResolve(name);
-        window.nameInputResolve = null;
     }
 }
 
