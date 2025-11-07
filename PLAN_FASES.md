@@ -90,6 +90,21 @@ Desarrollar una plataforma completa de simulación de rifas aplicando mejores pr
   - ✅ **Debugging**: Logs detallados en consola para monitoreo
   - ✅ **Compatibilidad**: Botones × (FASE 3) funcionan perfectamente con colores
 
+### **✅ FASE 4.1: Modal Personalizado de Participante - COMPLETADA**
+- **✅ Objetivo**: Reemplazar `prompt()` nativo con modal elegante
+- **✅ Archivos modificados**:
+  - `public/index.html` - Nuevo modal `participantNameModal`
+  - `public/js/app.js` - Funciones showParticipantNameModal(), closeParticipantNameModal()
+  - `public/js/rifas.js` - Reemplazo de prompt() con modal async
+- **✅ Features implementadas**:
+  - ✅ **Modal elegante**: Diseño consistente con la aplicación
+  - ✅ **Sistema async/await**: Manejo limpio con Promises
+  - ✅ **Validación integrada**: Nombre requerido con feedback claro
+  - ✅ **Autofocus**: Campo de nombre con focus automático
+  - ✅ **Cancelación**: Botón cancelar con manejo de errores apropiado
+  - ✅ **UX mejorada**: Sin más alerts/prompts nativos del navegador
+  - ✅ **Compatibilidad**: Funciona tanto en app.js como rifas.js
+
 ---
 
 ## 📊 **Funcionalidades Completadas**
@@ -143,8 +158,9 @@ Desarrollar una plataforma completa de simulación de rifas aplicando mejores pr
 ### **📋 BLOQUE I: FUNDACIÓN SÓLIDA (Fases 1-20)**
 - ✅ **FASE 1**: Vista Administrativa *(COMPLETADA)*
 - ✅ **FASE 2**: Timestamps Informativos *(COMPLETADA)*
-- 🔄 **FASE 3**: Gestión de Números *(EN DESARROLLO)*
-- 📅 **FASE 4**: Colores por Participante
+- ✅ **FASE 3**: Gestión de Números *(COMPLETADA)*
+- ✅ **FASE 4**: Colores por Participante *(COMPLETADA)*
+- ✅ **FASE 4.1**: Modal Personalizado de Participante *(COMPLETADA)*
 - 📅 **FASE 5**: Layout Responsivo Mejorado
 - 📅 **FASES 6-10**: Mejoras de gestión y UX
 - 📅 **FASES 11-20**: Configuración flexible
@@ -162,11 +178,12 @@ Desarrollar una plataforma completa de simulación de rifas aplicando mejores pr
 ## 📈 **Métricas del Proyecto**
 
 ### **Progreso Actual**
-- **Fases completadas**: 3/220 (1.4%)
-- **Líneas de código**: ~3,450 líneas (+249 en FASE 3)
+- **Fases completadas**: 4.1/220 (1.9%)
+- **Líneas de código**: ~3,500+ líneas (+60 en FASE 4.1)
 - **Archivos**: ~30 archivos
 - **Funcionalidades core**: 100% operativas
 - **Gestión avanzada**: 100% operativa (FASE 3)
+- **UX moderna**: 100% sin prompts/alerts nativos (FASE 4.1)
 
 ### **Calidad del Código**
 - **Funciones documentadas**: Todas las nuevas funciones
@@ -177,8 +194,9 @@ Desarrollar una plataforma completa de simulación de rifas aplicando mejores pr
 ### **Testing Manual**
 - ✅ **FASE 1**: Lista de participantes probada
 - ✅ **FASE 2**: Tooltips probados en múltiples navegadores
-- ✅ **FASE 3**: Gestión de números lista para testing
-- 🔄 **FASE 4**: Pendiente de implementación
+- ✅ **FASE 3**: Gestión de números completada
+- ✅ **FASE 4**: Colores por participante implementados
+- ✅ **FASE 4.1**: Modal personalizado funcionando correctamente
 
 ---
 
@@ -244,30 +262,30 @@ git push origin main
 
 ## 🎉 **Próximos Pasos**
 
-### **✅ FASE 3 COMPLETADA! - Testing y verificación:**
+### **✅ FASE 4.1 COMPLETADA! - Testing y verificación:**
 1. Iniciar servidor: `npm run dev`
 2. Abrir frontend en navegador
 3. ✅ Crear rifa y agregar participantes
 4. ✅ Verificar tooltips con timestamps (FASE 2)
-5. ✅ Probar botones X en grilla
-6. ✅ Probar "Eliminar todos" en lista de participantes
-7. ✅ Verificar modal de confirmación elegante
-8. ✅ Comprobar auto-actualización después de eliminaciones
+5. ✅ Probar botones X en grilla (FASE 3)
+6. ✅ Verificar colores únicos por participante (FASE 4)
+7. ✅ Probar modal personalizado al participar sin login (FASE 4.1)
+8. ✅ Verificar que no hay más prompts/alerts nativos
 
 ### **Comandos para testing:**
 ```bash
-cd C:\Users\Clau\Desktop\Simula_rifas_personal_08-2025\backend
+cd backend
 npm run dev
-# ✅ FASE 3 COMPLETADA - Lista para testing
-# ⭕ Listo para FASE 4: Colores por Participante
+# ✅ FASE 4.1 COMPLETADA - Modal personalizado implementado
+# ⭕ Listo para FASE 5: Layout Responsivo Mejorado
 ```
 
 ---
 
-*Documento actualizado: Agosto 2025*  
-*Proyecto: SimulaRifas Personal*  
-*Estado: FASE 2 completada - Tooltips con timestamps*  
-*Próxima: FASE 3 - Gestión de números*
+*Documento actualizado: Noviembre 2025*
+*Proyecto: SimulaRifas Personal*
+*Estado: FASE 4.1 completada - Modal personalizado de participante*
+*Próxima: FASE 5 - Layout Responsivo Mejorado*
 
 ---
 
