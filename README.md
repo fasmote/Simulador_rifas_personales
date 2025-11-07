@@ -1,7 +1,7 @@
 # 🎲 SimulaRifas - Proyecto Personal
 
 ![Estado del Proyecto](https://img.shields.io/badge/Estado-En%20Desarrollo%20Activo-brightgreen)
-![Versión](https://img.shields.io/badge/Versión-4.0%20FASE%204-blue)
+![Versión](https://img.shields.io/badge/Versión-5.0%20FASE%205-blue)
 ![Licencia](https://img.shields.io/badge/Licencia-MIT-green)
 
 **Simulador de Rifas Educativo** - Proyecto personal de desarrollo full-stack con Node.js
@@ -17,9 +17,10 @@ SimulaRifas es una aplicación web educativa que simula el funcionamiento de rif
 - **Rifas Privadas**: Creación y gestión de simulaciones con códigos de acceso
 - **Rifas Públicas**: Contenido de demostración accesible sin registro
 - **API RESTful**: Backend modular con arquitectura MVC
-- **Responsive Design**: Adaptable a dispositivos móviles y desktop
-- **FASE 4 NUEVA**: **Colores por Participante** - Cada usuario con color único distintivo
-- **FASE 3 NUEVA**: **Gestión de Números** - Botones × para eliminar números individuales
+- **Responsive Design**: Optimizado para todos los dispositivos (320px - 1920px+)
+- **FASE 5 NUEVA**: **Layout Responsivo Mejorado** - 6 breakpoints, touch optimizado, fluid typography
+- **FASE 4**: **Colores por Participante** - Cada usuario con color único distintivo (12 colores)
+- **FASE 3**: **Gestión de Números** - Botones × para eliminar números individuales
 - **FASE 2**: **Tooltips con Timestamps** - Información detallada de participaciones
 
 ## 🚀 Demo en Vivo
@@ -147,17 +148,32 @@ npm test             # Ejecutar pruebas
 3. Selecciona números y participa
 4. El propietario puede realizar el sorteo
 
-### 🆕 **FASE 2: Tooltips con Timestamps**
-- **Hover sobre números ocupados** para ver información detallada
-- **Formato**: "Elegido por [Usuario] el [fecha] a las [hora]"
-- **Diseño elegante** con animaciones y gradientes
-- **Cursor indicativo** para números con información disponible
+### 🆕 **FASE 5: Layout Responsivo Mejorado**
+- **6 breakpoints optimizados**: Desktop XL, Tablet, Mobile Portrait/Landscape, Small Mobile
+- **Tipografía fluida**: clamp() para escalado automático en todos los tamaños
+- **Touch targets mejorados**: Mínimo 44x44px (WCAG 2.1)
+- **Grid dinámico**: De 6 a 15 columnas según dispositivo y orientación
+- **Mejoras táctiles**: Prevención de zoom, swipe gestures, feedback táctil
+- **Modales optimizados**: Swipe-down para cerrar, scroll inteligente
+- **Accesibilidad**: prefers-reduced-motion, ARIA, gestión de foco
+
+### 🆕 **FASE 4: Colores por Participante**
+- **12 colores únicos** con gradientes elegantes
+- **Asignación automática** por orden de participación
+- **Persistencia** durante toda la sesión de rifa
+- **Toggle 2/12 colores** para preferencias visuales
 
 ### 🆕 **FASE 3: Gestión de Números**
 - **Botón "X"** en números ocupados de la grilla para eliminar individual
 - **Botón "Eliminar todos"** por usuario en lista de participantes
 - **Modal de confirmación elegante** con gradientes y animaciones
 - **Auto-actualización** de vista después de eliminaciones
+
+### 🆕 **FASE 2: Tooltips con Timestamps**
+- **Hover sobre números ocupados** para ver información detallada
+- **Formato**: "Elegido por [Usuario] el [fecha] a las [hora]"
+- **Diseño elegante** con animaciones y gradientes
+- **Cursor indicativo** para números con información disponible
 
 ## 🎯 Funcionalidades Principales
 
@@ -177,6 +193,7 @@ npm test             # Ejecutar pruebas
 - ✅ **FASE 2**: Información de timestamps detallada
 - ✅ **FASE 3**: Botones × eliminación individual y masiva
 - ✅ **FASE 4**: Colores únicos por participante (12 gradientes)
+- ✅ **FASE 5**: Layout responsivo mejorado (6 breakpoints, touch-optimized)
 
 ### API Backend
 - ✅ Autenticación JWT
@@ -234,24 +251,23 @@ DELETE /api/rifas/:id/participants/:user/numbers # FASE 3: Eliminar todos los n�
 ## 🚧 Estado del Desarrollo
 
 ### ✅ Completado
-- Frontend responsivo completo
-- Sistema de autenticación
+- Frontend responsivo completo y optimizado
+- Sistema de autenticación JWT
 - CRUD de rifas y usuarios
 - Simulador interactivo
 - **FASE 1**: Vista administrativa de participantes
 - **FASE 2**: Tooltips con timestamps informativos
 - **FASE 3**: Botones × eliminación con estilos CSS permanentes
 - **FASE 4**: Sistema completo de colores por participante (12 gradientes)
+- **FASE 5**: Layout responsivo mejorado (6 breakpoints, touch-optimized)
 
 ### 🔄 En Progreso
-- **FASE 5**: Layout responsivo mejorado
-- **FASE 18**: Migración a Firebase/Firestore
-- API RESTful independiente
+- **FASE 6**: Botón sorteo directo desde "Mis Simulaciones"
 
 ### 📋 Próximas Features
-- **FASE 5**: Layout responsivo mejorado
 - **FASE 6**: Botón sorteo directo
 - **FASE 7**: Sistema de fechas programadas
+- **FASE 18**: Migración a Firebase/Firestore
 - Notificaciones push
 - Analytics de rifas
 - Modo oscuro
@@ -265,7 +281,8 @@ El proyecto sigue un roadmap estructurado en **200 fases** organizadas en **11 b
 - ✅ **FASE 2**: Timestamps Informativos *(COMPLETADA)*
 - ✅ **FASE 3**: Gestión de Números *(COMPLETADA)*
 - ✅ **FASE 4**: Colores por Participante *(COMPLETADA)*
-- 📅 **FASE 5**: Layout Responsivo Mejorado *(PRÓXIMA)*
+- ✅ **FASE 5**: Layout Responsivo Mejorado *(COMPLETADA)*
+- 📅 **FASE 6**: Botón Sorteo Directo *(PRÓXIMA)*
 
 ### **BLOQUE II: EXPERIENCIA PREMIUM** *(Fases 21-40)*
 - Temas y personalización
@@ -277,7 +294,8 @@ Para ver el roadmap completo, consulta [ROADMAP_COMPLETO.md](ROADMAP_COMPLETO.md
 
 Para ver todos los cambios detallados por fase, consulta [CHANGELOG.md](CHANGELOG.md)
 
-### Últimos Cambios (FASE 4)
+### Últimos Cambios (FASE 5)
+- ✅ **FASE 5**: Layout responsivo mejorado - 6 breakpoints, touch-optimized
 - ✅ **FASE 4**: Sistema completo de colores por participante (12 gradientes)
 - ✅ **FASE 3**: Botones × eliminación con estilos CSS permanentes
 - ✅ **FASE 2**: Tooltips informativos con timestamps formateados
