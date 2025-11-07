@@ -1031,15 +1031,16 @@ async function participateInRifa(rifaId, selectedNumbers) {
     
     // NUEVO FASE 15K: Usar el nombre del usuario logueado si está disponible
     let participantName = 'Participante Anónimo';
-    
+
     if (currentUser && currentUser.username) {
         participantName = currentUser.username;
         console.log(`🔄 [FASE 15K] Usando nombre del usuario logueado: ${participantName}`);
     } else {
-        // Si no está logueado, pedir nombre
-        participantName = prompt('¿Cuál es tu nombre?');
-        if (!participantName || participantName.trim() === '') {
-            showNotification('El nombre es requerido para participar', 'error');
+        // Si no está logueado, pedir nombre con modal personalizado
+        try {
+            participantName = await showParticipantNameModal();
+        } catch (error) {
+            showNotification('Debes ingresar tu nombre para participar', 'error');
             return;
         }
     }
@@ -2642,7 +2643,58 @@ async function viewRifa(rifaId) {
                 </div>
             </div>
         `;
-        
+
         showNotification(error.message, 'error');
     }
 }
+
+// ========== FUNCIONES PARA MODAL DE NOMBRE DEL PARTICIPANTE ==========
+
+let participantNameCallback = null;
+
+// Función para mostrar el modal y pedir el nombre
+function showParticipantNameModal() {
+    return new Promise((resolve, reject) => {
+        participantNameCallback = { resolve, reject };
+        document.getElementById('participantNameInput').value = '';
+        document.getElementById('participantNameModal').style.display = 'flex';
+
+        // Focus en el input después de un pequeño delay para asegurar que el modal esté visible
+        setTimeout(() => {
+            document.getElementById('participantNameInput').focus();
+        }, 100);
+    });
+}
+
+// Función para cerrar el modal
+function closeParticipantNameModal() {
+    document.getElementById('participantNameModal').style.display = 'none';
+    if (participantNameCallback) {
+        participantNameCallback.reject(new Error('Cancelado por el usuario'));
+        participantNameCallback = null;
+    }
+}
+
+// Handler del formulario de nombre del participante
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('participantNameForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('participantNameInput').value.trim();
+
+            if (!name) {
+                showNotification('Por favor ingresa tu nombre', 'error');
+                return;
+            }
+
+            document.getElementById('participantNameModal').style.display = 'none';
+
+            if (participantNameCallback) {
+                participantNameCallback.resolve(name);
+                participantNameCallback = null;
+            }
+        });
+    }
+});
