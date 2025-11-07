@@ -247,14 +247,16 @@ async function participateInRifa(rifaId, selectedNumbers) {
     }
     
     let participantName = 'Participante Anónimo';
-    
+
     if (currentUser && currentUser.username) {
         participantName = currentUser.username;
         console.log(`🔄 [FASE 15K] Usando nombre del usuario logueado: ${participantName}`);
     } else {
-        participantName = prompt('¿Cuál es tu nombre?');
-        if (!participantName || participantName.trim() === '') {
-            showNotification('El nombre es requerido para participar', 'error');
+        // Si no está logueado, pedir nombre con modal personalizado
+        try {
+            participantName = await showParticipantNameModal();
+        } catch (error) {
+            showNotification('Debes ingresar tu nombre para participar', 'error');
             return;
         }
     }
