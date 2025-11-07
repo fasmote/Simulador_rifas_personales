@@ -107,6 +107,105 @@ function handleDeleteModalKeydown(e) {
     }
 }
 
+/**
+ * BUG FIX: Modal personalizado para pedir nombre del participante
+ * Reemplaza el prompt() nativo feo por un modal con el estilo de la app
+ *
+ * @returns {Promise<string>} Promesa que resuelve con el nombre ingresado o null si se cancela
+ *
+ * Educativo:
+ * Esta función retorna una Promise porque necesitamos esperar a que el usuario
+ * ingrese su nombre antes de continuar. Es async/await en acción.
+ */
+function showNameInputModal() {
+    return new Promise((resolve, reject) => {
+        // Crear modal con el mismo estilo que otros modales de la app
+        const modal = document.createElement('div');
+        modal.className = 'modal'; // Usa la clase existente de modales
+        modal.style.display = 'flex'; // Mostrar inmediatamente
+        modal.innerHTML = `
+            <div class="modal-content name-input-modal">
+                <h2 style="text-align: center; margin-bottom: 10px;">👤 Ingresa tu nombre</h2>
+                <p style="text-align: center; color: #666; margin-bottom: 20px; font-size: 0.9rem;">
+                    Para participar en esta simulación, necesitamos tu nombre
+                </p>
+                <form id="nameInputForm" style="width: 100%;">
+                    <input
+                        type="text"
+                        id="participantNameInput"
+                        placeholder="Ej: Juan Pérez"
+                        class="form-input"
+                        required
+                        autofocus
+                        style="width: 100%; margin-bottom: 20px;">
+                    <div class="modal-buttons">
+                        <button type="button" class="btn btn-secondary" onclick="closeNameInputModal(null)">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-success">
+                            ✓ Confirmar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        `;
+
+        // Agregar al DOM
+        document.body.appendChild(modal);
+
+        // Focus automático en el input
+        setTimeout(() => {
+            const input = document.getElementById('participantNameInput');
+            if (input) input.focus();
+        }, 100);
+
+        // Guardar la función resolve en window para acceder desde los botones
+        window.nameInputResolve = resolve;
+
+        // Manejar el submit del formulario
+        const form = document.getElementById('nameInputForm');
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const input = document.getElementById('participantNameInput');
+            const name = input.value.trim();
+            if (name) {
+                closeNameInputModal(name);
+            }
+        });
+
+        // Cerrar con ESC
+        const handleEsc = (e) => {
+            if (e.key === 'Escape') {
+                closeNameInputModal(null);
+                document.removeEventListener('keydown', handleEsc);
+            }
+        };
+        document.addEventListener('keydown', handleEsc);
+
+        // Cerrar haciendo click fuera del modal
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeNameInputModal(null);
+            }
+        });
+    });
+}
+
+/**
+ * Cierra el modal de input de nombre y resuelve la promesa
+ * @param {string|null} name - Nombre ingresado o null si se cancela
+ */
+function closeNameInputModal(name) {
+    const modal = document.querySelector('.modal.name-input-modal, .modal:has(.name-input-modal)');
+    if (modal) {
+        modal.remove();
+    }
+    if (window.nameInputResolve) {
+        window.nameInputResolve(name);
+        window.nameInputResolve = null;
+    }
+}
+
 // NUEVO: Toggle de contraseña mejorado
 function togglePassword(inputId, button) {
     const input = document.getElementById(inputId);
@@ -1028,16 +1127,16 @@ async function participateInRifa(rifaId, selectedNumbers) {
         showNotification('¡Primero debes seleccionar al menos un número!', 'error');
         return;
     }
-    
+
     // NUEVO FASE 15K: Usar el nombre del usuario logueado si está disponible
     let participantName = 'Participante Anónimo';
-    
+
     if (currentUser && currentUser.username) {
         participantName = currentUser.username;
         console.log(`🔄 [FASE 15K] Usando nombre del usuario logueado: ${participantName}`);
     } else {
-        // Si no está logueado, pedir nombre
-        participantName = prompt('¿Cuál es tu nombre?');
+        // BUG FIX: Usar modal personalizado en lugar de prompt() feo
+        participantName = await showNameInputModal();
         if (!participantName || participantName.trim() === '') {
             showNotification('El nombre es requerido para participar', 'error');
             return;
@@ -2241,7 +2340,32 @@ async function generateRifaGrid(rifa) {
                 console.log(`✅ [FASE 3] Botón X agregado al número ${i}`);
             }
         } else {
+            // Número disponible (no ocupado)
             cell.className = 'number-cell';
+
+            // BUG FIX: Verificar si el número está en la selección temporal del usuario
+            // Esto ocurre cuando el usuario selecciona números ANTES de participar
+            // y luego cambia el toggle de colores
+            const isInTempSelection = selectedNumbers.includes(i);
+
+            if (isInTempSelection) {
+                // Marcar visualmente como seleccionado
+                cell.classList.add('selected');
+
+                // Agregar botón X para quitar de la selección
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-number';
+                deleteBtn.innerHTML = '✕';
+                deleteBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    toggleNumberForCode(i); // Usar la misma función para des-seleccionar
+                };
+                cell.appendChild(deleteBtn);
+
+                console.log(`✅ [BUG FIX] Número ${i} restaurado en selección temporal`);
+            }
+
+            // Permitir selección si no está completado
             if (!isCompleted) {
                 cell.onclick = () => toggleNumberForCode(i);
             }
