@@ -25,7 +25,205 @@ const API_BASE = '/api';
 document.addEventListener('DOMContentLoaded', function() {
     checkAuthStatus();
     navigateTo('demo');
+
+    // FASE 5: Inicializar mejoras móviles
+    initMobileEnhancements();
 });
+
+// ========================================
+// FASE 5: MEJORAS MÓVILES Y RESPONSIVAS
+// ========================================
+
+/**
+ * Inicializa mejoras específicas para dispositivos móviles
+ * - Previene zoom en double-tap en botones
+ * - Mejora el comportamiento del menú móvil
+ * - Agrega soporte para gestos swipe en modales
+ * - Optimiza el scroll y la navegación
+ */
+function initMobileEnhancements() {
+    // Detectar si es dispositivo móvil
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+    if (isMobile || isTouch) {
+        console.log('📱 FASE 5: Dispositivo móvil detectado - Activando mejoras táctiles');
+
+        // Prevenir zoom en double-tap en botones y elementos interactivos
+        preventDoubleTapZoom();
+
+        // Auto-cerrar menú móvil al navegar
+        autoCloseMobileMenu();
+
+        // Mejorar scroll en modales móviles
+        improveMobileModals();
+
+        // Agregar indicador de viewport para debugging (solo en desarrollo)
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            addViewportDebugger();
+        }
+    }
+}
+
+/**
+ * Previene el zoom en double-tap en elementos interactivos
+ * Mantiene la usabilidad pero evita zooms accidentales
+ */
+function preventDoubleTapZoom() {
+    let lastTouchEnd = 0;
+
+    document.addEventListener('touchend', function(event) {
+        const now = Date.now();
+
+        // Si es double-tap en botón o número, prevenir zoom
+        if (now - lastTouchEnd <= 300) {
+            const target = event.target;
+            if (target.classList.contains('btn') ||
+                target.classList.contains('number-cell') ||
+                target.closest('.btn') ||
+                target.closest('.number-cell')) {
+                event.preventDefault();
+            }
+        }
+
+        lastTouchEnd = now;
+    }, { passive: false });
+}
+
+/**
+ * Auto-cierra el menú móvil cuando se navega a otra sección
+ * Mejora la UX evitando que el menú quede abierto
+ */
+function autoCloseMobileMenu() {
+    const navLinks = document.querySelectorAll('.nav-links a');
+    navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            const navLinksContainer = document.getElementById('navLinks');
+            if (navLinksContainer && navLinksContainer.classList.contains('active')) {
+                navLinksContainer.classList.remove('active');
+            }
+        });
+    });
+}
+
+/**
+ * Mejora el comportamiento de modales en móviles
+ * - Previene scroll del body cuando modal está abierto
+ * - Agrega soporte para swipe-down para cerrar
+ */
+function improveMobileModals() {
+    let touchStartY = 0;
+    let touchEndY = 0;
+
+    // Observar cuando se agregan modales al DOM
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            mutation.addedNodes.forEach(function(node) {
+                if (node.classList && node.classList.contains('modal')) {
+                    // Prevenir scroll del body
+                    document.body.style.overflow = 'hidden';
+
+                    // Agregar soporte para swipe-down en el contenido del modal
+                    const modalContent = node.querySelector('.modal-content');
+                    if (modalContent) {
+                        modalContent.addEventListener('touchstart', function(e) {
+                            touchStartY = e.touches[0].clientY;
+                        });
+
+                        modalContent.addEventListener('touchend', function(e) {
+                            touchEndY = e.changedTouches[0].clientY;
+
+                            // Si swipe hacia abajo > 100px, cerrar modal
+                            if (touchStartY < touchEndY - 100 && window.scrollY === 0) {
+                                // Simular click en botón cancelar si existe
+                                const cancelBtn = modalContent.querySelector('.btn-secondary');
+                                if (cancelBtn) {
+                                    cancelBtn.click();
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+
+            mutation.removedNodes.forEach(function(node) {
+                if (node.classList && node.classList.contains('modal')) {
+                    // Restaurar scroll del body
+                    document.body.style.overflow = '';
+                }
+            });
+        });
+    });
+
+    observer.observe(document.body, { childList: true });
+}
+
+/**
+ * Agrega un indicador visual del tamaño de viewport
+ * Solo para desarrollo - ayuda a testear responsive design
+ */
+function addViewportDebugger() {
+    const debugger = document.createElement('div');
+    debugger.id = 'viewport-debugger';
+    debugger.style.cssText = `
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 11px;
+        z-index: 9999;
+        font-family: monospace;
+        pointer-events: none;
+    `;
+    document.body.appendChild(debugger);
+
+    function updateDebugger() {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        let breakpoint = 'XL';
+
+        if (width <= 360) breakpoint = 'XXS';
+        else if (width <= 480) breakpoint = 'XS';
+        else if (width <= 600) breakpoint = 'SM';
+        else if (width <= 768) breakpoint = 'MD';
+        else if (width <= 1024) breakpoint = 'LG';
+        else if (width <= 1200) breakpoint = 'XL';
+
+        debugger.textContent = `${width}×${height} [${breakpoint}]`;
+    }
+
+    updateDebugger();
+    window.addEventListener('resize', updateDebugger);
+}
+
+/**
+ * Toggle del menú móvil
+ * Mejora la función existente con animación y accesibilidad
+ */
+function toggleMobileMenu() {
+    const navLinks = document.getElementById('navLinks');
+    if (navLinks) {
+        const isActive = navLinks.classList.toggle('active');
+
+        // Cambiar ícono del botón
+        const menuBtn = document.querySelector('.mobile-menu-btn');
+        if (menuBtn) {
+            menuBtn.textContent = isActive ? '✕' : '☰';
+            menuBtn.setAttribute('aria-expanded', isActive);
+        }
+
+        // Gestionar foco para accesibilidad
+        if (isActive) {
+            const firstLink = navLinks.querySelector('a');
+            if (firstLink) {
+                setTimeout(() => firstLink.focus(), 100);
+            }
+        }
+    }
+}
 
 // ========== FUNCIONES NUEVAS FASE 15C ==========
 
