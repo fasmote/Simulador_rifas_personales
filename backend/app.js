@@ -18,6 +18,25 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use('/api/auth', authRoutes);
 app.use('/api/rifas', rifasRoutes);
 
+// Endpoint temporal para regenerar rifas demo (TEMPORAL - REMOVER DESPUÉS)
+app.get('/api/admin/regenerate-demo', async (req, res) => {
+    try {
+        console.log('🔄 Regenerando rifas demo con números seleccionados...');
+        const createDemoContent = require('./database/demo-content');
+        await createDemoContent();
+        res.json({
+            success: true,
+            message: 'Rifas demo regeneradas exitosamente con números al azar'
+        });
+    } catch (error) {
+        console.error('Error regenerando demo:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
 // Servir el frontend en la ruta raíz
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../public/index.html'));
