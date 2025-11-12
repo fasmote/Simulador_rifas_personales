@@ -269,7 +269,7 @@ h1 {
 /* ========== GRID DE NÚMEROS ========== */
 .numbers-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+    grid-template-columns: repeat(10, 1fr);  /* Forzar exactamente 10 columnas para grid 10x10 */
     gap: 8px;
     margin-bottom: 20px;
 }
@@ -756,7 +756,7 @@ h3 {
     }
 
     .numbers-grid {
-        grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+        grid-template-columns: repeat(10, 1fr);  /* Grid 10x10 en pantallas grandes */
         gap: 10px;
     }
 }
@@ -776,7 +776,7 @@ h3 {
     }
 
     .numbers-grid {
-        grid-template-columns: repeat(auto-fit, minmax(55px, 1fr));
+        grid-template-columns: repeat(10, 1fr);  /* Grid 10x10 */
     }
 
     .cart-section {
@@ -913,7 +913,7 @@ h3 {
 
     /* Grid optimizado para landscape */
     .numbers-grid {
-        grid-template-columns: repeat(12, 1fr);
+        grid-template-columns: repeat(10, 1fr);  /* Grid 10x10 en landscape */
         gap: 5px;
     }
 
@@ -1196,7 +1196,7 @@ h3 {
     }
 
     .numbers-grid {
-        grid-template-columns: repeat(15, 1fr);
+        grid-template-columns: repeat(10, 1fr);  /* Grid 10x10 en pantallas ultragrandes */
         gap: 4px;
     }
 
