@@ -7,18 +7,18 @@ const initDatabase = async () => {
         // Crear tabla de usuarios
         await runQuery(`
             CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 username VARCHAR(50) UNIQUE NOT NULL,
                 email VARCHAR(100) UNIQUE NOT NULL,
                 password_hash VARCHAR(255) NOT NULL,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
 
         // Crear tabla de rifas/simulaciones - ACTUALIZADA PARA FASE 12
         await runQuery(`
             CREATE TABLE IF NOT EXISTS rifas (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 user_id INTEGER,
                 title VARCHAR(200) NOT NULL,
                 description TEXT,
@@ -27,7 +27,7 @@ const initDatabase = async () => {
                 status VARCHAR(20) DEFAULT 'active',
                 is_public BOOLEAN DEFAULT FALSE,
                 winner_number INTEGER,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id)
             )
         `);
@@ -35,12 +35,12 @@ const initDatabase = async () => {
         // Crear tabla de números seleccionados/vendidos
         await runQuery(`
             CREATE TABLE IF NOT EXISTS rifa_numbers (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id SERIAL PRIMARY KEY,
                 rifa_id INTEGER NOT NULL,
                 number INTEGER NOT NULL,
                 is_selected BOOLEAN DEFAULT TRUE,
                 participant_name VARCHAR(100),
-                selected_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                selected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (rifa_id) REFERENCES rifas(id),
                 UNIQUE(rifa_id, number)
             )
@@ -79,13 +79,15 @@ const initDatabase = async () => {
         
         try {
             await runQuery(`
-                INSERT INTO users (username, email, password_hash) 
+                INSERT INTO users (username, email, password_hash)
                 VALUES (?, ?, ?)
             `, ['admin', 'admin@talentotech.com', hashedPassword]);
             console.log('👤 Usuario admin creado (username: admin, password: 123456)');
         } catch (err) {
-            if (err.message.includes('UNIQUE constraint failed')) {
+            if (err.message.includes('UNIQUE') || err.message.includes('duplicate key')) {
                 console.log('👤 Usuario admin ya existe');
+            } else {
+                console.log('❌ Error creando usuario admin:', err.message);
             }
         }
 
@@ -112,20 +114,23 @@ const initDatabase = async () => {
             // Rifas públicas básicas como respaldo
             try {
                 await runQuery(`
-                    INSERT OR IGNORE INTO rifas (user_id, title, description, is_public, status) 
+                    INSERT INTO rifas (user_id, title, description, is_public, status)
                     VALUES (NULL, 'iPhone 15 Pro', 'Simulación de ejemplo para evento corporativo. Esta es una simulación educativa sin valor monetario.', TRUE, 'active')
-                `);
-                
-                await runQuery(`
-                    INSERT OR IGNORE INTO rifas (user_id, title, description, is_public, status) 
-                    VALUES (NULL, 'Cartera Premium', 'Simulación de ejemplo para evento de moda. Esta es una simulación educativa sin valor monetario.', TRUE, 'active')
+                    ON CONFLICT DO NOTHING
                 `);
 
                 await runQuery(`
-                    INSERT OR IGNORE INTO rifas (user_id, title, description, is_public, status) 
-                    VALUES (NULL, 'Viaje Europa', 'Simulación de ejemplo para evento turístico. Esta es una simulación educativa sin valor monetario.', TRUE, 'active')
+                    INSERT INTO rifas (user_id, title, description, is_public, status)
+                    VALUES (NULL, 'Cartera Premium', 'Simulación de ejemplo para evento de moda. Esta es una simulación educativa sin valor monetario.', TRUE, 'active')
+                    ON CONFLICT DO NOTHING
                 `);
-                
+
+                await runQuery(`
+                    INSERT INTO rifas (user_id, title, description, is_public, status)
+                    VALUES (NULL, 'Viaje Europa', 'Simulación de ejemplo para evento turístico. Esta es una simulación educativa sin valor monetario.', TRUE, 'active')
+                    ON CONFLICT DO NOTHING
+                `);
+
                 console.log('🎮 Rifas públicas básicas creadas como respaldo');
             } catch (backupErr) {
                 console.log('❌ Error creando rifas de respaldo:', backupErr.message);
