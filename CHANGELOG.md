@@ -4,6 +4,216 @@ Registro detallado de cambios por fase del proyecto SimulaRifas.
 
 ---
 
+## 🐘 **MIGRACIÓN: SQLite → PostgreSQL** *(12/11/2025)*
+
+### 🎯 Objetivo
+Migrar de SQLite (archivo local) a Vercel Postgres (base de datos en la nube) para permitir persistencia de datos en producción.
+
+### ✅ Estado: **COMPLETADO**
+
+Todos los pasos de la migración han sido completados exitosamente y están listos para merge.
+
+### 🔧 Pasos Completados
+
+#### **PASO 0: Preparación** *(Usuario)*
+- ✅ Base de datos PostgreSQL creada en Vercel Dashboard
+- ✅ Variables de entorno configuradas automáticamente por Vercel
+
+#### **PASO 1: Instalación de Dependencias**
+- ✅ Agregada dependencia `pg@^8.11.3` (driver oficial de PostgreSQL para Node.js)
+- ✅ Mantiene compatibilidad con `sqlite3` para desarrollo local
+- 📂 Branch: `claude/postgres-step-1-011CUthDVEktnc3x6B3SQrTb`
+
+#### **PASO 2: Configuración de PostgreSQL**
+- ✅ **Nuevo archivo:** `backend/database/postgres-config.js` (176 líneas)
+  - Pool de conexiones optimizado para serverless
+  - SSL habilitado para Vercel Postgres
+  - Conversión automática de placeholders `?` → `$1, $2, $3...`
+  - Auto-agregar `RETURNING id` a queries INSERT
+  - Interfaz compatible con SQLite (runQuery, getQuery, allQuery)
+
+- ✅ **Nuevo archivo:** `backend/.env.example`
+  - Documentación de variables de entorno necesarias
+  - Instrucciones para desarrollo local vs producción
+
+- 📂 Branch: `claude/postgres-step-2-011CUthDVEktnc3x6B3SQrTb`
+
+#### **PASO 3: Actualización de Queries SQL**
+
+**backend/database/init.js:**
+- `INTEGER PRIMARY KEY AUTOINCREMENT` → `SERIAL PRIMARY KEY`
+- `DATETIME` → `TIMESTAMP`
+- `INSERT OR IGNORE` → `INSERT ... ON CONFLICT DO NOTHING`
+- Manejo de errores compatible con ambas bases de datos
+
+**backend/routes/rifas.js:**
+- `datetime(selected_at, 'localtime')` → `selected_at` (PostgreSQL maneja timezone automáticamente)
+- `GROUP_CONCAT(number ORDER BY number)` → `STRING_AGG(number::text, ',' ORDER BY number)`
+
+**backend/database/demo-content.js:**
+- `datetime('now')` → `CURRENT_TIMESTAMP` / `NOW()`
+- `datetime('now', '-X hours')` → `NOW() - INTERVAL '1 hour' * X`
+- Agregado `RETURNING id` explícitamente en INSERT
+
+**backend/database/sample-data.js:**
+- Detección de errores compatible con PostgreSQL: `duplicate key` además de `UNIQUE constraint`
+
+**backend/database/database.js:**
+- ⭐ **Switch automático basado en entorno**
+- Detecta `process.env.POSTGRES_URL`:
+  - ✅ Presente → Usa PostgreSQL (Vercel)
+  - ❌ Ausente → Usa SQLite (desarrollo local)
+- Zero cambios necesarios en código de routes/controllers
+- Misma interfaz API para ambas bases de datos
+
+- 📂 Branch: `claude/postgres-step-3-011CUthDVEktnc3x6B3SQrTb`
+
+#### **PASO 4: Script de Inicialización Automática**
+
+- ✅ **Nuevo archivo:** `backend/database/setup-production.js` (70 líneas)
+  - Detecta si estamos en producción (POSTGRES_URL existe)
+  - Ejecuta inicialización de DB automáticamente
+  - Maneja errores sin romper el deploy
+  - Sale con código 0 para no bloquear Vercel
+  - Logging detallado para debugging
+
+- ✅ **Archivo modificado:** `backend/package.json`
+  - Nuevo script: `"setup-prod"` → ejecuta setup-production.js
+  - Hook `"postinstall"` → ejecuta setup-prod automáticamente
+  - Se ejecuta después de npm install en Vercel
+
+- ✅ **Archivo modificado:** `backend/database/init.js`
+  - Detecta si se ejecuta directamente o se importa como módulo
+  - Solo hace process.exit() cuando se ejecuta directamente
+  - Permite uso como módulo desde setup-production.js
+
+- 📂 Branch: `claude/postgres-step-4-011CUthDVEktnc3x6B3SQrTb`
+
+### 📚 Documentación Creada
+
+- ✅ **`docs/POSTGRES_MIGRATION_GUIDE.md`** - Guía educativa completa (600+ líneas)
+  - Explicación detallada de diferencias SQLite vs PostgreSQL
+  - Ejemplos de código antes/después
+  - Arquitectura de la solución con diagramas
+  - Troubleshooting y debugging
+  - Conceptos clave explicados paso a paso
+
+- ✅ **`docs/ARQUITECTURA_DATABASE.md`** - Arquitectura explicada (500+ líneas)
+  - Patrón Adapter explicado visualmente
+  - Pool de conexiones con diagramas
+  - Flujo completo de queries con secuencias
+  - Ejemplos de código comentados línea por línea
+  - Conceptos educativos avanzados
+
+- ✅ **`backend/database/README_SETUP.md`** - Setup documentado (400+ líneas)
+  - Scripts disponibles y cuándo usarlos
+  - Variables de entorno requeridas
+  - Troubleshooting con 5 problemas comunes
+  - Diagrama de flujo completo
+  - Checklist de verificación
+
+- ✅ **`docs/GUIA_MERGE_FINAL.md`** - Guía de merge y deploy
+  - Instrucciones paso a paso para merge
+  - Testing post-deploy
+  - Troubleshooting completo
+  - Plan de rollback si hay problemas
+
+### 🎓 Diferencias Clave SQLite vs PostgreSQL
+
+| Concepto | SQLite | PostgreSQL |
+|----------|--------|------------|
+| **Auto-increment PK** | `INTEGER PRIMARY KEY AUTOINCREMENT` | `SERIAL PRIMARY KEY` |
+| **Fechas** | `DATETIME` | `TIMESTAMP` |
+| **Insert o ignorar** | `INSERT OR IGNORE` | `INSERT ... ON CONFLICT DO NOTHING` |
+| **Concatenar strings** | `GROUP_CONCAT()` | `STRING_AGG(col::text, ',')` |
+| **Fecha actual** | `datetime('now')` | `NOW()` / `CURRENT_TIMESTAMP` |
+| **Restar tiempo** | `datetime('now', '-72 hours')` | `NOW() - INTERVAL '1 hour' * 72` |
+| **Placeholders** | `?` para todos | `$1, $2, $3...` numerados |
+| **Retornar ID** | Automático (`lastID`) | Requiere `RETURNING id` |
+
+### 💡 Ventajas de la Arquitectura
+
+1. **Desarrollo Local Rápido**
+   - SQLite no requiere servidor externo
+   - Base de datos en archivo (.db)
+   - Testing más rápido
+
+2. **Producción Robusta**
+   - PostgreSQL en la nube (Vercel)
+   - Persistencia garantizada entre deploys
+   - Múltiples conexiones simultáneas
+   - Escalabilidad horizontal
+
+3. **Zero Duplicación**
+   - Mismo código de routes/controllers
+   - Switch automático transparente
+   - Mantención simplificada
+
+4. **Inicialización Automática**
+   - DB se inicializa automáticamente en cada deploy
+   - No requiere pasos manuales
+   - Idempotente (seguro ejecutar múltiples veces)
+
+### 📊 Impacto
+
+- **Archivos nuevos:** 6
+  - postgres-config.js (176 líneas)
+  - setup-production.js (70 líneas)
+  - .env.example (40 líneas)
+  - POSTGRES_MIGRATION_GUIDE.md (600+ líneas)
+  - ARQUITECTURA_DATABASE.md (500+ líneas)
+  - README_SETUP.md (400+ líneas)
+  - GUIA_MERGE_FINAL.md (500+ líneas)
+
+- **Archivos modificados:** 8
+  - backend/package.json
+  - backend/database/database.js
+  - backend/database/init.js
+  - backend/routes/rifas.js
+  - backend/database/demo-content.js
+  - backend/database/sample-data.js
+  - CHANGELOG.md
+  - README.md
+
+- **Líneas de código:** ~440 líneas
+- **Líneas de documentación:** ~2,100 líneas
+- **Total:** ~2,540 líneas
+
+### 🔄 Estrategia de Branches
+
+Cada paso en branch separado para permitir:
+- ✅ Rollback fácil si hay problemas
+- ✅ Revisión independiente de cada paso
+- ✅ Testing incremental
+- ✅ Merge ordenado
+
+Branches creados:
+1. `claude/postgres-step-1-011CUthDVEktnc3x6B3SQrTb` - Dependencia pg
+2. `claude/postgres-step-2-011CUthDVEktnc3x6B3SQrTb` - Configuración PostgreSQL
+3. `claude/postgres-step-3-011CUthDVEktnc3x6B3SQrTb` - Actualización de queries SQL
+4. `claude/postgres-step-4-011CUthDVEktnc3x6B3SQrTb` - Script de inicialización
+
+### 🚀 Cómo Hacer el Merge
+
+Ver **`docs/GUIA_MERGE_FINAL.md`** para instrucciones completas de:
+- Merge secuencial o mediante PRs
+- Testing post-deploy
+- Troubleshooting
+- Rollback si es necesario
+
+### 🎓 Conceptos Aprendidos
+
+1. **Connection Pooling** - Reutilización de conexiones de DB
+2. **Adapter Pattern** - Interfaz unificada para múltiples implementaciones
+3. **SQL Dialects** - Diferencias entre SQLite y PostgreSQL
+4. **Environment Detection** - Configuración basada en entorno
+5. **npm Hooks** - postinstall para automation
+6. **Idempotencia** - Scripts seguros para ejecutar múltiples veces
+7. **Graceful Degradation** - Continuar incluso con errores menores
+8. **Serverless Constraints** - Limitaciones de funciones sin estado
+
+---
+
 ## 🎉 **FASE 5: Layout Responsivo Mejorado** *(07/11/2025)*
 
 ### ✨ Nuevas Características
