@@ -163,9 +163,9 @@ function improveMobileModals() {
  * Solo para desarrollo - ayuda a testear responsive design
  */
 function addViewportDebugger() {
-    const debugger = document.createElement('div');
-    debugger.id = 'viewport-debugger';
-    debugger.style.cssText = `
+    const debuggerElement = document.createElement('div');
+    debuggerElement.id = 'viewport-debugger';
+    debuggerElement.style.cssText = `
         position: fixed;
         bottom: 10px;
         right: 10px;
@@ -178,7 +178,7 @@ function addViewportDebugger() {
         font-family: monospace;
         pointer-events: none;
     `;
-    document.body.appendChild(debugger);
+    document.body.appendChild(debuggerElement);
 
     function updateDebugger() {
         const width = window.innerWidth;
@@ -192,7 +192,7 @@ function addViewportDebugger() {
         else if (width <= 1024) breakpoint = 'LG';
         else if (width <= 1200) breakpoint = 'XL';
 
-        debugger.textContent = `${width}×${height} [${breakpoint}]`;
+        debuggerElement.textContent = `${width}×${height} [${breakpoint}]`;
     }
 
     updateDebugger();
