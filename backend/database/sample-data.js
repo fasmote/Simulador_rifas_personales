@@ -21,8 +21,10 @@ const addSampleData = async () => {
                 `, [usuario.username, usuario.email, hashedPassword]);
                 console.log(`👤 Usuario ${usuario.username} creado`);
             } catch (err) {
-                if (err.message.includes('UNIQUE constraint failed')) {
+                if (err.message.includes('UNIQUE') || err.message.includes('duplicate key')) {
                     console.log(`👤 Usuario ${usuario.username} ya existe`);
+                } else {
+                    console.log(`❌ Error creando usuario ${usuario.username}:`, err.message);
                 }
             }
         }

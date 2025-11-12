@@ -35,8 +35,8 @@ const createDemoContent = async () => {
                 const bcrypt = require('bcryptjs');
                 const hashedPassword = await bcrypt.hash('admin123', 10);
                 const newUser = await runQuery(`
-                    INSERT INTO users (username, email, password, created_at) 
-                    VALUES (?, ?, ?, datetime('now'))
+                    INSERT INTO users (username, email, password_hash, created_at)
+                    VALUES (?, ?, ?, CURRENT_TIMESTAMP)
                 `, ['admin', 'admin@sistema.demo', hashedPassword]);
                 systemUserId = newUser.id;
                 console.log('👤 Usuario del sistema creado (ID: ' + systemUserId + ')');
@@ -97,9 +97,10 @@ const createDemoContent = async () => {
             // Crear la rifa pública
             const result = await runQuery(`
                 INSERT INTO rifas (
-                    user_id, title, description, access_code, 
+                    user_id, title, description, access_code,
                     is_public, status, max_numbers, created_at
-                ) VALUES (?, ?, ?, ?, TRUE, 'active', 100, datetime('now'))
+                ) VALUES (?, ?, ?, ?, TRUE, 'active', 100, CURRENT_TIMESTAMP)
+                RETURNING id
             `, [systemUserId, rifa.title, rifa.description, accessCode]);
 
             const rifaId = result.id;
@@ -127,11 +128,12 @@ const createDemoContent = async () => {
                     
                     if (!numerosAsignados.has(numero)) {
                         numerosAsignados.add(numero);
-                        
+
+                        const horasAtras = Math.floor(Math.random() * 72) + 1;
                         await runQuery(`
-                            INSERT INTO rifa_numbers (rifa_id, number, participant_name, selected_at) 
-                            VALUES (?, ?, ?, datetime('now', '-' || ? || ' hours'))
-                        `, [rifaId, numero, participante, Math.floor(Math.random() * 72) + 1]);
+                            INSERT INTO rifa_numbers (rifa_id, number, participant_name, selected_at)
+                            VALUES (?, ?, ?, NOW() - INTERVAL '1 hour' * ?)
+                        `, [rifaId, numero, participante, horasAtras]);
                     }
                 }
             }

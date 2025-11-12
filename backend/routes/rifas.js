@@ -431,13 +431,13 @@ router.post('/access/:code/numbers', async (req, res) => {
 router.get('/:id/numbers', async (req, res) => {
     try {
         const numbers = await allQuery(`
-            SELECT 
-                number, 
-                participant_name, 
+            SELECT
+                number,
+                participant_name,
                 selected_at,
-                datetime(selected_at, 'localtime') as selected_at_local
-            FROM rifa_numbers 
-            WHERE rifa_id = ? 
+                selected_at as selected_at_local
+            FROM rifa_numbers
+            WHERE rifa_id = ?
             ORDER BY number
         `, [req.params.id]);
 
@@ -685,14 +685,14 @@ router.get('/:id/participants', authenticateToken, async (req, res) => {
 
         // Obtener participantes agrupados
         const participantsRaw = await allQuery(`
-            SELECT 
+            SELECT
                 participant_name,
                 MIN(selected_at) as first_participation,
                 COUNT(*) as total_numbers,
-                GROUP_CONCAT(number ORDER BY number) as numbers_list
-            FROM rifa_numbers 
-            WHERE rifa_id = ? 
-            GROUP BY participant_name 
+                STRING_AGG(number::text, ',' ORDER BY number) as numbers_list
+            FROM rifa_numbers
+            WHERE rifa_id = ?
+            GROUP BY participant_name
             ORDER BY first_participation ASC
         `, [rifaId]);
 

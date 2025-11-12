@@ -39,7 +39,17 @@ const runQuery = async (sql, params = []) => {
     try {
         // Convertir ? a $1, $2, etc. (sintaxis PostgreSQL)
         const pgSql = convertPlaceholders(sql);
-        const result = await client.query(pgSql, params);
+
+        // Agregar RETURNING id automáticamente a INSERT si no existe
+        const isInsert = /^\s*INSERT\s+INTO/i.test(pgSql);
+        const hasReturning = /RETURNING/i.test(pgSql);
+
+        let finalSql = pgSql;
+        if (isInsert && !hasReturning) {
+            finalSql = pgSql + ' RETURNING id';
+        }
+
+        const result = await client.query(finalSql, params);
 
         // Mantener compatibilidad con SQLite
         return {
