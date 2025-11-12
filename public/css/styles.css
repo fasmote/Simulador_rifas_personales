@@ -1006,6 +1006,16 @@ h3 {
         font-size: 16px; /* Previene zoom en iOS */
     }
 
+    /* Botones de modales: mejor distribución en mobile */
+    .modal-buttons {
+        flex-wrap: wrap;
+    }
+
+    .modal-buttons .btn {
+        flex: 1 1 auto;
+        min-width: 120px;
+    }
+
     /* Secciones compactas */
     .numbers-section,
     .cart-section {
