@@ -40,7 +40,9 @@ SimulaRifas es una aplicación web educativa que simula el funcionamiento de rif
 - **Node.js** - Entorno de ejecución
 - **Express.js** - Framework web
 - **JWT** - Autenticación de usuarios
-- **SQLite** - Base de datos (migración a Firebase en progreso)
+- **PostgreSQL** - Base de datos en producción (Vercel Postgres)
+- **SQLite** - Base de datos en desarrollo local
+- **Switch Automático** - Detecta entorno y usa DB apropiada
 - **CORS** - Configuración de dominios cruzados
 
 ### Deploy y Herramientas
@@ -64,9 +66,14 @@ SimulaRifas_Personal/
 │   ├── models/             # Modelos de datos
 │   ├── routes/             # Rutas de la API + FASE 2 endpoints + FASE 3 DELETE
 │   ├── services/           # Servicios de datos
-│   ├── database/           # Base de datos SQLite
+│   ├── database/           # Configuración de bases de datos
+│   │   ├── database.js     # Switch automático SQLite ↔ PostgreSQL
+│   │   ├── postgres-config.js  # Configuración PostgreSQL (producción)
+│   │   ├── init.js         # Inicialización de esquema
+│   │   └── rifas.db        # SQLite database (solo local)
 │   └── server.js           # Servidor principal
 ├── docs/                   # Documentación
+│   └── POSTGRES_MIGRATION_GUIDE.md  # Guía migración PostgreSQL
 ├── CHANGELOG.md            # Registro de cambios por fases
 ├── ROADMAP_COMPLETO.md     # Planificación de desarrollo
 ├── .gitignore              # Archivos ignorados
