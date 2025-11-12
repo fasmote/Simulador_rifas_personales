@@ -1,7 +1,8 @@
 # 🎲 SimulaRifas - Proyecto Personal
 
-![Estado del Proyecto](https://img.shields.io/badge/Estado-En%20Desarrollo%20Activo-brightgreen)
-![Versión](https://img.shields.io/badge/Versión-5.0%20FASE%205-blue)
+![Estado del Proyecto](https://img.shields.io/badge/Estado-En%20Producci%C3%B3n-brightgreen)
+![Versión](https://img.shields.io/badge/Versión-5.1-blue)
+![Base de Datos](https://img.shields.io/badge/PostgreSQL-Vercel-blue)
 ![Licencia](https://img.shields.io/badge/Licencia-MIT-green)
 
 **Simulador de Rifas Educativo** - Proyecto personal de desarrollo full-stack con Node.js
@@ -25,8 +26,9 @@ SimulaRifas es una aplicación web educativa que simula el funcionamiento de rif
 
 ## 🚀 Demo en Vivo
 
-- **Frontend**: [https://talento-tech-simula-rifas.vercel.app/](https://talento-tech-simula-rifas.vercel.app/)
+- **Aplicación**: [https://simulador-rifas-personales.vercel.app/](https://simulador-rifas-personales.vercel.app/)
 - **Repositorio**: [https://github.com/fasmote/Simulador_rifas_personales](https://github.com/fasmote/Simulador_rifas_personales)
+- **Estado**: ✅ En producción con PostgreSQL (Vercel Postgres)
 
 ## 🛠️ Tecnologías Utilizadas
 
@@ -73,13 +75,37 @@ SimulaRifas_Personal/
 │   │   └── rifas.db        # SQLite database (solo local)
 │   └── server.js           # Servidor principal
 ├── docs/                   # Documentación
-│   └── POSTGRES_MIGRATION_GUIDE.md  # Guía migración PostgreSQL
-├── CHANGELOG.md            # Registro de cambios por fases
-├── ROADMAP_COMPLETO.md     # Planificación de desarrollo
+│   ├── POSTGRES_MIGRATION_GUIDE.md  # Guía migración PostgreSQL
+│   ├── ARQUITECTURA_DATABASE.md     # Arquitectura base de datos
+│   ├── CHANGELOG.md        # Registro de cambios por fases
+│   ├── ROADMAP_COMPLETO.md # Planificación de desarrollo
+│   ├── PRODUCTO.md         # Documentación del producto
+│   ├── PLAN_FASES.md       # Plan de fases del proyecto
+│   └── DICCIONARIO_FUNCIONES.md  # Diccionario de funciones
 ├── .gitignore              # Archivos ignorados
 ├── .env.example            # Variables de entorno
 └── README.md               # Este archivo
 ```
+
+## 🗄️ Base de Datos
+
+### Sistema Dual SQLite ↔ PostgreSQL
+
+El proyecto utiliza un **sistema automático** que detecta el entorno y selecciona la base de datos apropiada:
+
+- **🏠 Desarrollo Local**: SQLite (archivo `rifas.db`)
+- **☁️ Producción (Vercel)**: PostgreSQL (Vercel Postgres)
+
+**Sin configuración manual necesaria** - el switch es completamente automático basado en la presencia de `POSTGRES_URL`.
+
+📖 **Documentación completa**: [Guía de Migración PostgreSQL](docs/POSTGRES_MIGRATION_GUIDE.md)
+
+### Ventajas del Sistema
+
+✅ **Desarrollo rápido** - SQLite sin configuración
+✅ **Producción escalable** - PostgreSQL en la nube
+✅ **Zero-config** - Detección automática de entorno
+✅ **Mismo código** - API unificada para ambas bases de datos
 
 ## 🚀 Instalación y Configuración
 
@@ -87,6 +113,7 @@ SimulaRifas_Personal/
 - **Node.js** (versión 14 o superior)
 - **npm** o **yarn**
 - Navegador web moderno
+- *Opcional*: Cuenta de Vercel para deploy en producción
 
 ### Instalación Local
 
@@ -269,15 +296,16 @@ DELETE /api/rifas/:id/participants/:user/numbers # FASE 3: Eliminar todos los n�
 - **FASE 5**: Layout responsivo mejorado (6 breakpoints, touch-optimized)
 
 ### 🔄 En Progreso
-- **FASE 6**: Botón sorteo directo desde "Mis Simulaciones"
+- Testing exhaustivo en producción
+- Optimizaciones de rendimiento
 
-### 📋 Próximas Features
-- **FASE 6**: Botón sorteo directo
-- **FASE 7**: Sistema de fechas programadas
-- **FASE 18**: Migración a Firebase/Firestore
-- Notificaciones push
-- Analytics de rifas
-- Modo oscuro
+### 📋 Próximas Features (Ver [Roadmap](docs/ROADMAP_COMPLETO.md))
+- **FASE 6**: Botón sorteo directo desde "Mis Simulaciones"
+- **FASE 7**: Sistema de fechas programadas para sorteos
+- **FASE 8**: Notificaciones por email
+- **FASE 9**: Modo oscuro con toggle
+- **FASE 10**: PWA (Progressive Web App)
+- **FASE 18**: Posible migración a Firebase/Firestore
 
 ## 🗺️ Roadmap de Desarrollo
 
@@ -295,11 +323,11 @@ El proyecto sigue un roadmap estructurado en **200 fases** organizadas en **11 b
 - Temas y personalización
 - PWA y funcionalidades móviles
 
-Para ver el roadmap completo, consulta [ROADMAP_COMPLETO.md](ROADMAP_COMPLETO.md)
+Para ver el roadmap completo, consulta [ROADMAP_COMPLETO.md](docs/ROADMAP_COMPLETO.md)
 
 ## 📊 Registro de Cambios
 
-Para ver todos los cambios detallados por fase, consulta [CHANGELOG.md](CHANGELOG.md)
+Para ver todos los cambios detallados por fase, consulta [CHANGELOG.md](docs/CHANGELOG.md)
 
 ### Últimos Cambios (FASE 5)
 - ✅ **FASE 5**: Layout responsivo mejorado - 6 breakpoints, touch-optimized
@@ -338,16 +366,20 @@ Este proyecto está bajo la Licencia MIT. Ver `LICENSE` para más detalles.
 
 Si tienes problemas o preguntas:
 
-1. Revisa la documentación en `PRODUCTO.md`
+1. Revisa la documentación en `docs/PRODUCTO.md`
 2. Busca en [Issues](https://github.com/fasmote/Simulador_rifas_personales/issues)
 3. Crea un nuevo issue si es necesario
 
 ## 🔗 Links Útiles
 
-- [Documentación Técnica](PRODUCTO.md)
-- [Roadmap Completo](ROADMAP_COMPLETO.md)
-- [Registro de Cambios](CHANGELOG.md)
-- [Demo en Vivo](https://talento-tech-simula-rifas.vercel.app/)
+- [Documentación Técnica](docs/PRODUCTO.md)
+- [Roadmap Completo](docs/ROADMAP_COMPLETO.md)
+- [Registro de Cambios](docs/CHANGELOG.md)
+- [Plan de Fases](docs/PLAN_FASES.md)
+- [Diccionario de Funciones](docs/DICCIONARIO_FUNCIONES.md)
+- [Guía Migración PostgreSQL](docs/POSTGRES_MIGRATION_GUIDE.md)
+- [Arquitectura de Base de Datos](docs/ARQUITECTURA_DATABASE.md)
+- [Demo en Vivo](https://simulador-rifas-personales.vercel.app/)
 
 ---
 
@@ -355,6 +387,6 @@ Si tienes problemas o preguntas:
 
 **🎲 SimulaRifas - Proyecto Personal de Desarrollo Full-Stack 🎲**
 
-[Demo](https://talento-tech-simula-rifas.vercel.app/) • [Documentación](PRODUCTO.md) • [Reporte de Bug](https://github.com/fasmote/Simulador_rifas_personales/issues)
+[Demo](https://simulador-rifas-personales.vercel.app/) • [Documentación](docs/PRODUCTO.md) • [Reporte de Bug](https://github.com/fasmote/Simulador_rifas_personales/issues)
 
 </div>
