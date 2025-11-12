@@ -4,6 +4,132 @@ Registro detallado de cambios por fase del proyecto SimulaRifas.
 
 ---
 
+## 🐘 **MIGRACIÓN: SQLite → PostgreSQL** *(12/11/2025)*
+
+### 🎯 Objetivo
+Migrar de SQLite (archivo local) a Vercel Postgres (base de datos en la nube) para permitir persistencia de datos en producción.
+
+### 🔧 Cambios Técnicos
+
+#### **PASO 1: Instalación de Dependencias**
+- ✅ Agregada dependencia `pg@^8.11.3` (driver oficial de PostgreSQL para Node.js)
+- ✅ Mantiene compatibilidad con `sqlite3` para desarrollo local
+
+#### **PASO 2: Configuración de PostgreSQL**
+- ✅ **Nuevo archivo:** `backend/database/postgres-config.js` (176 líneas)
+  - Pool de conexiones optimizado para serverless
+  - SSL habilitado para Vercel Postgres
+  - Conversión automática de placeholders `?` → `$1, $2, $3...`
+  - Auto-agregar `RETURNING id` a queries INSERT
+  - Interfaz compatible con SQLite (runQuery, getQuery, allQuery)
+
+- ✅ **Nuevo archivo:** `backend/.env.example`
+  - Documentación de variables de entorno necesarias
+  - Instrucciones para desarrollo local vs producción
+
+#### **PASO 3: Actualización de Queries SQL**
+
+**backend/database/init.js:**
+- `INTEGER PRIMARY KEY AUTOINCREMENT` → `SERIAL PRIMARY KEY`
+- `DATETIME` → `TIMESTAMP`
+- `INSERT OR IGNORE` → `INSERT ... ON CONFLICT DO NOTHING`
+- Manejo de errores compatible con ambas bases de datos
+
+**backend/routes/rifas.js:**
+- `datetime(selected_at, 'localtime')` → `selected_at` (PostgreSQL maneja timezone automáticamente)
+- `GROUP_CONCAT(number ORDER BY number)` → `STRING_AGG(number::text, ',' ORDER BY number)`
+
+**backend/database/demo-content.js:**
+- `datetime('now')` → `CURRENT_TIMESTAMP` / `NOW()`
+- `datetime('now', '-X hours')` → `NOW() - INTERVAL '1 hour' * X`
+- Agregado `RETURNING id` explícitamente en INSERT
+
+**backend/database/sample-data.js:**
+- Detección de errores compatible con PostgreSQL: `duplicate key` además de `UNIQUE constraint`
+
+**backend/database/database.js:**
+- ⭐ **Switch automático basado en entorno**
+- Detecta `process.env.POSTGRES_URL`:
+  - ✅ Presente → Usa PostgreSQL (Vercel)
+  - ❌ Ausente → Usa SQLite (desarrollo local)
+- Zero cambios necesarios en código de routes/controllers
+- Misma interfaz API para ambas bases de datos
+
+### 📚 Documentación Creada
+
+- ✅ **`docs/POSTGRES_MIGRATION_GUIDE.md`** - Guía educativa completa (600+ líneas)
+  - Explicación detallada de diferencias SQLite vs PostgreSQL
+  - Ejemplos de código antes/después
+  - Arquitectura de la solución con diagramas
+  - Troubleshooting y debugging
+  - Conceptos clave explicados paso a paso
+
+### 🎓 Diferencias Clave SQLite vs PostgreSQL
+
+| Concepto | SQLite | PostgreSQL |
+|----------|--------|------------|
+| **Auto-increment PK** | `INTEGER PRIMARY KEY AUTOINCREMENT` | `SERIAL PRIMARY KEY` |
+| **Fechas** | `DATETIME` | `TIMESTAMP` |
+| **Insert o ignorar** | `INSERT OR IGNORE` | `INSERT ... ON CONFLICT DO NOTHING` |
+| **Concatenar strings** | `GROUP_CONCAT()` | `STRING_AGG(col::text, ',')` |
+| **Fecha actual** | `datetime('now')` | `NOW()` / `CURRENT_TIMESTAMP` |
+| **Restar tiempo** | `datetime('now', '-72 hours')` | `NOW() - INTERVAL '1 hour' * 72` |
+| **Placeholders** | `?` para todos | `$1, $2, $3...` numerados |
+| **Retornar ID** | Automático (`lastID`) | Requiere `RETURNING id` |
+
+### 💡 Ventajas de la Arquitectura
+
+1. **Desarrollo Local Rápido**
+   - SQLite no requiere servidor externo
+   - Base de datos en archivo (.db)
+   - Testing más rápido
+
+2. **Producción Robusta**
+   - PostgreSQL en la nube (Vercel)
+   - Persistencia garantizada entre deploys
+   - Múltiples conexiones simultáneas
+   - Escalabilidad horizontal
+
+3. **Zero Duplicación**
+   - Mismo código de routes/controllers
+   - Switch automático transparente
+   - Mantención simplificada
+
+### 📊 Impacto
+
+- **Archivos nuevos:** 2 (postgres-config.js, .env.example)
+- **Archivos modificados:** 6
+- **Líneas nuevas:** ~200
+- **Líneas modificadas:** ~150
+- **Líneas refactorizadas:** ~90
+- **Total:** ~440 líneas
+
+### 🔄 Estrategia de Branches
+
+- `claude/postgres-step-1-...` - Dependencia pg
+- `claude/postgres-step-2-...` - Configuración PostgreSQL
+- `claude/postgres-step-3-...` - Actualización de queries SQL
+- Cada step en branch separado para permitir rollback fácil
+
+### ✅ Estado Actual
+
+- [x] PASO 0: Base de datos creada en Vercel
+- [x] PASO 1: Dependencia `pg` instalada
+- [x] PASO 2: Configuración PostgreSQL completa
+- [x] PASO 3: Queries SQL actualizadas
+- [x] PASO 3.5: Documentación educativa creada
+- [ ] PASO 4: Script de inicialización en producción
+- [ ] PASO 5: Testing y merge final
+
+### 🚀 Próximos Pasos
+
+1. Crear script para inicializar tablas en Vercel Postgres
+2. Testing en producción
+3. Merge de todos los branches
+4. Verificar persistencia de datos
+
+---
+
 ## 🎉 **FASE 5: Layout Responsivo Mejorado** *(07/11/2025)*
 
 ### ✨ Nuevas Características
