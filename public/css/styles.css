@@ -979,13 +979,12 @@ h3 {
 
     /* Botones adaptados a móvil */
     .btn {
-        width: 100%;
-        padding: 12px 16px;
+        padding: 10px 16px;
         font-size: 0.9rem;
     }
 
     .controls {
-        flex-direction: column;
+        justify-content: center;
         gap: 8px;
     }
 
