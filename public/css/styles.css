@@ -562,9 +562,10 @@ h1 {
 /* ========== TARJETAS DE RIFAS ========== */
 .rifas-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 25px;
     margin-bottom: 30px;
+    max-width: 1400px;
 }
 
 .rifa-card {
@@ -574,6 +575,8 @@ h1 {
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     text-align: center;
     transition: transform 0.3s ease;
+    max-width: 450px;
+    justify-self: start;
 }
 
 .rifa-card:hover {
@@ -919,7 +922,7 @@ h3 {
 
     /* Tarjetas de rifa responsivas */
     .rifas-grid {
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
         gap: 20px;
     }
 }
