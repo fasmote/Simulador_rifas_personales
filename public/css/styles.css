@@ -713,6 +713,31 @@ h1 {
     to { transform: translateX(0); opacity: 1; }
 }
 
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+@keyframes winnerPulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 25px 70px rgba(0,0,0,0.5); }
+    50% { transform: scale(1.02); box-shadow: 0 30px 80px rgba(255,215,0,0.3); }
+}
+
 /* ========================================
    FASE 5: RESPONSIVE DESIGN MEJORADO
    ======================================== */

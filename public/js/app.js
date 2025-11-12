@@ -1126,20 +1126,25 @@ async function showPerfilPage() {
                                 </p>
                             </div>
                             
-                            <div style="display: flex; gap: 8px; margin-top: 15px;">
-                                <button class="btn btn-primary" onclick="viewRifa(${rifa.id})" style="flex: 1; font-size: 0.9rem;">
+                            <div style="display: flex; gap: 8px; margin-top: 15px; flex-wrap: wrap;">
+                                <button class="btn btn-primary" onclick="viewRifa(${rifa.id})" style="flex: 1; font-size: 0.9rem; min-width: 80px;">
                                     👁️ Ver
                                 </button>
                                 ${!isCompleted ? `
-                                <button class="btn btn-secondary" onclick="editRifa(${rifa.id})" style="flex: 1; font-size: 0.9rem;">
+                                <button class="btn btn-secondary" onclick="editRifa(${rifa.id})" style="flex: 1; font-size: 0.9rem; min-width: 80px;">
                                     ✏️ Editar
                                 </button>
+                                ${rifa.numbers_sold > 0 ? `
+                                <button class="btn" onclick="quickDraw(${rifa.id}, '${rifa.title}')" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; flex: 1; font-size: 0.9rem; min-width: 80px; font-weight: bold; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+                                    🎲 Sortear
+                                </button>
+                                ` : ''}
                                 ` : `
-                                <button class="btn" onclick="viewRifa(${rifa.id})" style="background: #4caf50; color: white; flex: 1; font-size: 0.9rem;">
+                                <button class="btn" onclick="viewRifa(${rifa.id})" style="background: #4caf50; color: white; flex: 1; font-size: 0.9rem; min-width: 80px;">
                                     📊 Resultado
                                 </button>
                                 `}
-                                <button class="btn" onclick="deleteRifa(${rifa.id})" style="background: #ff6b6b; color: white; flex: 0.5; font-size: 0.9rem;">
+                                <button class="btn" onclick="deleteRifa(${rifa.id})" style="background: #ff6b6b; color: white; flex: 0.5; font-size: 0.9rem; min-width: 40px;">
                                     🗑️
                                 </button>
                             </div>
@@ -1735,7 +1740,7 @@ async function deleteRifa(rifaId) {
     if (!confirm('¿Estás seguro de que quieres eliminar esta simulación? Esta acción no se puede deshacer.')) {
         return;
     }
-    
+
     try {
         const response = await fetch(`${API_BASE}/rifas/${rifaId}`, {
             method: 'DELETE',
@@ -1743,7 +1748,7 @@ async function deleteRifa(rifaId) {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`
             }
         });
-        
+
         if (response.ok) {
             showNotification('Simulación eliminada exitosamente');
             showPerfilPage(); // Recargar la página de perfil
@@ -1754,6 +1759,222 @@ async function deleteRifa(rifaId) {
     } catch (error) {
         console.error('Error:', error);
         showNotification('Error de conexión', 'error');
+    }
+}
+
+// ========== FASE 6: SORTEO DIRECTO ==========
+
+async function quickDraw(rifaId, rifaTitle) {
+    // Crear modal de confirmación
+    const modalHtml = `
+        <div id="quickDrawModal" style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            animation: fadeIn 0.2s ease;
+        ">
+            <div style="
+                background: white;
+                border-radius: 20px;
+                padding: 40px;
+                max-width: 500px;
+                width: 90%;
+                text-align: center;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+                animation: slideUp 0.3s ease;
+            ">
+                <div style="font-size: 4rem; margin-bottom: 20px;">🎲</div>
+                <h2 style="color: #333; margin-bottom: 15px;">Realizar Sorteo</h2>
+                <h3 style="color: #667eea; margin-bottom: 20px;">"${rifaTitle}"</h3>
+                <p style="color: #666; margin-bottom: 30px; line-height: 1.6;">
+                    ¿Estás seguro de que quieres realizar el sorteo ahora?<br>
+                    <strong>Esta acción no se puede deshacer.</strong>
+                </p>
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <button onclick="closeQuickDrawModal()" class="btn btn-secondary" style="flex: 1;">
+                        ❌ Cancelar
+                    </button>
+                    <button onclick="executeQuickDraw(${rifaId}, '${rifaTitle}')" class="btn" style="flex: 1; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        🎲 Sortear Ahora
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Agregar modal al DOM
+    const modalContainer = document.createElement('div');
+    modalContainer.innerHTML = modalHtml;
+    document.body.appendChild(modalContainer.firstElementChild);
+}
+
+function closeQuickDrawModal() {
+    const modal = document.getElementById('quickDrawModal');
+    if (modal) {
+        modal.style.animation = 'fadeOut 0.2s ease';
+        setTimeout(() => modal.remove(), 200);
+    }
+}
+
+async function executeQuickDraw(rifaId, rifaTitle) {
+    // Cerrar modal de confirmación
+    closeQuickDrawModal();
+
+    // Mostrar modal de carga
+    const loadingHtml = `
+        <div id="drawLoadingModal" style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        ">
+            <div style="
+                background: white;
+                border-radius: 20px;
+                padding: 40px;
+                text-align: center;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            ">
+                <div style="font-size: 4rem; animation: spin 1s linear infinite;">🎲</div>
+                <p style="color: #667eea; font-size: 1.2rem; font-weight: bold; margin-top: 20px;">
+                    Realizando sorteo...
+                </p>
+            </div>
+        </div>
+    `;
+
+    const loadingContainer = document.createElement('div');
+    loadingContainer.innerHTML = loadingHtml;
+    document.body.appendChild(loadingContainer.firstElementChild);
+
+    try {
+        const response = await fetch(`${API_BASE}/rifas/${rifaId}/draw`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+            }
+        });
+
+        // Cerrar modal de carga
+        const loadingModal = document.getElementById('drawLoadingModal');
+        if (loadingModal) loadingModal.remove();
+
+        if (response.ok) {
+            const data = await response.json();
+            showQuickDrawResult(data.winner, rifaTitle);
+
+            // Recargar lista después de 3 segundos
+            setTimeout(() => showPerfilPage(), 3000);
+        } else {
+            const data = await response.json();
+            showNotification(data.error || 'Error realizando sorteo', 'error');
+        }
+    } catch (error) {
+        // Cerrar modal de carga en caso de error
+        const loadingModal = document.getElementById('drawLoadingModal');
+        if (loadingModal) loadingModal.remove();
+
+        console.error('Error:', error);
+        showNotification('Error de conexión', 'error');
+    }
+}
+
+function showQuickDrawResult(winner, rifaTitle) {
+    const resultHtml = `
+        <div id="quickDrawResultModal" style="
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            animation: fadeIn 0.3s ease;
+        ">
+            <div style="
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border-radius: 25px;
+                padding: 50px;
+                max-width: 600px;
+                width: 90%;
+                text-align: center;
+                box-shadow: 0 25px 70px rgba(0,0,0,0.5);
+                border: 3px solid gold;
+                animation: winnerPulse 1s ease infinite;
+            ">
+                <div style="font-size: 6rem; margin-bottom: 20px; animation: bounce 1s ease infinite;">🏆</div>
+                <h2 style="color: white; font-size: 2rem; margin-bottom: 15px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">
+                    ¡GANADOR!
+                </h2>
+                <h3 style="color: #ffd700; font-size: 1.3rem; margin-bottom: 25px;">
+                    "${rifaTitle}"
+                </h3>
+                <div style="
+                    background: white;
+                    border-radius: 15px;
+                    padding: 30px;
+                    margin: 20px 0;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                ">
+                    <p style="color: #667eea; font-size: 1.1rem; margin-bottom: 10px;">Número ganador:</p>
+                    <div style="
+                        font-size: 4rem;
+                        font-weight: bold;
+                        color: #667eea;
+                        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        -webkit-background-clip: text;
+                        -webkit-text-fill-color: transparent;
+                        margin: 10px 0;
+                    ">${String(winner.number).padStart(2, '0')}</div>
+                    <p style="color: #333; font-size: 1.3rem; font-weight: bold; margin-top: 15px;">
+                        ${winner.participant_name}
+                    </p>
+                </div>
+                <p style="color: rgba(255,255,255,0.9); font-size: 0.9rem; margin-top: 20px;">
+                    La lista se actualizará automáticamente...
+                </p>
+                <button onclick="closeQuickDrawResultModal()" class="btn" style="
+                    background: white;
+                    color: #667eea;
+                    margin-top: 20px;
+                    font-weight: bold;
+                    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+                ">
+                    ✅ Entendido
+                </button>
+            </div>
+        </div>
+    `;
+
+    const resultContainer = document.createElement('div');
+    resultContainer.innerHTML = resultHtml;
+    document.body.appendChild(resultContainer.firstElementChild);
+}
+
+function closeQuickDrawResultModal() {
+    const modal = document.getElementById('quickDrawResultModal');
+    if (modal) {
+        modal.style.animation = 'fadeOut 0.3s ease';
+        setTimeout(() => {
+            modal.remove();
+            showPerfilPage(); // Recargar inmediatamente al cerrar
+        }, 300);
     }
 }
 
