@@ -72,7 +72,7 @@ router.get('/my', authenticateToken, async (req, res) => {
 router.get('/my/:id', authenticateToken, async (req, res) => {
     try {
         const rifa = await getQuery(`
-            SELECT 
+            SELECT
                 r.*,
                 u.username as creator_username,
                 COUNT(rn.id) as numbers_sold
@@ -80,7 +80,7 @@ router.get('/my/:id', authenticateToken, async (req, res) => {
             LEFT JOIN users u ON r.user_id = u.id
             LEFT JOIN rifa_numbers rn ON r.id = rn.rifa_id
             WHERE r.id = ? AND r.user_id = ?
-            GROUP BY r.id
+            GROUP BY r.id, u.username
         `, [req.params.id, req.user.id]);
 
         if (!rifa) {
@@ -123,18 +123,18 @@ router.get('/my/:id', authenticateToken, async (req, res) => {
 router.get('/:id', async (req, res) => {
     try {
         const rifa = await getQuery(`
-            SELECT 
+            SELECT
                 r.*,
-                CASE 
+                CASE
                     WHEN r.user_id IS NULL THEN 'Sistema'
-                    ELSE u.username 
+                    ELSE u.username
                 END as creator_username,
                 COUNT(rn.id) as numbers_sold
             FROM rifas r
             LEFT JOIN users u ON r.user_id = u.id
             LEFT JOIN rifa_numbers rn ON r.id = rn.rifa_id
             WHERE r.id = ? AND r.is_public = TRUE
-            GROUP BY r.id
+            GROUP BY r.id, u.username
         `, [req.params.id]);
 
         if (!rifa) {
@@ -163,9 +163,9 @@ router.get('/:id', async (req, res) => {
 router.get('/access/:code', async (req, res) => {
     try {
         const code = req.params.code.toUpperCase();
-        
+
         const rifa = await getQuery(`
-            SELECT 
+            SELECT
                 r.*,
                 u.username as creator_username,
                 COUNT(rn.id) as numbers_sold
@@ -173,7 +173,7 @@ router.get('/access/:code', async (req, res) => {
             LEFT JOIN users u ON r.user_id = u.id
             LEFT JOIN rifa_numbers rn ON r.id = rn.rifa_id
             WHERE UPPER(r.access_code) = ?
-            GROUP BY r.id
+            GROUP BY r.id, u.username
         `, [code]);
 
         if (!rifa) {
