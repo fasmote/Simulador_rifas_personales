@@ -9,10 +9,12 @@
     "init-db": "node database/init.js",
     "sample-data": "node database/sample-data.js",
     "demo-content": "node database/demo-content.js",
+    "setup-prod": "node database/setup-production.js",
     "reset-db": "npm run init-db && npm run sample-data",
     "reset-demo": "npm run init-db && npm run demo-content",
     "verify": "node verificar.js",
-    "test": "npm run verify"
+    "test": "npm run verify",
+    "postinstall": "npm run setup-prod"
   },
   "dependencies": {
     "express": "^4.18.2",
