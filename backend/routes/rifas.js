@@ -4,17 +4,6 @@ const { authenticateToken, optionalAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
-// FASE 2: Función para formatear fechas con formato argentino
-function formatDateForTooltip(date) {
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear();
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    
-    return `${day}/${month}/${year} ${hours}:${minutes}`;
-}
-
 // Función para generar código de acceso
 const generateAccessCode = () => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -455,42 +444,58 @@ router.get('/:id/numbers', async (req, res) => {
 });
 
 // FASE 2: Función helper para formatear fechas en tooltips
-// Esta función toma un timestamp de SQLite y lo convierte a formato argentino legible
-// Entrada: "2025-08-02 15:30:45" (formato SQLite datetime)
+// Esta función maneja tanto strings (SQLite) como objetos Date (PostgreSQL)
+// Entrada: "2025-08-02 15:30:45" (string de SQLite) o Date object (PostgreSQL)
 // Salida: "02/08/2025 a las 15:30" (formato argentino DD/MM/YYYY a las HH:MM)
-function formatDateForTooltip(dateString) {
-    if (!dateString) return 'fecha desconocida';
-    
+function formatDateForTooltip(dateInput) {
+    if (!dateInput) return 'fecha desconocida';
+
     try {
-        // dateString viene en formato: "2025-08-02 15:30:45"
-        // Separamos fecha y hora
-        const [datePart, timePart] = dateString.split(' ');
-        const [year, month, day] = datePart.split('-');
-        const [hours, minutes] = timePart.split(':');
-        
-        // Creamos objeto Date (month-1 porque Date usa meses 0-11)
-        const date = new Date(year, month - 1, day, hours, minutes);
-        
+        let date;
+
+        // Verificar si es un objeto Date (PostgreSQL) o string (SQLite)
+        if (dateInput instanceof Date) {
+            // PostgreSQL devuelve objetos Date directamente
+            date = dateInput;
+        } else if (typeof dateInput === 'string') {
+            // SQLite devuelve strings: "2025-08-02 15:30:45"
+            const [datePart, timePart] = dateInput.split(' ');
+            const [year, month, day] = datePart.split('-');
+            const [hours, minutes] = timePart.split(':');
+
+            // Creamos objeto Date (month-1 porque Date usa meses 0-11)
+            date = new Date(year, month - 1, day, hours, minutes);
+        } else {
+            // Si no es Date ni string, intentar convertir a Date
+            date = new Date(dateInput);
+        }
+
+        // Verificar que la fecha sea válida
+        if (isNaN(date.getTime())) {
+            console.error('Fecha inválida:', dateInput);
+            return 'fecha inválida';
+        }
+
         // Configuración para formato argentino
-        const dateOptions = { 
+        const dateOptions = {
             day: '2-digit',      // 02
-            month: '2-digit',    // 08  
+            month: '2-digit',    // 08
             year: 'numeric'      // 2025
         };
-        
-        const timeOptions = { 
+
+        const timeOptions = {
             hour: '2-digit',     // 15
             minute: '2-digit',   // 30
             hour12: false        // Formato 24 horas
         };
-        
+
         // Formateo con locale argentino
         const formattedDate = date.toLocaleDateString('es-AR', dateOptions);
         const formattedTime = date.toLocaleTimeString('es-AR', timeOptions);
-        
+
         return `${formattedDate} a las ${formattedTime}`;
     } catch (error) {
-        console.error('Error formateando fecha:', error);
+        console.error('Error formateando fecha:', error, 'Input:', dateInput);
         return 'fecha inválida';
     }
 }
