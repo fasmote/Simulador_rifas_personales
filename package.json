@@ -1,0 +1,17 @@
+{
+  "name": "simulador-rifas-personal",
+  "version": "5.0.0",
+  "description": "Simulador de Rifas - Proyecto Personal Full-Stack",
+  "main": "backend/app.js",
+  "scripts": {
+    "start": "cd backend && npm start",
+    "build": "echo 'Build complete'",
+    "vercel-build": "cd backend && npm install"
+  },
+  "engines": {
+    "node": ">=14.x"
+  },
+  "keywords": ["rifas", "simulador", "nodejs", "express"],
+  "author": "Claudio",
+  "license": "MIT"
+}

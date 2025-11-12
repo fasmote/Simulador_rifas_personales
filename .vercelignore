@@ -1,0 +1,43 @@
+# Vercel Ignore File
+# Archivos y carpetas que no se deben subir a Vercel
+
+# Dependencias
+node_modules/
+backend/node_modules/
+
+# Base de datos local (SQLite)
+backend/database/*.db
+*.db
+*.sqlite
+*.sqlite3
+
+# Archivos de desarrollo
+backend/database/demo-content.js
+backend/database/sample-data.js
+backend/diagnostico*.js
+backend/test_*.js
+backend/verificar*.js
+backend/aplicar_fix_ver.js
+backend/reparar_ver.js
+backend/solucion_completa.js
+
+# Archivos temporales
+temp_delete/
+_screenshot/
+_log/
+*.log
+
+# Archivos de test
+test_*.html
+*.bat
+
+# Environment
+.env
+backend/.env
+
+# Git
+.git/
+.gitignore
+
+# Documentación de desarrollo (opcional)
+DICCIONARIO_FUNCIONES.md
