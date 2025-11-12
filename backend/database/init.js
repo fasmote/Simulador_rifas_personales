@@ -171,10 +171,22 @@ const initDatabase = async () => {
         console.log('   🎯 Usuarios pueden explorar sin registrarse');
         console.log('   🔍 Experiencia completa para usuarios anónimos');
 
-        process.exit(0);
+        // Solo hacer exit si se ejecuta directamente
+        if (require.main === module) {
+            process.exit(0);
+        }
+
+        return { success: true };
     } catch (error) {
         console.error('❌ Error inicializando base de datos:', error);
-        process.exit(1);
+
+        // Solo hacer exit si se ejecuta directamente
+        if (require.main === module) {
+            process.exit(1);
+        }
+
+        // Si se importó como módulo, lanzar el error
+        throw error;
     }
 };
 
