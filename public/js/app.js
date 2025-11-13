@@ -1172,20 +1172,19 @@ async function showPerfilPage() {
                                 <button class="btn btn-primary" onclick="viewRifa(${rifa.id})" style="flex: 1; font-size: 0.9rem; min-width: 70px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
                                     👁️ Ver
                                 </button>
-                                ${!isCompleted ? `
-                                <button class="btn btn-secondary" onclick="editRifa(${rifa.id})" style="flex: 1; font-size: 0.9rem; min-width: 70px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                                <button class="btn btn-secondary" onclick="${isCompleted ? '' : `editRifa(${rifa.id})`}" ${isCompleted ? 'disabled' : ''} style="flex: 1; font-size: 0.9rem; min-width: 70px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); ${isCompleted ? 'opacity: 0.5; cursor: not-allowed; background: #ccc;' : ''}">
                                     ✏️ Editar
                                 </button>
-                                ${rifa.numbers_sold > 0 ? `
+                                ${!isCompleted && rifa.numbers_sold > 0 ? `
                                 <button class="btn" onclick="quickDraw(${rifa.id}, '${rifa.title}')" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; flex: 1; font-size: 0.9rem; min-width: 70px; font-weight: bold; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
                                     🎲 Sortear
                                 </button>
                                 ` : ''}
-                                ` : `
+                                ${isCompleted ? `
                                 <button class="btn" onclick="showCompletedRifaResult(${rifa.id})" style="background: #4caf50; color: white; flex: 1; font-size: 0.8rem; min-width: 85px; padding: 10px 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
                                     📊 Ver Ganador
                                 </button>
-                                `}
+                                ` : ''}
                                 <button class="btn" onclick="deleteRifa(${rifa.id})" style="background: #ff6b6b; color: white; flex: 0.5; font-size: 0.9rem; min-width: 45px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
                                     🗑️
                                 </button>
