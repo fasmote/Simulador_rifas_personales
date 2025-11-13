@@ -1753,18 +1753,37 @@ async function editRifa(rifaId) {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`
             }
         });
-        
+
         if (response.ok) {
             const data = await response.json();
             const rifa = data.rifa;
-            
+
             // Cargar datos en el modal de edición
             document.getElementById('editRifaTitle').value = rifa.title;
             document.getElementById('editRifaDescription').value = rifa.description;
-            
+
+            // FASE 7: Cargar fecha programada y mensaje
+            const scheduledDateInput = document.getElementById('editRifaScheduledDate');
+            if (rifa.scheduled_draw_date) {
+                // Convertir timestamp a formato datetime-local (YYYY-MM-DDTHH:MM)
+                const date = new Date(rifa.scheduled_draw_date);
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                scheduledDateInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+            } else {
+                scheduledDateInput.value = '';
+            }
+
+            const ownerMessageInput = document.getElementById('editRifaOwnerMessage');
+            ownerMessageInput.value = rifa.owner_message || '';
+            document.getElementById('editRifaOwnerMessageCount').textContent = (rifa.owner_message || '').length;
+
             // Mostrar modal
             document.getElementById('editRifaModal').style.display = 'flex';
-            
+
             // Guardar ID para el submit
             document.getElementById('editRifaForm').dataset.rifaId = rifaId;
         } else {
@@ -2102,18 +2121,36 @@ function closeEditRifaModal() {
 
 // Event listeners para formularios (configurados después de DOMContentLoaded)
 document.addEventListener('DOMContentLoaded', function() {
+    // FASE 7: Contador de caracteres para mensaje del propietario (crear)
+    const rifaOwnerMessage = document.getElementById('rifaOwnerMessage');
+    if (rifaOwnerMessage) {
+        rifaOwnerMessage.addEventListener('input', function() {
+            document.getElementById('rifaOwnerMessageCount').textContent = this.value.length;
+        });
+    }
+
+    // FASE 7: Contador de caracteres para mensaje del propietario (editar)
+    const editRifaOwnerMessage = document.getElementById('editRifaOwnerMessage');
+    if (editRifaOwnerMessage) {
+        editRifaOwnerMessage.addEventListener('input', function() {
+            document.getElementById('editRifaOwnerMessageCount').textContent = this.value.length;
+        });
+    }
+
     // Event listener para crear simulación
     document.getElementById('createRifaForm').addEventListener('submit', async function(e) {
         e.preventDefault();
-        
+
         const title = document.getElementById('rifaTitle').value;
         const description = document.getElementById('rifaDescription').value;
-        
+        const scheduled_draw_date = document.getElementById('rifaScheduledDate').value || null;
+        const owner_message = document.getElementById('rifaOwnerMessage').value || null;
+
         if (!title.trim()) {
             showNotification('El título es requerido', 'error');
             return;
         }
-        
+
         try {
             const response = await fetch(`${API_BASE}/rifas`, {
                 method: 'POST',
@@ -2121,14 +2158,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('authToken')}`
                 },
-                body: JSON.stringify({ title, description })
+                body: JSON.stringify({
+                    title,
+                    description,
+                    scheduled_draw_date,
+                    owner_message
+                })
             });
-            
+
             if (response.ok) {
                 const data = await response.json();
                 showNotification('Simulación creada exitosamente');
                 closeCreateRifaModal();
                 document.getElementById('createRifaForm').reset();
+                document.getElementById('rifaOwnerMessageCount').textContent = '0';
                 // Recargar la página de perfil para mostrar la nueva simulación
                 showPerfilPage();
             } else {
@@ -2144,16 +2187,18 @@ document.addEventListener('DOMContentLoaded', function() {
     // Event listener para editar simulación
     document.getElementById('editRifaForm').addEventListener('submit', async function(e) {
         e.preventDefault();
-        
+
         const rifaId = this.dataset.rifaId;
         const title = document.getElementById('editRifaTitle').value;
         const description = document.getElementById('editRifaDescription').value;
-        
+        const scheduled_draw_date = document.getElementById('editRifaScheduledDate').value || '';
+        const owner_message = document.getElementById('editRifaOwnerMessage').value || '';
+
         if (!rifaId) {
             showNotification('Error: ID de simulación no válido', 'error');
             return;
         }
-        
+
         try {
             const response = await fetch(`${API_BASE}/rifas/${rifaId}`, {
                 method: 'PUT',
@@ -2161,9 +2206,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('authToken')}`
                 },
-                body: JSON.stringify({ title, description })
+                body: JSON.stringify({
+                    title,
+                    description,
+                    scheduled_draw_date,
+                    owner_message
+                })
             });
-            
+
             if (response.ok) {
                 showNotification('Simulación actualizada exitosamente');
                 closeEditRifaModal();
@@ -2179,6 +2229,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+// FASE 7: Función para quitar la fecha programada
+function clearScheduledDate() {
+    document.getElementById('editRifaScheduledDate').value = '';
+    showNotification('Fecha programada removida. No olvides guardar los cambios.', 'success');
+}
 
 // FASE 1: Cargar lista de participantes (Vista Administrativa)
 async function loadParticipants(rifaId) {

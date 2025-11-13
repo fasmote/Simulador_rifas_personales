@@ -82,6 +82,22 @@
             <form id="createRifaForm">
                 <input type="text" id="rifaTitle" placeholder="Título de la simulación" class="form-input" required>
                 <textarea id="rifaDescription" placeholder="Descripción del premio o evento" class="form-textarea" required></textarea>
+
+                <!-- FASE 7: Fecha programada del sorteo -->
+                <label for="rifaScheduledDate" style="display: block; margin-top: 15px; margin-bottom: 5px; color: #666; font-size: 0.9rem;">
+                    📅 Fecha y hora del sorteo (opcional):
+                </label>
+                <input type="datetime-local" id="rifaScheduledDate" class="form-input" placeholder="Fecha del sorteo">
+
+                <!-- FASE 7: Mensaje del propietario -->
+                <label for="rifaOwnerMessage" style="display: block; margin-top: 15px; margin-bottom: 5px; color: #666; font-size: 0.9rem;">
+                    💬 Mensaje para los participantes (opcional):
+                </label>
+                <textarea id="rifaOwnerMessage" placeholder="Ej: El sorteo se realizará en vivo por Instagram" class="form-textarea" maxlength="100" rows="3"></textarea>
+                <div style="text-align: right; font-size: 0.8rem; color: #999; margin-top: -5px;">
+                    <span id="rifaOwnerMessageCount">0</span>/100
+                </div>
+
                 <div class="modal-buttons">
                     <button type="button" class="btn btn-secondary" onclick="closeCreateRifaModal()">Cancelar</button>
                     <button type="submit" class="btn btn-success">Crear Simulación</button>
@@ -97,6 +113,25 @@
             <form id="editRifaForm">
                 <input type="text" id="editRifaTitle" placeholder="Título de la simulación" class="form-input" required>
                 <textarea id="editRifaDescription" placeholder="Descripción del premio o evento" class="form-textarea" required></textarea>
+
+                <!-- FASE 7: Fecha programada del sorteo -->
+                <label for="editRifaScheduledDate" style="display: block; margin-top: 15px; margin-bottom: 5px; color: #666; font-size: 0.9rem;">
+                    📅 Fecha y hora del sorteo (opcional):
+                </label>
+                <input type="datetime-local" id="editRifaScheduledDate" class="form-input">
+                <button type="button" class="btn btn-secondary" onclick="clearScheduledDate()" style="margin-top: 5px; font-size: 0.85rem; padding: 8px 12px;">
+                    🗑️ Quitar fecha programada
+                </button>
+
+                <!-- FASE 7: Mensaje del propietario -->
+                <label for="editRifaOwnerMessage" style="display: block; margin-top: 15px; margin-bottom: 5px; color: #666; font-size: 0.9rem;">
+                    💬 Mensaje para los participantes (opcional):
+                </label>
+                <textarea id="editRifaOwnerMessage" placeholder="Ej: El sorteo se realizará en vivo por Instagram" class="form-textarea" maxlength="100" rows="3"></textarea>
+                <div style="text-align: right; font-size: 0.8rem; color: #999; margin-top: -5px;">
+                    <span id="editRifaOwnerMessageCount">0</span>/100
+                </div>
+
                 <div class="modal-buttons">
                     <button type="button" class="btn btn-secondary" onclick="closeEditRifaModal()">Cancelar</button>
                     <button type="submit" class="btn btn-success">Actualizar</button>
