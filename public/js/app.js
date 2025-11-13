@@ -1146,8 +1146,8 @@ async function showPerfilPage() {
                                 </button>
                                 ` : ''}
                                 ` : `
-                                <button class="btn" onclick="viewRifa(${rifa.id})" style="background: #4caf50; color: white; flex: 1; font-size: 0.85rem; min-width: 80px; padding: 10px 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
-                                    📊 Resultado
+                                <button class="btn" onclick="showCompletedRifaResult(${rifa.id}, '${rifa.title}', ${rifa.winner ? `{number: ${rifa.winner.number}, participant_name: '${rifa.winner.participant_name}'}` : 'null'})" style="background: #4caf50; color: white; flex: 1; font-size: 0.8rem; min-width: 85px; padding: 10px 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                                    📊 Ver Ganador
                                 </button>
                                 `}
                                 <button class="btn" onclick="deleteRifa(${rifa.id})" style="background: #ff6b6b; color: white; flex: 0.5; font-size: 0.9rem; min-width: 45px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
@@ -1984,6 +1984,17 @@ function closeQuickDrawResultModal() {
     }
 }
 
+// Mostrar resultado de rifa completada (desde botón "Ver Ganador")
+function showCompletedRifaResult(rifaId, rifaTitle, winner) {
+    if (!winner || !winner.number) {
+        showNotification('No se pudo cargar la información del ganador', 'error');
+        return;
+    }
+
+    // Reutilizar el modal de resultado de sorteo
+    showQuickDrawResult(winner, rifaTitle);
+}
+
 async function drawRifaWinner(rifaId) {
     try {
         const response = await fetch(`${API_BASE}/rifas/${rifaId}/draw`, {
@@ -2337,12 +2348,14 @@ async function viewRifaByCode(rifa, accessCode) {
                 </div>
 
                 <div class="controls">
+                    ${!isCompleted ? `
                     <button class="btn btn-secondary" onclick="selectRandomNumberForCode()">
                         🎯 Elegir al Azar
                     </button>
                     <button class="btn btn-primary" onclick="clearCodeSelection()">
                         🗑️ Limpiar Todo
                     </button>
+                    ` : ''}
                     ${!isCompleted ? `
                     <button class="btn btn-participate" onclick="participateInRifa(${rifa.id}, selectedNumbers)">
                         🎊 Participar
