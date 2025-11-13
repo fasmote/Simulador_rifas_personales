@@ -433,6 +433,35 @@ function showNotification(message, type = 'success') {
     }, 4000);
 }
 
+// Lanzar confetis cuando hay un ganador
+function launchConfetti() {
+    const colors = ['#ffd700', '#ff6b6b', '#4caf50', '#2196F3', '#ff9800', '#9c27b0'];
+    const confettiCount = 80;
+
+    for (let i = 0; i < confettiCount; i++) {
+        setTimeout(() => {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            confetti.style.opacity = Math.random();
+
+            // Formas variadas
+            if (Math.random() > 0.5) {
+                confetti.style.borderRadius = '50%';
+            }
+
+            document.body.appendChild(confetti);
+
+            // Remover después de la animación
+            setTimeout(() => {
+                confetti.remove();
+            }, 5000);
+        }, i * 30);
+    }
+}
+
 // ========== AUTENTICACIÓN ==========
 
 async function checkAuthStatus() {
@@ -1551,7 +1580,7 @@ async function viewRifa(rifaId) {
             <div class="page-header">
                 <h1>🎯 ${rifa.title}</h1>
                 <p class="subtitle">${rifa.description}</p>
-                ${isCompleted ? `<p style="background: #4caf50; color: white; padding: 10px; border-radius: 8px; text-align: center; margin-top: 10px;">
+                ${isCompleted ? `<p class="winner-banner">
                     🏆 ¡SIMULACIÓN COMPLETADA! Ganador: Número ${winnerNumber} (${rifa.winner.participant_name})
                 </p>` : ''}
             </div>
@@ -1658,10 +1687,15 @@ async function viewRifa(rifaId) {
         `;
         
         console.log('✅ [DEBUG] Vista cargada exitosamente');
-        
+
         // FASE 1: Cargar automáticamente la lista de participantes
         setTimeout(() => loadParticipants(rifaId), 500);
-        
+
+        // Lanzar confetis si la rifa está completada
+        if (isCompleted) {
+            setTimeout(() => launchConfetti(), 300);
+        }
+
     } catch (error) {
         console.error('❌ [ERROR] Error en viewRifa:', error);
         
@@ -2343,7 +2377,7 @@ async function viewRifaByCode(rifa, accessCode) {
                 </span>
             </div>
             
-            ${isCompleted ? `<p style="background: #4caf50; color: white; padding: 10px; border-radius: 8px; text-align: center; margin-top: 10px;">
+            ${isCompleted ? `<p class="winner-banner">
                 🏆 ¡SIMULACIÓN COMPLETADA! Ganador: Número ${winnerNumber} (${rifa.winner.participant_name})
             </p>` : ''}
         </div>
@@ -2489,10 +2523,15 @@ async function viewRifaByCode(rifa, accessCode) {
     
     // Generar grid interactivo
     generateRifaGrid(rifa);
-    
+
     // Resetear selección
     selectedNumbers = [];
     updateCart();
+
+    // Lanzar confetis si la rifa está completada
+    if (isCompleted) {
+        setTimeout(() => launchConfetti(), 300);
+    }
 }
 
 // ========== FASE 4: SISTEMA DE COLORES ÚNICOS POR PARTICIPANTE ==========

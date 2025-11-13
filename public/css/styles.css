@@ -307,6 +307,8 @@ h1 {
     background: linear-gradient(45deg, #ffd700, #ffb347);
     color: #333;
     border-color: #ffd700;
+    font-size: 1.8rem !important;
+    font-weight: bold;
     animation: pulse 1s infinite;
 }
 
@@ -739,6 +741,48 @@ h1 {
 @keyframes winnerPulse {
     0%, 100% { transform: scale(1); box-shadow: 0 25px 70px rgba(0,0,0,0.5); }
     50% { transform: scale(1.02); box-shadow: 0 30px 80px rgba(255,215,0,0.3); }
+}
+
+@keyframes winnerBannerPulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 8px 25px rgba(76, 175, 80, 0.6);
+    }
+}
+
+.winner-banner {
+    background: #4caf50;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    text-align: center;
+    margin-top: 10px;
+    font-size: 1.3rem;
+    font-weight: bold;
+    animation: winnerBannerPulse 1.5s ease-in-out infinite;
+}
+
+/* ========== CONFETIS ========== */
+.confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    background: #ffd700;
+    position: fixed;
+    top: -10px;
+    z-index: 9999;
+    animation: confetti-fall linear forwards;
+}
+
+@keyframes confetti-fall {
+    to {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+    }
 }
 
 /* ========================================
