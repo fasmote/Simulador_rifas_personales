@@ -872,7 +872,9 @@ h1 {
     margin-top: 10px;
     font-size: 1.3rem;
     font-weight: bold;
-    animation: winnerBannerPulse 1.5s ease-in-out infinite;
+    animation: winnerBannerPulse 1.5s ease-in-out infinite !important;
+    transform-origin: center center !important;
+    will-change: transform, box-shadow;
 }
 
 /* ========== CONFETIS ========== */
