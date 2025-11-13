@@ -1986,29 +1986,46 @@ function closeQuickDrawResultModal() {
 
 // Mostrar resultado de rifa completada (desde botón "Ver Ganador")
 async function showCompletedRifaResult(rifaId) {
+    console.log('🔍 [DEBUG] showCompletedRifaResult llamado con rifaId:', rifaId);
     try {
         const token = localStorage.getItem('authToken');
-        const response = await fetch(`${API_BASE}/rifas/${rifaId}`, {
+        const url = `${API_BASE}/rifas/my/${rifaId}`;
+        console.log('🔍 [DEBUG] Haciendo fetch a:', url);
+        console.log('🔍 [DEBUG] Token presente:', !!token);
+
+        const response = await fetch(url, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         });
 
+        console.log('🔍 [DEBUG] Response status:', response.status);
+        console.log('🔍 [DEBUG] Response ok:', response.ok);
+
         if (!response.ok) {
+            const errorText = await response.text();
+            console.log('🔍 [DEBUG] Error response body:', errorText);
             throw new Error('Error al cargar la rifa');
         }
 
-        const rifa = await response.json();
+        const data = await response.json();
+        console.log('🔍 [DEBUG] Data obtenida:', data);
+
+        const rifa = data.rifa || data;
+        console.log('🔍 [DEBUG] Rifa:', rifa);
+        console.log('🔍 [DEBUG] Winner:', rifa.winner);
 
         if (!rifa.winner || !rifa.winner.number) {
+            console.log('🔍 [DEBUG] Rifa no tiene ganador');
             showNotification('Esta rifa no tiene ganador aún', 'error');
             return;
         }
 
+        console.log('🔍 [DEBUG] Mostrando modal con ganador:', rifa.winner);
         // Reutilizar el modal de resultado de sorteo
         showQuickDrawResult(rifa.winner, rifa.title);
     } catch (error) {
-        console.error('Error al cargar información del ganador:', error);
+        console.error('❌ [DEBUG] Error al cargar información del ganador:', error);
         showNotification('No se pudo cargar la información del ganador', 'error');
     }
 }
