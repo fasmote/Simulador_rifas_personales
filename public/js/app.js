@@ -1213,7 +1213,7 @@ async function showPerfilPage() {
                     <p class="subtitle">Gestiona tu cuenta y tus simulaciones privadas</p>
                 </div>
                 
-                <div style="margin-bottom: 20px;">
+                <div style="margin-bottom: 20px; text-align: center;">
                     <button class="btn btn-success" onclick="showCreateRifaModal()">
                         ➕ Crear Nueva Simulación
                     </button>
