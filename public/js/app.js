@@ -1637,10 +1637,10 @@ async function viewRifa(rifaId) {
                     </div>
                     
                     ${isCompleted ? `
-                    <div style="margin-bottom: 20px; padding: 15px; background: #fff3cd; border-radius: 8px; text-align: center; border: 2px solid #ffd700;">
-                        <h4 style="color: #856404; margin: 0 0 10px 0; font-size: 1.1rem;">🏆 ¡GANADOR!</h4>
-                        <div style="font-size: 2.5rem; font-weight: bold; color: #ffd700; margin: 10px 0;">${winnerNumber}</div>
-                        <p style="color: #856404; margin: 0; font-weight: bold; font-size: 1.1rem;">${rifa.winner.participant_name}</p>
+                    <div class="winner-panel">
+                        <h4 class="winner-panel-title">🏆 ¡GANADOR!</h4>
+                        <div class="winner-panel-number">${String(winnerNumber).padStart(2, '0')}</div>
+                        <p class="winner-panel-name">${rifa.winner.participant_name}</p>
                     </div>` : ''}
                     
                     <!-- FASE 3.2c: Título prominente de la rifa -->
@@ -2452,10 +2452,10 @@ async function viewRifaByCode(rifa, accessCode) {
                 </div>
             
                 ${isCompleted ? `
-                <div style="margin-bottom: 20px; padding: 15px; background: #fff3cd; border-radius: 8px; text-align: center; border: 2px solid #ffd700;">
-                    <h4 style="color: #856404; margin: 0 0 10px 0; font-size: 1.1rem;">🏆 ¡GANADOR!</h4>
-                    <div style="font-size: 2.5rem; font-weight: bold; color: #ffd700; margin: 10px 0;">${winnerNumber}</div>
-                    <p style="color: #856404; margin: 0; font-weight: bold; font-size: 1.1rem;">${rifa.winner.participant_name}</p>
+                <div class="winner-panel">
+                    <h4 class="winner-panel-title">🏆 ¡GANADOR!</h4>
+                    <div class="winner-panel-number">${String(winnerNumber).padStart(2, '0')}</div>
+                    <p class="winner-panel-name">${rifa.winner.participant_name}</p>
                 </div>
                 ` : ''}
                 
@@ -3094,10 +3094,10 @@ async function viewRifa(rifaId) {
                     </div>
                     
                     ${isCompleted ? `
-                    <div style="margin-bottom: 20px; padding: 15px; background: #fff3cd; border-radius: 8px; text-align: center; border: 2px solid #ffd700;">
-                        <h4 style="color: #856404; margin: 0 0 10px 0; font-size: 1.1rem;">🏆 ¡GANADOR!</h4>
-                        <div style="font-size: 2.5rem; font-weight: bold; color: #ffd700; margin: 10px 0;">${winnerNumber}</div>
-                        <p style="color: #856404; margin: 0; font-weight: bold; font-size: 1.1rem;">${rifa.winner ? rifa.winner.participant_name : 'N/A'}</p>
+                    <div class="winner-panel">
+                        <h4 class="winner-panel-title">🏆 ¡GANADOR!</h4>
+                        <div class="winner-panel-number">${String(winnerNumber).padStart(2, '0')}</div>
+                        <p class="winner-panel-name">${rifa.winner ? rifa.winner.participant_name : 'N/A'}</p>
                     </div>` : ''}
                     
                     <div style="margin-bottom: 20px;">
