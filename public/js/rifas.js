@@ -189,31 +189,7 @@ async function editRifa(rifaId) {
     }
 }
 
-async function deleteRifa(rifaId) {
-    if (!confirm('¿Estás seguro de que quieres eliminar esta simulación? Esta acción no se puede deshacer.')) {
-        return;
-    }
-    
-    try {
-        const response = await fetch(`${API_BASE}/rifas/${rifaId}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-            }
-        });
-        
-        if (response.ok) {
-            showNotification('Simulación eliminada exitosamente');
-            showPerfilPage();
-        } else {
-            const data = await response.json();
-            showNotification(data.error || 'Error eliminando simulación', 'error');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        showNotification('Error de conexión', 'error');
-    }
-}
+// deleteRifa() se define en app.js
 
 async function drawRifaWinner(rifaId) {
     try {
