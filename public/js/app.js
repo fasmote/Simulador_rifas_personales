@@ -1637,16 +1637,18 @@ async function viewRifa(rifaId) {
                     🏆 ¡SIMULACIÓN COMPLETADA! Ganador: Número ${winnerNumber} (${rifa.winner.participant_name})
                 </p>` : ''}
             </div>
-            
+
             <div style="margin-bottom: 20px;">
                 <button class="btn btn-secondary" onclick="navigateTo('perfil')">
                     ← Volver a Mis Simulaciones
                 </button>
+                ${!isCompleted ? `
                 <button class="btn btn-primary" onclick="editRifa(${rifaId})" style="margin-left: 10px;">
                     ✏️ Editar
                 </button>
+                ` : ''}
             </div>
-            
+
             <div style="display: grid; grid-template-columns: 1fr 350px; gap: 30px;" class="rifa-details-grid">
                 <div class="numbers-section">
                     <h3 style="margin-bottom: 15px;">🎯 Números de la Simulación</h3>
@@ -1730,14 +1732,13 @@ async function viewRifa(rifaId) {
                     ${!isCompleted ? `
                     <button class="btn btn-success" style="width: 100%; margin-bottom: 10px;" onclick="drawRifaWinner(${rifaId})">
                         🏆 Realizar Sorteo
+                    </button>
+                    <button class="btn btn-primary" style="width: 100%;" onclick="editRifa(${rifaId})">
+                        ✏️ Editar Simulación
                     </button>` : `
                     <div style="text-align: center; padding: 15px; background: #e8f5e8; border-radius: 8px; margin-bottom: 10px;">
                         <p style="color: #2e7d32; font-weight: bold; margin: 0;">✓ Sorteo Completado</p>
                     </div>`}
-                    
-                    <button class="btn btn-primary" style="width: 100%;" onclick="editRifa(${rifaId})">
-                        ✏️ Editar Simulación
-                    </button>
                 </div>
             </div>
         `;
@@ -3291,14 +3292,13 @@ async function viewRifa(rifaId) {
                     ${!isCompleted ? `
                     <button class="btn btn-success" style="width: 100%; margin-bottom: 10px;" onclick="drawRifaWinner(${rifaId})">
                         🏆 Realizar Sorteo
+                    </button>
+                    <button class="btn btn-primary" style="width: 100%;" onclick="editRifa(${rifaId})">
+                        ✏️ Editar Simulación
                     </button>` : `
                     <div style="text-align: center; padding: 15px; background: #e8f5e8; border-radius: 8px; margin-bottom: 10px;">
                         <p style="color: #2e7d32; font-weight: bold; margin: 0;">✓ Sorteo Completado</p>
                     </div>`}
-                    
-                    <button class="btn btn-primary" style="width: 100%;" onclick="editRifa(${rifaId})">
-                        ✏️ Editar Simulación
-                    </button>
                 </div>
             </div>
         `;

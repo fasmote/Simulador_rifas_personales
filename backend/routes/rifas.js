@@ -373,6 +373,11 @@ router.put('/:id', authenticateToken, async (req, res) => {
             return res.status(404).json({ error: 'Simulación no encontrada o no tienes permisos' });
         }
 
+        // FASE 7: No permitir editar simulaciones completadas
+        if (rifa.status === 'completed') {
+            return res.status(403).json({ error: 'No se puede editar una simulación ya completada' });
+        }
+
         // FASE 7: Validar owner_message (max 100 caracteres)
         if (owner_message && owner_message.length > 100) {
             return res.status(400).json({ error: 'El mensaje no puede superar los 100 caracteres' });
