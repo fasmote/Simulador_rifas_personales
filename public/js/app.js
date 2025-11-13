@@ -1146,7 +1146,7 @@ async function showPerfilPage() {
                                 </button>
                                 ` : ''}
                                 ` : `
-                                <button class="btn" onclick="showCompletedRifaResult(${rifa.id}, '${rifa.title}', ${rifa.winner ? `{number: ${rifa.winner.number}, participant_name: '${rifa.winner.participant_name}'}` : 'null'})" style="background: #4caf50; color: white; flex: 1; font-size: 0.8rem; min-width: 85px; padding: 10px 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                                <button class="btn" onclick="showCompletedRifaResult(${rifa.id})" style="background: #4caf50; color: white; flex: 1; font-size: 0.8rem; min-width: 85px; padding: 10px 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
                                     📊 Ver Ganador
                                 </button>
                                 `}
@@ -1985,14 +1985,32 @@ function closeQuickDrawResultModal() {
 }
 
 // Mostrar resultado de rifa completada (desde botón "Ver Ganador")
-function showCompletedRifaResult(rifaId, rifaTitle, winner) {
-    if (!winner || !winner.number) {
-        showNotification('No se pudo cargar la información del ganador', 'error');
-        return;
-    }
+async function showCompletedRifaResult(rifaId) {
+    try {
+        const token = localStorage.getItem('authToken');
+        const response = await fetch(`${API_BASE}/rifas/${rifaId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
 
-    // Reutilizar el modal de resultado de sorteo
-    showQuickDrawResult(winner, rifaTitle);
+        if (!response.ok) {
+            throw new Error('Error al cargar la rifa');
+        }
+
+        const rifa = await response.json();
+
+        if (!rifa.winner || !rifa.winner.number) {
+            showNotification('Esta rifa no tiene ganador aún', 'error');
+            return;
+        }
+
+        // Reutilizar el modal de resultado de sorteo
+        showQuickDrawResult(rifa.winner, rifa.title);
+    } catch (error) {
+        console.error('Error al cargar información del ganador:', error);
+        showNotification('No se pudo cargar la información del ganador', 'error');
+    }
 }
 
 async function drawRifaWinner(rifaId) {
@@ -2348,14 +2366,12 @@ async function viewRifaByCode(rifa, accessCode) {
                 </div>
 
                 <div class="controls">
-                    ${!isCompleted ? `
-                    <button class="btn btn-secondary" onclick="selectRandomNumberForCode()">
+                    <button class="btn btn-secondary" onclick="selectRandomNumberForCode()" ${isCompleted ? 'disabled' : ''} style="${isCompleted ? 'opacity: 0.5; cursor: not-allowed; background: #ccc;' : ''}">
                         🎯 Elegir al Azar
                     </button>
-                    <button class="btn btn-primary" onclick="clearCodeSelection()">
+                    <button class="btn btn-primary" onclick="clearCodeSelection()" ${isCompleted ? 'disabled' : ''} style="${isCompleted ? 'opacity: 0.5; cursor: not-allowed; background: #ccc;' : ''}">
                         🗑️ Limpiar Todo
                     </button>
-                    ` : ''}
                     ${!isCompleted ? `
                     <button class="btn btn-participate" onclick="participateInRifa(${rifa.id}, selectedNumbers)">
                         🎊 Participar
