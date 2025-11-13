@@ -61,6 +61,28 @@ const initDatabase = async () => {
             console.log('📋 Campo is_public ya existe o no se pudo agregar');
         }
 
+        // FASE 7: Agregar campos para sorteo programado y mensaje del propietario
+        try {
+            await runQuery(`ALTER TABLE rifas ADD COLUMN scheduled_draw_date TIMESTAMP`);
+            console.log('✅ Campo scheduled_draw_date agregado');
+        } catch (err) {
+            console.log('📋 Campo scheduled_draw_date ya existe o no se pudo agregar');
+        }
+
+        try {
+            await runQuery(`ALTER TABLE rifas ADD COLUMN owner_message TEXT`);
+            console.log('✅ Campo owner_message agregado');
+        } catch (err) {
+            console.log('📋 Campo owner_message ya existe o no se pudo agregar');
+        }
+
+        try {
+            await runQuery(`ALTER TABLE rifas ADD COLUMN timezone VARCHAR(50) DEFAULT 'America/Argentina/Buenos_Aires'`);
+            console.log('✅ Campo timezone agregado');
+        } catch (err) {
+            console.log('📋 Campo timezone ya existe o no se pudo agregar');
+        }
+
         // Crear índices para optimización
         await runQuery(`CREATE INDEX IF NOT EXISTS idx_rifas_user_id ON rifas(user_id)`);
         await runQuery(`CREATE INDEX IF NOT EXISTS idx_rifa_numbers_rifa_id ON rifa_numbers(rifa_id)`);

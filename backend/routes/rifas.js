@@ -14,6 +14,81 @@ const generateAccessCode = () => {
     return result;
 };
 
+// FASE 7: Función para verificar y ejecutar sorteo programado automáticamente
+const checkAndExecuteScheduledDraw = async (rifaId) => {
+    try {
+        // Obtener información de la rifa
+        const rifa = await getQuery(
+            'SELECT id, status, scheduled_draw_date, timezone FROM rifas WHERE id = ?',
+            [rifaId]
+        );
+
+        if (!rifa) {
+            return false; // Rifa no encontrada
+        }
+
+        // Si ya está completada, no hacer nada
+        if (rifa.status === 'completed') {
+            return false;
+        }
+
+        // Si no tiene fecha programada, no hacer nada
+        if (!rifa.scheduled_draw_date) {
+            return false;
+        }
+
+        // Convertir fecha programada a Date object
+        const scheduledDate = new Date(rifa.scheduled_draw_date);
+        const now = new Date();
+
+        // Si la fecha programada ya pasó, ejecutar sorteo
+        if (scheduledDate <= now) {
+            console.log(`🎲 [FASE 7] Ejecutando sorteo automático para rifa ${rifaId}`);
+
+            // Verificar nuevamente que no esté completada (anti-concurrencia)
+            const rifaCheck = await getQuery(
+                'SELECT status FROM rifas WHERE id = ?',
+                [rifaId]
+            );
+
+            if (rifaCheck.status === 'completed') {
+                console.log(`⚠️ [FASE 7] Rifa ${rifaId} ya completada, abortando sorteo`);
+                return false;
+            }
+
+            // Obtener números seleccionados
+            const numbers = await allQuery(
+                'SELECT number FROM rifa_numbers WHERE rifa_id = ?',
+                [rifaId]
+            );
+
+            if (numbers.length === 0) {
+                console.log(`⚠️ [FASE 7] Rifa ${rifaId} sin participantes, no se puede sortear`);
+                return false;
+            }
+
+            // Seleccionar ganador aleatorio
+            const randomIndex = Math.floor(Math.random() * numbers.length);
+            const winnerNumber = numbers[randomIndex].number;
+
+            // Actualizar rifa con ganador
+            await runQuery(`
+                UPDATE rifas
+                SET winner_number = ?, status = 'completed'
+                WHERE id = ? AND status = 'active'
+            `, [winnerNumber, rifaId]);
+
+            console.log(`✅ [FASE 7] Sorteo automático completado para rifa ${rifaId}. Ganador: ${winnerNumber}`);
+            return true;
+        }
+
+        return false;
+    } catch (error) {
+        console.error('❌ [FASE 7] Error en sorteo automático:', error);
+        return false;
+    }
+};
+
 // Obtener todas las rifas públicas (solo simulaciones de ejemplo)
 router.get('/', async (req, res) => {
     try {
@@ -60,6 +135,9 @@ router.get('/my', authenticateToken, async (req, res) => {
 // Obtener una rifa específica del usuario logueado
 router.get('/my/:id', authenticateToken, async (req, res) => {
     try {
+        // FASE 7: Verificar y ejecutar sorteo programado si corresponde
+        await checkAndExecuteScheduledDraw(req.params.id);
+
         const rifa = await getQuery(`
             SELECT
                 r.*,
@@ -95,7 +173,7 @@ router.get('/my/:id', authenticateToken, async (req, res) => {
             };
         }
 
-        res.json({ 
+        res.json({
             rifa: {
                 ...rifa,
                 sold_numbers: soldNumbers.map(n => n.number),
@@ -111,6 +189,9 @@ router.get('/my/:id', authenticateToken, async (req, res) => {
 // Obtener una rifa específica por ID (solo públicas o del propietario)
 router.get('/:id', async (req, res) => {
     try {
+        // FASE 7: Verificar y ejecutar sorteo programado si corresponde
+        await checkAndExecuteScheduledDraw(req.params.id);
+
         const rifa = await getQuery(`
             SELECT
                 r.*,
@@ -136,7 +217,7 @@ router.get('/:id', async (req, res) => {
             [req.params.id]
         );
 
-        res.json({ 
+        res.json({
             rifa: {
                 ...rifa,
                 sold_numbers: soldNumbers.map(n => n.number)
@@ -169,28 +250,44 @@ router.get('/access/:code', async (req, res) => {
             return res.status(404).json({ error: 'Código de simulación no válido o expirado' });
         }
 
+        // FASE 7: Verificar y ejecutar sorteo programado si corresponde
+        await checkAndExecuteScheduledDraw(rifa.id);
+
+        // Re-obtener la rifa por si cambió el status
+        const updatedRifa = await getQuery(`
+            SELECT
+                r.*,
+                u.username as creator_username,
+                COUNT(rn.id) as numbers_sold
+            FROM rifas r
+            LEFT JOIN users u ON r.user_id = u.id
+            LEFT JOIN rifa_numbers rn ON r.id = rn.rifa_id
+            WHERE r.id = ?
+            GROUP BY r.id, u.username
+        `, [rifa.id]);
+
         // Obtener números seleccionados
         const soldNumbers = await allQuery(
             'SELECT number, participant_name FROM rifa_numbers WHERE rifa_id = ?',
-            [rifa.id]
+            [updatedRifa.id]
         );
 
         // Si la simulación está completada, obtener información del ganador
         let winnerInfo = null;
-        if (rifa.status === 'completed' && rifa.winner_number !== null) {
+        if (updatedRifa.status === 'completed' && updatedRifa.winner_number !== null) {
             const winner = await getQuery(
                 'SELECT participant_name FROM rifa_numbers WHERE rifa_id = ? AND number = ?',
-                [rifa.id, rifa.winner_number]
+                [updatedRifa.id, updatedRifa.winner_number]
             );
             winnerInfo = {
-                number: rifa.winner_number,
+                number: updatedRifa.winner_number,
                 participant_name: winner ? winner.participant_name : 'Desconocido'
             };
         }
 
-        res.json({ 
+        res.json({
             rifa: {
-                ...rifa,
+                ...updatedRifa,
                 sold_numbers: soldNumbers.map(n => n.number),
                 winner: winnerInfo
             }
@@ -204,16 +301,21 @@ router.get('/access/:code', async (req, res) => {
 // Crear nueva simulación (solo usuarios logueados)
 router.post('/', authenticateToken, async (req, res) => {
     try {
-        const { title, description } = req.body;
+        const { title, description, scheduled_draw_date, owner_message, timezone } = req.body;
 
         if (!title) {
             return res.status(400).json({ error: 'El título es requerido' });
         }
 
+        // FASE 7: Validar owner_message (max 100 caracteres)
+        if (owner_message && owner_message.length > 100) {
+            return res.status(400).json({ error: 'El mensaje no puede superar los 100 caracteres' });
+        }
+
         // Generar código de acceso único
         let accessCode;
         let codeExists = true;
-        
+
         while (codeExists) {
             accessCode = generateAccessCode();
             const existing = await getQuery(
@@ -224,16 +326,27 @@ router.post('/', authenticateToken, async (req, res) => {
         }
 
         const result = await runQuery(`
-            INSERT INTO rifas (user_id, title, description, access_code, is_public) 
-            VALUES (?, ?, ?, ?, FALSE)
-        `, [req.user.id, title, description, accessCode]);
+            INSERT INTO rifas (
+                user_id, title, description, access_code, is_public,
+                scheduled_draw_date, owner_message, timezone
+            )
+            VALUES (?, ?, ?, ?, FALSE, ?, ?, ?)
+        `, [
+            req.user.id,
+            title,
+            description,
+            accessCode,
+            scheduled_draw_date || null,
+            owner_message || null,
+            timezone || 'America/Argentina/Buenos_Aires'
+        ]);
 
         const newRifa = await getQuery(
             'SELECT * FROM rifas WHERE id = ?',
             [result.id]
         );
 
-        res.status(201).json({ 
+        res.status(201).json({
             message: 'Simulación creada exitosamente',
             rifa: newRifa,
             access_code: accessCode
@@ -247,7 +360,7 @@ router.post('/', authenticateToken, async (req, res) => {
 // Editar simulación
 router.put('/:id', authenticateToken, async (req, res) => {
     try {
-        const { title, description } = req.body;
+        const { title, description, scheduled_draw_date, owner_message, timezone } = req.body;
         const rifaId = req.params.id;
 
         // Verificar que la simulación pertenece al usuario
@@ -260,20 +373,42 @@ router.put('/:id', authenticateToken, async (req, res) => {
             return res.status(404).json({ error: 'Simulación no encontrada o no tienes permisos' });
         }
 
+        // FASE 7: Validar owner_message (max 100 caracteres)
+        if (owner_message && owner_message.length > 100) {
+            return res.status(400).json({ error: 'El mensaje no puede superar los 100 caracteres' });
+        }
+
+        // FASE 7: Validar scheduled_draw_date
+        let drawDate = scheduled_draw_date || null;
+        if (drawDate === '') {
+            drawDate = null; // Si viene vacío, convertir a null para remover la fecha
+        }
+
         await runQuery(`
-            UPDATE rifas 
-            SET title = ?, description = ?
+            UPDATE rifas
+            SET title = ?,
+                description = ?,
+                scheduled_draw_date = ?,
+                owner_message = ?,
+                timezone = ?
             WHERE id = ?
-        `, [title, description, rifaId]);
+        `, [
+            title,
+            description,
+            drawDate,
+            owner_message || null,
+            timezone || 'America/Argentina/Buenos_Aires',
+            rifaId
+        ]);
 
         const updatedRifa = await getQuery(
             'SELECT * FROM rifas WHERE id = ?',
             [rifaId]
         );
 
-        res.json({ 
+        res.json({
             message: 'Simulación actualizada exitosamente',
-            rifa: updatedRifa 
+            rifa: updatedRifa
         });
     } catch (error) {
         console.error('Error actualizando simulación:', error);
@@ -529,13 +664,39 @@ router.post('/:id/draw', authenticateToken, async (req, res) => {
         const winnerIndex = Math.floor(Math.random() * participants.length);
         const winner = participants[winnerIndex];
 
-        // Actualizar simulación con ganador
-        await runQuery(
-            'UPDATE rifas SET winner_number = ?, status = ? WHERE id = ?',
-            [winner.number, 'completed', rifaId]
+        // FASE 7: Actualizar simulación con ganador CON protección anti-concurrencia
+        // Solo actualiza si el status sigue siendo 'active'
+        const updateResult = await runQuery(
+            'UPDATE rifas SET winner_number = ?, status = ? WHERE id = ? AND status = ?',
+            [winner.number, 'completed', rifaId, 'active']
         );
 
-        res.json({ 
+        // Verificar si realmente se actualizó (protección contra doble sorteo)
+        if (updateResult.changes === 0) {
+            // Otro proceso ya completó el sorteo
+            console.log(`⚠️ [FASE 7] Sorteo ya realizado por otro proceso para rifa ${rifaId}`);
+
+            // Obtener el ganador actual
+            const currentRifa = await getQuery(
+                'SELECT winner_number FROM rifas WHERE id = ?',
+                [rifaId]
+            );
+
+            const currentWinner = await getQuery(
+                'SELECT participant_name FROM rifa_numbers WHERE rifa_id = ? AND number = ?',
+                [rifaId, currentRifa.winner_number]
+            );
+
+            return res.json({
+                message: 'Sorteo ya realizado',
+                winner: {
+                    number: currentRifa.winner_number,
+                    participant_name: currentWinner ? currentWinner.participant_name : 'Desconocido'
+                }
+            });
+        }
+
+        res.json({
             message: 'Sorteo realizado exitosamente',
             winner: {
                 number: winner.number,

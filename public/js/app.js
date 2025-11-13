@@ -1576,10 +1576,63 @@ async function viewRifa(rifaId) {
         
         console.log(`✅ [DEBUG] Generando HTML para la vista...`);
         
+        // FASE 7: Formatear fecha programada si existe
+        let scheduledDateHtml = '';
+        if (rifa.scheduled_draw_date && !isCompleted) {
+            const scheduledDate = new Date(rifa.scheduled_draw_date);
+            const now = new Date();
+            const isPast = scheduledDate <= now;
+
+            const dateStr = scheduledDate.toLocaleDateString('es-AR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+            const timeStr = scheduledDate.toLocaleTimeString('es-AR', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+
+            scheduledDateHtml = `
+                <div style="margin: 15px 0; padding: 12px 15px; background: ${isPast ? '#ffebee' : '#e3f2fd'}; border-left: 4px solid ${isPast ? '#f44336' : '#2196F3'}; border-radius: 8px;">
+                    <p style="margin: 0; color: ${isPast ? '#c62828' : '#1565c0'}; font-weight: 600; font-size: 0.95rem;">
+                        📅 Sorteo programado: ${dateStr} a las ${timeStr}
+                        ${isPast ? '<br><small style="font-size: 0.85rem;">(La fecha ya pasó - se sorteará automáticamente)</small>' : ''}
+                    </p>
+                </div>
+            `;
+        } else if (!rifa.scheduled_draw_date && !isCompleted) {
+            scheduledDateHtml = `
+                <div style="margin: 15px 0; padding: 10px 15px; background: #f5f5f5; border-left: 4px solid #9e9e9e; border-radius: 8px;">
+                    <p style="margin: 0; color: #666; font-size: 0.9rem;">
+                        ⏰ Sin fecha programada - Sorteo manual
+                    </p>
+                </div>
+            `;
+        }
+
+        // FASE 7: Mensaje del propietario si existe
+        let ownerMessageHtml = '';
+        if (rifa.owner_message) {
+            ownerMessageHtml = `
+                <div style="margin: 15px 0; padding: 12px 15px; background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 8px;">
+                    <p style="margin: 0 0 5px 0; color: #e65100; font-weight: 600; font-size: 0.85rem;">
+                        💬 Mensaje del organizador:
+                    </p>
+                    <p style="margin: 0; color: #555; font-size: 0.95rem; font-style: italic;">
+                        "${rifa.owner_message}"
+                    </p>
+                </div>
+            `;
+        }
+
         document.getElementById('mainContainer').innerHTML = `
             <div class="page-header">
                 <h1>🎯 ${rifa.title}</h1>
                 <p class="subtitle">${rifa.description}</p>
+                ${scheduledDateHtml}
+                ${ownerMessageHtml}
                 ${isCompleted ? `<p class="winner-banner">
                     🏆 ¡SIMULACIÓN COMPLETADA! Ganador: Número ${winnerNumber} (${rifa.winner.participant_name})
                 </p>` : ''}
@@ -1642,7 +1695,10 @@ async function viewRifa(rifaId) {
                         <div class="winner-panel-number">${String(winnerNumber).padStart(2, '0')}</div>
                         <p class="winner-panel-name">${rifa.winner.participant_name}</p>
                     </div>` : ''}
-                    
+
+                    ${scheduledDateHtml}
+                    ${ownerMessageHtml}
+
                     <!-- FASE 3.2c: Título prominente de la rifa -->
                     <div class="rifa-title-section">
                         <h3 class="rifa-title-main">
@@ -1651,7 +1707,7 @@ async function viewRifa(rifaId) {
                         </h3>
                         <p class="rifa-description-text">${rifa.description}</p>
                     </div>
-                    
+
                     <div style="margin-bottom: 20px;">
                         <h4 style="color: #333; margin-bottom: 10px;">📈 Progreso</h4>
                         <div class="progress-bar">
@@ -1753,18 +1809,37 @@ async function editRifa(rifaId) {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`
             }
         });
-        
+
         if (response.ok) {
             const data = await response.json();
             const rifa = data.rifa;
-            
+
             // Cargar datos en el modal de edición
             document.getElementById('editRifaTitle').value = rifa.title;
             document.getElementById('editRifaDescription').value = rifa.description;
-            
+
+            // FASE 7: Cargar fecha programada y mensaje
+            const scheduledDateInput = document.getElementById('editRifaScheduledDate');
+            if (rifa.scheduled_draw_date) {
+                // Convertir timestamp a formato datetime-local (YYYY-MM-DDTHH:MM)
+                const date = new Date(rifa.scheduled_draw_date);
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                scheduledDateInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+            } else {
+                scheduledDateInput.value = '';
+            }
+
+            const ownerMessageInput = document.getElementById('editRifaOwnerMessage');
+            ownerMessageInput.value = rifa.owner_message || '';
+            document.getElementById('editRifaOwnerMessageCount').textContent = (rifa.owner_message || '').length;
+
             // Mostrar modal
             document.getElementById('editRifaModal').style.display = 'flex';
-            
+
             // Guardar ID para el submit
             document.getElementById('editRifaForm').dataset.rifaId = rifaId;
         } else {
@@ -2102,18 +2177,36 @@ function closeEditRifaModal() {
 
 // Event listeners para formularios (configurados después de DOMContentLoaded)
 document.addEventListener('DOMContentLoaded', function() {
+    // FASE 7: Contador de caracteres para mensaje del propietario (crear)
+    const rifaOwnerMessage = document.getElementById('rifaOwnerMessage');
+    if (rifaOwnerMessage) {
+        rifaOwnerMessage.addEventListener('input', function() {
+            document.getElementById('rifaOwnerMessageCount').textContent = this.value.length;
+        });
+    }
+
+    // FASE 7: Contador de caracteres para mensaje del propietario (editar)
+    const editRifaOwnerMessage = document.getElementById('editRifaOwnerMessage');
+    if (editRifaOwnerMessage) {
+        editRifaOwnerMessage.addEventListener('input', function() {
+            document.getElementById('editRifaOwnerMessageCount').textContent = this.value.length;
+        });
+    }
+
     // Event listener para crear simulación
     document.getElementById('createRifaForm').addEventListener('submit', async function(e) {
         e.preventDefault();
-        
+
         const title = document.getElementById('rifaTitle').value;
         const description = document.getElementById('rifaDescription').value;
-        
+        const scheduled_draw_date = document.getElementById('rifaScheduledDate').value || null;
+        const owner_message = document.getElementById('rifaOwnerMessage').value || null;
+
         if (!title.trim()) {
             showNotification('El título es requerido', 'error');
             return;
         }
-        
+
         try {
             const response = await fetch(`${API_BASE}/rifas`, {
                 method: 'POST',
@@ -2121,14 +2214,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('authToken')}`
                 },
-                body: JSON.stringify({ title, description })
+                body: JSON.stringify({
+                    title,
+                    description,
+                    scheduled_draw_date,
+                    owner_message
+                })
             });
-            
+
             if (response.ok) {
                 const data = await response.json();
                 showNotification('Simulación creada exitosamente');
                 closeCreateRifaModal();
                 document.getElementById('createRifaForm').reset();
+                document.getElementById('rifaOwnerMessageCount').textContent = '0';
                 // Recargar la página de perfil para mostrar la nueva simulación
                 showPerfilPage();
             } else {
@@ -2144,16 +2243,18 @@ document.addEventListener('DOMContentLoaded', function() {
     // Event listener para editar simulación
     document.getElementById('editRifaForm').addEventListener('submit', async function(e) {
         e.preventDefault();
-        
+
         const rifaId = this.dataset.rifaId;
         const title = document.getElementById('editRifaTitle').value;
         const description = document.getElementById('editRifaDescription').value;
-        
+        const scheduled_draw_date = document.getElementById('editRifaScheduledDate').value || '';
+        const owner_message = document.getElementById('editRifaOwnerMessage').value || '';
+
         if (!rifaId) {
             showNotification('Error: ID de simulación no válido', 'error');
             return;
         }
-        
+
         try {
             const response = await fetch(`${API_BASE}/rifas/${rifaId}`, {
                 method: 'PUT',
@@ -2161,9 +2262,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('authToken')}`
                 },
-                body: JSON.stringify({ title, description })
+                body: JSON.stringify({
+                    title,
+                    description,
+                    scheduled_draw_date,
+                    owner_message
+                })
             });
-            
+
             if (response.ok) {
                 showNotification('Simulación actualizada exitosamente');
                 closeEditRifaModal();
@@ -2179,6 +2285,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+// FASE 7: Función para quitar la fecha programada
+function clearScheduledDate() {
+    document.getElementById('editRifaScheduledDate').value = '';
+    showNotification('Fecha programada removida. No olvides guardar los cambios.', 'success');
+}
 
 // FASE 1: Cargar lista de participantes (Vista Administrativa)
 async function loadParticipants(rifaId) {
@@ -2360,7 +2472,58 @@ async function viewRifaByCode(rifa, accessCode) {
     // FEAT FASE 15W-PLUS: Información del creador
     const creatorName = rifa.creator_username || rifa.creator_name || 'Usuario Anónimo';
     const creatorDisplay = creatorName.charAt(0).toUpperCase() + creatorName.slice(1);
-    
+
+    // FASE 7: Formatear fecha programada si existe
+    let scheduledDateHtml = '';
+    if (rifa.scheduled_draw_date && !isCompleted) {
+        const scheduledDate = new Date(rifa.scheduled_draw_date);
+        const now = new Date();
+        const isPast = scheduledDate <= now;
+
+        const dateStr = scheduledDate.toLocaleDateString('es-AR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+        const timeStr = scheduledDate.toLocaleTimeString('es-AR', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
+
+        scheduledDateHtml = `
+            <div style="margin: 15px 0; padding: 12px 15px; background: ${isPast ? '#ffebee' : '#e3f2fd'}; border-left: 4px solid ${isPast ? '#f44336' : '#2196F3'}; border-radius: 8px;">
+                <p style="margin: 0; color: ${isPast ? '#c62828' : '#1565c0'}; font-weight: 600; font-size: 0.95rem;">
+                    📅 Sorteo programado: ${dateStr} a las ${timeStr}
+                    ${isPast ? '<br><small style="font-size: 0.85rem;">(La fecha ya pasó - se sorteará automáticamente)</small>' : ''}
+                </p>
+            </div>
+        `;
+    } else if (!rifa.scheduled_draw_date && !isCompleted) {
+        scheduledDateHtml = `
+            <div style="margin: 15px 0; padding: 10px 15px; background: #f5f5f5; border-left: 4px solid #9e9e9e; border-radius: 8px;">
+                <p style="margin: 0; color: #666; font-size: 0.9rem;">
+                    ⏰ Sin fecha programada - Sorteo manual
+                </p>
+            </div>
+        `;
+    }
+
+    // FASE 7: Mensaje del propietario si existe
+    let ownerMessageHtml = '';
+    if (rifa.owner_message) {
+        ownerMessageHtml = `
+            <div style="margin: 15px 0; padding: 12px 15px; background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 8px;">
+                <p style="margin: 0 0 5px 0; color: #e65100; font-weight: 600; font-size: 0.85rem;">
+                    💬 Mensaje del organizador:
+                </p>
+                <p style="margin: 0; color: #555; font-size: 0.95rem; font-style: italic;">
+                    "${rifa.owner_message}"
+                </p>
+            </div>
+        `;
+    }
+
     document.getElementById('mainContainer').innerHTML = `
         <!-- FASE 3.2c: Título prominente con nuevas clases CSS -->
         <div class="rifa-title-section">
@@ -2369,14 +2532,17 @@ async function viewRifaByCode(rifa, accessCode) {
                 ${rifa.title}
             </h1>
             <p class="rifa-description-text">Simulación privada - Acceso por código: ${accessCode}</p>
-            
+
             <!-- FEAT FASE 15W-PLUS: Badge del creador visible -->
             <div style="background: linear-gradient(45deg, #667eea, #764ba2); color: white; padding: 12px 20px; border-radius: 25px; display: inline-block; margin: 15px 0; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
                 <span style="font-size: 1rem; font-weight: 600;">
                     👤 Creada por: <strong>${creatorDisplay}</strong>
                 </span>
             </div>
-            
+
+            ${scheduledDateHtml}
+            ${ownerMessageHtml}
+
             ${isCompleted ? `<p class="winner-banner">
                 🏆 ¡SIMULACIÓN COMPLETADA! Ganador: Número ${winnerNumber} (${rifa.winner.participant_name})
             </p>` : ''}
@@ -2458,7 +2624,10 @@ async function viewRifaByCode(rifa, accessCode) {
                     <p class="winner-panel-name">${rifa.winner.participant_name}</p>
                 </div>
                 ` : ''}
-                
+
+                ${scheduledDateHtml}
+                ${ownerMessageHtml}
+
                 <div class="cart-header" style="margin-top: 20px;">
                     <span class="cart-icon">📋</span>
                     <h3 class="cart-title">${isCompleted ? 'Resultado Final' : 'Números Seleccionados'}</h3>
