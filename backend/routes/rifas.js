@@ -730,6 +730,9 @@ router.post('/:id/participate', async (req, res) => {
             return res.status(400).json({ error: 'El nombre del participante es requerido' });
         }
 
+        // FASE 7: Verificar y ejecutar sorteo programado si la fecha ya pasó
+        await checkAndExecuteScheduledDraw(rifaId);
+
         // Verificar que la simulación existe y está activa
         const rifa = await getQuery(
             'SELECT * FROM rifas WHERE id = ? AND status = ?',
@@ -747,21 +750,21 @@ router.post('/:id/participate', async (req, res) => {
             'SELECT number FROM rifa_numbers WHERE rifa_id = ?',
             [rifaId]
         );
-        
+
         const soldNumbersArray = soldNumbers.map(n => n.number);
         const invalidNumbers = numbers.filter(n => soldNumbersArray.includes(n));
 
         if (invalidNumbers.length > 0) {
             console.log(`❌ [PARTICIPATE] Números ocupados: [${invalidNumbers.join(', ')}]`);
-            return res.status(400).json({ 
-                error: `Los números ${invalidNumbers.join(', ')} ya están ocupados` 
+            return res.status(400).json({
+                error: `Los números ${invalidNumbers.join(', ')} ya están ocupados`
             });
         }
 
         // Insertar números seleccionados
         for (const number of numbers) {
             await runQuery(`
-                INSERT INTO rifa_numbers (rifa_id, number, participant_name) 
+                INSERT INTO rifa_numbers (rifa_id, number, participant_name)
                 VALUES (?, ?, ?)
             `, [rifaId, number, participant_name]);
             console.log(`✅ [PARTICIPATE] Número ${number} registrado para ${participant_name}`);
@@ -769,7 +772,7 @@ router.post('/:id/participate', async (req, res) => {
 
         // Obtener información actualizada de la simulación
         const updatedRifa = await getQuery(`
-            SELECT 
+            SELECT
                 r.*,
                 COUNT(rn.id) as numbers_sold
             FROM rifas r
@@ -780,7 +783,7 @@ router.post('/:id/participate', async (req, res) => {
 
         console.log(`🎯 [PARTICIPATE] Participación exitosa - ${numbers.length} números registrados`);
 
-        res.json({ 
+        res.json({
             message: `¡Participación exitosa! ${numbers.length} números registrados para ${participant_name}`,
             numbers,
             participant_name,

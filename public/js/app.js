@@ -625,6 +625,13 @@ function toggleMobileMenu() {
 }
 
 function navigateTo(page) {
+    // FASE 7: Limpiar polling de status cuando se cambia de página
+    if (window.rifaStatusPolling) {
+        clearInterval(window.rifaStatusPolling);
+        window.rifaStatusPolling = null;
+        console.log('🧹 [FASE 7] Polling limpiado al cambiar de página');
+    }
+
     switch(page) {
         case 'rifas':
             showRifasPage();
@@ -647,7 +654,7 @@ function navigateTo(page) {
             updateActiveNav('demo');
             break;
     }
-    
+
     // Cerrar menú móvil
     document.getElementById('navLinks').classList.remove('active');
 }
@@ -1134,7 +1141,7 @@ async function showPerfilPage() {
                             <div class="winner-badge">
                                 🏆 ¡SIMULACIÓN COMPLETADA!
                             </div>
-                            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 10px; margin: 15px 0; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
+                            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 10px; margin: 15px 0; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); animation: winnerBannerPulse 1.5s ease-in-out infinite; transform-origin: center center; will-change: transform, box-shadow;">
                                 <p style="font-size: 0.85rem; margin: 0 0 5px 0; opacity: 0.9;">Ganador:</p>
                                 <div style="font-size: 2rem; font-weight: bold; margin: 5px 0;">${String(rifa.winner.number).padStart(2, '0')}</div>
                                 <p style="font-size: 1rem; margin: 5px 0 0 0; font-weight: 500;">${rifa.winner.participant_name}</p>
@@ -1165,20 +1172,19 @@ async function showPerfilPage() {
                                 <button class="btn btn-primary" onclick="viewRifa(${rifa.id})" style="flex: 1; font-size: 0.9rem; min-width: 70px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
                                     👁️ Ver
                                 </button>
-                                ${!isCompleted ? `
-                                <button class="btn btn-secondary" onclick="editRifa(${rifa.id})" style="flex: 1; font-size: 0.9rem; min-width: 70px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                                <button class="btn btn-secondary" onclick="${isCompleted ? '' : `editRifa(${rifa.id})`}" ${isCompleted ? 'disabled' : ''} style="flex: 1; font-size: 0.9rem; min-width: 70px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); ${isCompleted ? 'opacity: 0.5; cursor: not-allowed; background: #ccc;' : ''}">
                                     ✏️ Editar
                                 </button>
-                                ${rifa.numbers_sold > 0 ? `
+                                ${!isCompleted && rifa.numbers_sold > 0 ? `
                                 <button class="btn" onclick="quickDraw(${rifa.id}, '${rifa.title}')" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; flex: 1; font-size: 0.9rem; min-width: 70px; font-weight: bold; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
                                     🎲 Sortear
                                 </button>
                                 ` : ''}
-                                ` : `
+                                ${isCompleted ? `
                                 <button class="btn" onclick="showCompletedRifaResult(${rifa.id})" style="background: #4caf50; color: white; flex: 1; font-size: 0.8rem; min-width: 85px; padding: 10px 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
                                     📊 Ver Ganador
                                 </button>
-                                `}
+                                ` : ''}
                                 <button class="btn" onclick="deleteRifa(${rifa.id})" style="background: #ff6b6b; color: white; flex: 0.5; font-size: 0.9rem; min-width: 45px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
                                     🗑️
                                 </button>
@@ -1753,6 +1759,43 @@ async function viewRifa(rifaId) {
             setTimeout(() => launchConfetti(), 300);
         }
 
+        // FASE 7: Polling para detectar sorteo automático
+        // Solo si hay fecha programada y la rifa está activa
+        if (rifa.scheduled_draw_date && !isCompleted) {
+            console.log('🔄 [FASE 7] Iniciando polling para detectar sorteo automático');
+
+            // Limpiar polling anterior si existe
+            if (window.rifaStatusPolling) {
+                clearInterval(window.rifaStatusPolling);
+            }
+
+            // Verificar status cada 30 segundos
+            window.rifaStatusPolling = setInterval(async () => {
+                try {
+                    const response = await fetch(`${API_BASE}/rifas/my/${rifaId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+
+                        // Si el status cambió a completed, recargar la vista
+                        if (data.rifa && data.rifa.status === 'completed') {
+                            console.log('🎊 [FASE 7] Sorteo detectado! Recargando vista...');
+                            clearInterval(window.rifaStatusPolling);
+
+                            // Recargar vista automáticamente
+                            viewRifa(rifaId);
+                        }
+                    }
+                } catch (error) {
+                    console.error('❌ [FASE 7] Error en polling:', error);
+                }
+            }, 30000); // Cada 30 segundos
+        }
+
     } catch (error) {
         console.error('❌ [ERROR] Error en viewRifa:', error);
         
@@ -1852,13 +1895,29 @@ async function editRifa(rifaId) {
     }
 }
 
+// ========== FASE 7: MODAL DE CONFIRMACIÓN DE ELIMINACIÓN ==========
+
+// Variable global para almacenar el ID de la rifa a eliminar
+let rifaToDelete = null;
+
+// Mostrar modal de confirmación de eliminación
 async function deleteRifa(rifaId) {
-    if (!confirm('¿Estás seguro de que quieres eliminar esta simulación? Esta acción no se puede deshacer.')) {
-        return;
-    }
+    rifaToDelete = rifaId;
+    document.getElementById('confirmDeleteModal').style.display = 'flex';
+}
+
+// Cerrar modal de confirmación
+function closeConfirmDeleteModal() {
+    document.getElementById('confirmDeleteModal').style.display = 'none';
+    rifaToDelete = null;
+}
+
+// Confirmar y ejecutar eliminación
+async function confirmDeleteRifa() {
+    if (!rifaToDelete) return;
 
     try {
-        const response = await fetch(`${API_BASE}/rifas/${rifaId}`, {
+        const response = await fetch(`${API_BASE}/rifas/${rifaToDelete}`, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`
@@ -1867,14 +1926,17 @@ async function deleteRifa(rifaId) {
 
         if (response.ok) {
             showNotification('Simulación eliminada exitosamente');
+            closeConfirmDeleteModal();
             showPerfilPage(); // Recargar la página de perfil
         } else {
             const data = await response.json();
             showNotification(data.error || 'Error eliminando simulación', 'error');
+            closeConfirmDeleteModal();
         }
     } catch (error) {
         console.error('Error:', error);
         showNotification('Error de conexión', 'error');
+        closeConfirmDeleteModal();
     }
 }
 
@@ -2702,6 +2764,38 @@ async function viewRifaByCode(rifa, accessCode) {
     if (isCompleted) {
         setTimeout(() => launchConfetti(), 300);
     }
+
+    // FASE 7: Polling para detectar sorteo automático
+    // Solo si hay fecha programada y la rifa está activa
+    if (rifa.scheduled_draw_date && !isCompleted) {
+        console.log('🔄 [FASE 7] Iniciando polling para detectar sorteo automático');
+
+        // Limpiar polling anterior si existe
+        if (window.rifaStatusPolling) {
+            clearInterval(window.rifaStatusPolling);
+        }
+
+        // Verificar status cada 30 segundos
+        window.rifaStatusPolling = setInterval(async () => {
+            try {
+                const response = await fetch(`${API_BASE}/rifas/access/${accessCode}`);
+                if (response.ok) {
+                    const data = await response.json();
+
+                    // Si el status cambió a completed, recargar la vista
+                    if (data.rifa && data.rifa.status === 'completed') {
+                        console.log('🎊 [FASE 7] Sorteo detectado! Recargando vista...');
+                        clearInterval(window.rifaStatusPolling);
+
+                        // Recargar vista automáticamente
+                        viewRifaByCode(data.rifa, accessCode);
+                    }
+                }
+            } catch (error) {
+                console.error('❌ [FASE 7] Error en polling:', error);
+            }
+        }, 30000); // Cada 30 segundos
+    }
 }
 
 // ========== FASE 4: SISTEMA DE COLORES ÚNICOS POR PARTICIPANTE ==========
@@ -3195,7 +3289,7 @@ async function viewRifa(rifaId) {
                     ${rifa.title}
                 </h1>
                 <p class="rifa-description-text">${rifa.description}</p>
-                ${isCompleted ? `<p style="background: #4caf50; color: white; padding: 10px; border-radius: 8px; text-align: center; margin-top: 10px;">
+                ${isCompleted ? `<p class="winner-banner">
                     🏆 ¡SIMULACIÓN COMPLETADA! Ganador: Número ${winnerNumber} (${rifa.winner ? rifa.winner.participant_name : 'N/A'})
                 </p>` : ''}
             </div>
