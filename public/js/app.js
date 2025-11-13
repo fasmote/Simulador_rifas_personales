@@ -1141,7 +1141,7 @@ async function showPerfilPage() {
                             <div class="winner-badge">
                                 🏆 ¡SIMULACIÓN COMPLETADA!
                             </div>
-                            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 10px; margin: 15px 0; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
+                            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 10px; margin: 15px 0; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); animation: winnerBannerPulse 1.5s ease-in-out infinite; transform-origin: center center; will-change: transform, box-shadow;">
                                 <p style="font-size: 0.85rem; margin: 0 0 5px 0; opacity: 0.9;">Ganador:</p>
                                 <div style="font-size: 2rem; font-weight: bold; margin: 5px 0;">${String(rifa.winner.number).padStart(2, '0')}</div>
                                 <p style="font-size: 1rem; margin: 5px 0 0 0; font-weight: 500;">${rifa.winner.participant_name}</p>
@@ -1895,13 +1895,29 @@ async function editRifa(rifaId) {
     }
 }
 
+// ========== FASE 7: MODAL DE CONFIRMACIÓN DE ELIMINACIÓN ==========
+
+// Variable global para almacenar el ID de la rifa a eliminar
+let rifaToDelete = null;
+
+// Mostrar modal de confirmación de eliminación
 async function deleteRifa(rifaId) {
-    if (!confirm('¿Estás seguro de que quieres eliminar esta simulación? Esta acción no se puede deshacer.')) {
-        return;
-    }
+    rifaToDelete = rifaId;
+    document.getElementById('confirmDeleteModal').style.display = 'flex';
+}
+
+// Cerrar modal de confirmación
+function closeConfirmDeleteModal() {
+    document.getElementById('confirmDeleteModal').style.display = 'none';
+    rifaToDelete = null;
+}
+
+// Confirmar y ejecutar eliminación
+async function confirmDeleteRifa() {
+    if (!rifaToDelete) return;
 
     try {
-        const response = await fetch(`${API_BASE}/rifas/${rifaId}`, {
+        const response = await fetch(`${API_BASE}/rifas/${rifaToDelete}`, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('authToken')}`
@@ -1910,14 +1926,17 @@ async function deleteRifa(rifaId) {
 
         if (response.ok) {
             showNotification('Simulación eliminada exitosamente');
+            closeConfirmDeleteModal();
             showPerfilPage(); // Recargar la página de perfil
         } else {
             const data = await response.json();
             showNotification(data.error || 'Error eliminando simulación', 'error');
+            closeConfirmDeleteModal();
         }
     } catch (error) {
         console.error('Error:', error);
         showNotification('Error de conexión', 'error');
+        closeConfirmDeleteModal();
     }
 }
 
@@ -3270,7 +3289,7 @@ async function viewRifa(rifaId) {
                     ${rifa.title}
                 </h1>
                 <p class="rifa-description-text">${rifa.description}</p>
-                ${isCompleted ? `<p style="background: #4caf50; color: white; padding: 10px; border-radius: 8px; text-align: center; margin-top: 10px;">
+                ${isCompleted ? `<p class="winner-banner">
                     🏆 ¡SIMULACIÓN COMPLETADA! Ganador: Número ${winnerNumber} (${rifa.winner ? rifa.winner.participant_name : 'N/A'})
                 </p>` : ''}
             </div>
