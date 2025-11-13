@@ -330,6 +330,95 @@ h1 {
     75% { transform: rotate(-10deg); }
 }
 
+/* Panel del ganador en sidebar */
+.winner-panel {
+    margin-bottom: 20px;
+    padding: 20px;
+    background: linear-gradient(135deg, #fff3cd 0%, #ffe082 100%);
+    border-radius: 12px;
+    text-align: center;
+    border: 3px solid #ffd700;
+    box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4), 0 0 40px rgba(255, 215, 0, 0.2);
+    animation: winnerPanelPulse 2s ease-in-out infinite;
+    position: relative;
+    overflow: hidden;
+}
+
+.winner-panel::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    animation: shine 3s infinite;
+}
+
+.winner-panel-title {
+    color: #856404;
+    margin: 0 0 10px 0;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    position: relative;
+    z-index: 1;
+}
+
+.winner-panel-number {
+    font-size: 3rem;
+    font-weight: bold;
+    color: #ffd700;
+    margin: 15px 0;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2), 0 0 10px rgba(255, 215, 0, 0.5);
+    animation: numberGlow 1.5s ease-in-out infinite;
+    position: relative;
+    z-index: 1;
+}
+
+.winner-panel-name {
+    color: #856404;
+    margin: 0;
+    font-weight: bold;
+    font-size: 1.2rem;
+    position: relative;
+    z-index: 1;
+}
+
+@keyframes winnerPanelPulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4), 0 0 40px rgba(255, 215, 0, 0.2);
+    }
+    50% {
+        transform: scale(1.03);
+        box-shadow: 0 12px 35px rgba(255, 215, 0, 0.6), 0 0 60px rgba(255, 215, 0, 0.4);
+    }
+}
+
+@keyframes shine {
+    0% {
+        transform: translateX(-100%) translateY(-100%) rotate(45deg);
+    }
+    100% {
+        transform: translateX(100%) translateY(100%) rotate(45deg);
+    }
+}
+
+@keyframes numberGlow {
+    0%, 100% {
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2), 0 0 10px rgba(255, 215, 0, 0.5);
+    }
+    50% {
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.2), 0 0 20px rgba(255, 215, 0, 0.8), 0 0 30px rgba(255, 215, 0, 0.6);
+    }
+}
+
 .number-cell.sold {
     background: #ff6b6b !important;
     color: white !important;
