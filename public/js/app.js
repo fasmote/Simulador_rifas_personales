@@ -625,6 +625,13 @@ function toggleMobileMenu() {
 }
 
 function navigateTo(page) {
+    // FASE 7: Limpiar polling de status cuando se cambia de página
+    if (window.rifaStatusPolling) {
+        clearInterval(window.rifaStatusPolling);
+        window.rifaStatusPolling = null;
+        console.log('🧹 [FASE 7] Polling limpiado al cambiar de página');
+    }
+
     switch(page) {
         case 'rifas':
             showRifasPage();
@@ -647,7 +654,7 @@ function navigateTo(page) {
             updateActiveNav('demo');
             break;
     }
-    
+
     // Cerrar menú móvil
     document.getElementById('navLinks').classList.remove('active');
 }
@@ -1753,6 +1760,43 @@ async function viewRifa(rifaId) {
             setTimeout(() => launchConfetti(), 300);
         }
 
+        // FASE 7: Polling para detectar sorteo automático
+        // Solo si hay fecha programada y la rifa está activa
+        if (rifa.scheduled_draw_date && !isCompleted) {
+            console.log('🔄 [FASE 7] Iniciando polling para detectar sorteo automático');
+
+            // Limpiar polling anterior si existe
+            if (window.rifaStatusPolling) {
+                clearInterval(window.rifaStatusPolling);
+            }
+
+            // Verificar status cada 30 segundos
+            window.rifaStatusPolling = setInterval(async () => {
+                try {
+                    const response = await fetch(`${API_BASE}/rifas/my/${rifaId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+
+                        // Si el status cambió a completed, recargar la vista
+                        if (data.rifa && data.rifa.status === 'completed') {
+                            console.log('🎊 [FASE 7] Sorteo detectado! Recargando vista...');
+                            clearInterval(window.rifaStatusPolling);
+
+                            // Recargar vista automáticamente
+                            viewRifa(rifaId);
+                        }
+                    }
+                } catch (error) {
+                    console.error('❌ [FASE 7] Error en polling:', error);
+                }
+            }, 30000); // Cada 30 segundos
+        }
+
     } catch (error) {
         console.error('❌ [ERROR] Error en viewRifa:', error);
         
@@ -2701,6 +2745,38 @@ async function viewRifaByCode(rifa, accessCode) {
     // Lanzar confetis si la rifa está completada
     if (isCompleted) {
         setTimeout(() => launchConfetti(), 300);
+    }
+
+    // FASE 7: Polling para detectar sorteo automático
+    // Solo si hay fecha programada y la rifa está activa
+    if (rifa.scheduled_draw_date && !isCompleted) {
+        console.log('🔄 [FASE 7] Iniciando polling para detectar sorteo automático');
+
+        // Limpiar polling anterior si existe
+        if (window.rifaStatusPolling) {
+            clearInterval(window.rifaStatusPolling);
+        }
+
+        // Verificar status cada 30 segundos
+        window.rifaStatusPolling = setInterval(async () => {
+            try {
+                const response = await fetch(`${API_BASE}/rifas/access/${accessCode}`);
+                if (response.ok) {
+                    const data = await response.json();
+
+                    // Si el status cambió a completed, recargar la vista
+                    if (data.rifa && data.rifa.status === 'completed') {
+                        console.log('🎊 [FASE 7] Sorteo detectado! Recargando vista...');
+                        clearInterval(window.rifaStatusPolling);
+
+                        // Recargar vista automáticamente
+                        viewRifaByCode(data.rifa, accessCode);
+                    }
+                }
+            } catch (error) {
+                console.error('❌ [FASE 7] Error en polling:', error);
+            }
+        }, 30000); // Cada 30 segundos
     }
 }
 
