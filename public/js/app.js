@@ -1093,7 +1093,7 @@ async function showPerfilPage() {
                 rifasHtml = userRifas.map(rifa => {
                     const progressPercent = Math.round((rifa.numbers_sold / 100) * 100);
                     const isCompleted = rifa.status === 'completed';
-                    const winnerInfo = rifa.winner ? `Número ${String(rifa.winner.number).padStart(2, '0')} - ${rifa.winner.participant_name}` : '';
+                    const hasWinner = rifa.winner && rifa.winner.number !== undefined;
 
                     return `
                         <div class="rifa-card" style="background: ${isCompleted ? 'linear-gradient(135deg, #f5f5f5 0%, #e8f5e9 100%)' : 'white'}; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
@@ -1101,7 +1101,7 @@ async function showPerfilPage() {
                             <h3>${rifa.title}</h3>
                             <p class="rifa-description">${rifa.description}</p>
 
-                            ${isCompleted ? `
+                            ${isCompleted && hasWinner ? `
                             <div class="winner-badge">
                                 🏆 ¡SIMULACIÓN COMPLETADA!
                             </div>
@@ -1109,6 +1109,10 @@ async function showPerfilPage() {
                                 <p style="font-size: 0.85rem; margin: 0 0 5px 0; opacity: 0.9;">Ganador:</p>
                                 <div style="font-size: 2rem; font-weight: bold; margin: 5px 0;">${String(rifa.winner.number).padStart(2, '0')}</div>
                                 <p style="font-size: 1rem; margin: 5px 0 0 0; font-weight: 500;">${rifa.winner.participant_name}</p>
+                            </div>
+                            ` : isCompleted ? `
+                            <div class="winner-badge">
+                                🏆 ¡SIMULACIÓN COMPLETADA!
                             </div>
                             ` : ''}
 
