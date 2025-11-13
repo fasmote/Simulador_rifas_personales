@@ -1093,30 +1093,32 @@ async function showPerfilPage() {
                 rifasHtml = userRifas.map(rifa => {
                     const progressPercent = Math.round((rifa.numbers_sold / 100) * 100);
                     const isCompleted = rifa.status === 'completed';
-                    const winnerInfo = rifa.winner ? `Ganador: Número ${rifa.winner.number} (${rifa.winner.participant_name})` : '';
-                    
+                    const winnerInfo = rifa.winner ? `Número ${String(rifa.winner.number).padStart(2, '0')} - ${rifa.winner.participant_name}` : '';
+
                     return `
-                        <div class="rifa-card">
+                        <div class="rifa-card" style="background: ${isCompleted ? 'linear-gradient(135deg, #f5f5f5 0%, #e8f5e9 100%)' : 'white'}; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
                             <div class="rifa-image">${isCompleted ? '🏆' : '🎯'}</div>
                             <h3>${rifa.title}</h3>
                             <p class="rifa-description">${rifa.description}</p>
-                            
+
                             ${isCompleted ? `
                             <div class="winner-badge">
                                 🏆 ¡SIMULACIÓN COMPLETADA!
                             </div>
-                            <p style="font-size: 0.9rem; color: #ffd700; font-weight: bold; margin: 5px 0; text-align: center;">
-                                ${winnerInfo}
-                            </p>
+                            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 10px; margin: 15px 0; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
+                                <p style="font-size: 0.85rem; margin: 0 0 5px 0; opacity: 0.9;">Ganador:</p>
+                                <div style="font-size: 2rem; font-weight: bold; margin: 5px 0;">${String(rifa.winner.number).padStart(2, '0')}</div>
+                                <p style="font-size: 1rem; margin: 5px 0 0 0; font-weight: 500;">${rifa.winner.participant_name}</p>
+                            </div>
                             ` : ''}
-                            
+
                             <div class="rifa-progress">
                                 <div class="progress-bar">
                                     <div class="progress-fill" style="width: ${progressPercent}%"></div>
                                 </div>
                                 <p class="progress-text">${rifa.numbers_sold}/100 números ${isCompleted ? '(Completada)' : ''}</p>
                             </div>
-                            
+
                             <div style="margin-top: 15px;">
                                 <p style="font-size: 0.9rem; color: #666; margin-bottom: 10px;">
                                     🔑 Código: <strong>${rifa.access_code || 'Generando...'}</strong>
@@ -1125,26 +1127,26 @@ async function showPerfilPage() {
                                     </button>
                                 </p>
                             </div>
-                            
+
                             <div style="display: flex; gap: 8px; margin-top: 15px; flex-wrap: wrap;">
-                                <button class="btn btn-primary" onclick="viewRifa(${rifa.id})" style="flex: 1; font-size: 0.9rem; min-width: 80px;">
+                                <button class="btn btn-primary" onclick="viewRifa(${rifa.id})" style="flex: 1; font-size: 0.9rem; min-width: 70px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
                                     👁️ Ver
                                 </button>
                                 ${!isCompleted ? `
-                                <button class="btn btn-secondary" onclick="editRifa(${rifa.id})" style="flex: 1; font-size: 0.9rem; min-width: 80px;">
+                                <button class="btn btn-secondary" onclick="editRifa(${rifa.id})" style="flex: 1; font-size: 0.9rem; min-width: 70px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
                                     ✏️ Editar
                                 </button>
                                 ${rifa.numbers_sold > 0 ? `
-                                <button class="btn" onclick="quickDraw(${rifa.id}, '${rifa.title}')" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; flex: 1; font-size: 0.9rem; min-width: 80px; font-weight: bold; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+                                <button class="btn" onclick="quickDraw(${rifa.id}, '${rifa.title}')" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; flex: 1; font-size: 0.9rem; min-width: 70px; font-weight: bold; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
                                     🎲 Sortear
                                 </button>
                                 ` : ''}
                                 ` : `
-                                <button class="btn" onclick="viewRifa(${rifa.id})" style="background: #4caf50; color: white; flex: 1; font-size: 0.9rem; min-width: 80px;">
+                                <button class="btn" onclick="viewRifa(${rifa.id})" style="background: #4caf50; color: white; flex: 1; font-size: 0.85rem; min-width: 80px; padding: 10px 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
                                     📊 Resultado
                                 </button>
                                 `}
-                                <button class="btn" onclick="deleteRifa(${rifa.id})" style="background: #ff6b6b; color: white; flex: 0.5; font-size: 0.9rem; min-width: 40px;">
+                                <button class="btn" onclick="deleteRifa(${rifa.id})" style="background: #ff6b6b; color: white; flex: 0.5; font-size: 0.9rem; min-width: 45px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
                                     🗑️
                                 </button>
                             </div>
