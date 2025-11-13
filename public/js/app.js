@@ -1576,10 +1576,63 @@ async function viewRifa(rifaId) {
         
         console.log(`✅ [DEBUG] Generando HTML para la vista...`);
         
+        // FASE 7: Formatear fecha programada si existe
+        let scheduledDateHtml = '';
+        if (rifa.scheduled_draw_date && !isCompleted) {
+            const scheduledDate = new Date(rifa.scheduled_draw_date);
+            const now = new Date();
+            const isPast = scheduledDate <= now;
+
+            const dateStr = scheduledDate.toLocaleDateString('es-AR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+            const timeStr = scheduledDate.toLocaleTimeString('es-AR', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+
+            scheduledDateHtml = `
+                <div style="margin: 15px 0; padding: 12px 15px; background: ${isPast ? '#ffebee' : '#e3f2fd'}; border-left: 4px solid ${isPast ? '#f44336' : '#2196F3'}; border-radius: 8px;">
+                    <p style="margin: 0; color: ${isPast ? '#c62828' : '#1565c0'}; font-weight: 600; font-size: 0.95rem;">
+                        📅 Sorteo programado: ${dateStr} a las ${timeStr}
+                        ${isPast ? '<br><small style="font-size: 0.85rem;">(La fecha ya pasó - se sorteará automáticamente)</small>' : ''}
+                    </p>
+                </div>
+            `;
+        } else if (!rifa.scheduled_draw_date && !isCompleted) {
+            scheduledDateHtml = `
+                <div style="margin: 15px 0; padding: 10px 15px; background: #f5f5f5; border-left: 4px solid #9e9e9e; border-radius: 8px;">
+                    <p style="margin: 0; color: #666; font-size: 0.9rem;">
+                        ⏰ Sin fecha programada - Sorteo manual
+                    </p>
+                </div>
+            `;
+        }
+
+        // FASE 7: Mensaje del propietario si existe
+        let ownerMessageHtml = '';
+        if (rifa.owner_message) {
+            ownerMessageHtml = `
+                <div style="margin: 15px 0; padding: 12px 15px; background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 8px;">
+                    <p style="margin: 0 0 5px 0; color: #e65100; font-weight: 600; font-size: 0.85rem;">
+                        💬 Mensaje del organizador:
+                    </p>
+                    <p style="margin: 0; color: #555; font-size: 0.95rem; font-style: italic;">
+                        "${rifa.owner_message}"
+                    </p>
+                </div>
+            `;
+        }
+
         document.getElementById('mainContainer').innerHTML = `
             <div class="page-header">
                 <h1>🎯 ${rifa.title}</h1>
                 <p class="subtitle">${rifa.description}</p>
+                ${scheduledDateHtml}
+                ${ownerMessageHtml}
                 ${isCompleted ? `<p class="winner-banner">
                     🏆 ¡SIMULACIÓN COMPLETADA! Ganador: Número ${winnerNumber} (${rifa.winner.participant_name})
                 </p>` : ''}
@@ -1642,7 +1695,10 @@ async function viewRifa(rifaId) {
                         <div class="winner-panel-number">${String(winnerNumber).padStart(2, '0')}</div>
                         <p class="winner-panel-name">${rifa.winner.participant_name}</p>
                     </div>` : ''}
-                    
+
+                    ${scheduledDateHtml}
+                    ${ownerMessageHtml}
+
                     <!-- FASE 3.2c: Título prominente de la rifa -->
                     <div class="rifa-title-section">
                         <h3 class="rifa-title-main">
@@ -1651,7 +1707,7 @@ async function viewRifa(rifaId) {
                         </h3>
                         <p class="rifa-description-text">${rifa.description}</p>
                     </div>
-                    
+
                     <div style="margin-bottom: 20px;">
                         <h4 style="color: #333; margin-bottom: 10px;">📈 Progreso</h4>
                         <div class="progress-bar">
@@ -2416,7 +2472,58 @@ async function viewRifaByCode(rifa, accessCode) {
     // FEAT FASE 15W-PLUS: Información del creador
     const creatorName = rifa.creator_username || rifa.creator_name || 'Usuario Anónimo';
     const creatorDisplay = creatorName.charAt(0).toUpperCase() + creatorName.slice(1);
-    
+
+    // FASE 7: Formatear fecha programada si existe
+    let scheduledDateHtml = '';
+    if (rifa.scheduled_draw_date && !isCompleted) {
+        const scheduledDate = new Date(rifa.scheduled_draw_date);
+        const now = new Date();
+        const isPast = scheduledDate <= now;
+
+        const dateStr = scheduledDate.toLocaleDateString('es-AR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+        const timeStr = scheduledDate.toLocaleTimeString('es-AR', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
+
+        scheduledDateHtml = `
+            <div style="margin: 15px 0; padding: 12px 15px; background: ${isPast ? '#ffebee' : '#e3f2fd'}; border-left: 4px solid ${isPast ? '#f44336' : '#2196F3'}; border-radius: 8px;">
+                <p style="margin: 0; color: ${isPast ? '#c62828' : '#1565c0'}; font-weight: 600; font-size: 0.95rem;">
+                    📅 Sorteo programado: ${dateStr} a las ${timeStr}
+                    ${isPast ? '<br><small style="font-size: 0.85rem;">(La fecha ya pasó - se sorteará automáticamente)</small>' : ''}
+                </p>
+            </div>
+        `;
+    } else if (!rifa.scheduled_draw_date && !isCompleted) {
+        scheduledDateHtml = `
+            <div style="margin: 15px 0; padding: 10px 15px; background: #f5f5f5; border-left: 4px solid #9e9e9e; border-radius: 8px;">
+                <p style="margin: 0; color: #666; font-size: 0.9rem;">
+                    ⏰ Sin fecha programada - Sorteo manual
+                </p>
+            </div>
+        `;
+    }
+
+    // FASE 7: Mensaje del propietario si existe
+    let ownerMessageHtml = '';
+    if (rifa.owner_message) {
+        ownerMessageHtml = `
+            <div style="margin: 15px 0; padding: 12px 15px; background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 8px;">
+                <p style="margin: 0 0 5px 0; color: #e65100; font-weight: 600; font-size: 0.85rem;">
+                    💬 Mensaje del organizador:
+                </p>
+                <p style="margin: 0; color: #555; font-size: 0.95rem; font-style: italic;">
+                    "${rifa.owner_message}"
+                </p>
+            </div>
+        `;
+    }
+
     document.getElementById('mainContainer').innerHTML = `
         <!-- FASE 3.2c: Título prominente con nuevas clases CSS -->
         <div class="rifa-title-section">
@@ -2425,14 +2532,17 @@ async function viewRifaByCode(rifa, accessCode) {
                 ${rifa.title}
             </h1>
             <p class="rifa-description-text">Simulación privada - Acceso por código: ${accessCode}</p>
-            
+
             <!-- FEAT FASE 15W-PLUS: Badge del creador visible -->
             <div style="background: linear-gradient(45deg, #667eea, #764ba2); color: white; padding: 12px 20px; border-radius: 25px; display: inline-block; margin: 15px 0; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
                 <span style="font-size: 1rem; font-weight: 600;">
                     👤 Creada por: <strong>${creatorDisplay}</strong>
                 </span>
             </div>
-            
+
+            ${scheduledDateHtml}
+            ${ownerMessageHtml}
+
             ${isCompleted ? `<p class="winner-banner">
                 🏆 ¡SIMULACIÓN COMPLETADA! Ganador: Número ${winnerNumber} (${rifa.winner.participant_name})
             </p>` : ''}
@@ -2514,7 +2624,10 @@ async function viewRifaByCode(rifa, accessCode) {
                     <p class="winner-panel-name">${rifa.winner.participant_name}</p>
                 </div>
                 ` : ''}
-                
+
+                ${scheduledDateHtml}
+                ${ownerMessageHtml}
+
                 <div class="cart-header" style="margin-top: 20px;">
                     <span class="cart-icon">📋</span>
                     <h3 class="cart-title">${isCompleted ? 'Resultado Final' : 'Números Seleccionados'}</h3>
