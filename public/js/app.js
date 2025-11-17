@@ -1132,7 +1132,7 @@ async function showPerfilPage() {
                     const hasWinner = rifa.winner && rifa.winner.number !== undefined;
 
                     return `
-                        <div class="rifa-card" style="background: ${isCompleted ? 'linear-gradient(135deg, #f5f5f5 0%, #e8f5e9 100%)' : 'white'}; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+                        <div class="rifa-card" style="background: ${isCompleted ? 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%)' : 'white'}; box-shadow: 0 5px 20px rgba(0,0,0,${isCompleted ? '0.15' : '0.1'}); ${isCompleted ? 'border: 3px solid #4caf50;' : ''}">
                             <div class="rifa-image">${isCompleted ? '🏆' : '🎯'}</div>
                             <h3>${rifa.title}</h3>
                             <p class="rifa-description">${rifa.description}</p>
@@ -1175,8 +1175,8 @@ async function showPerfilPage() {
                                 <button class="btn btn-secondary" onclick="${isCompleted ? '' : `editRifa(${rifa.id})`}" ${isCompleted ? 'disabled' : ''} style="flex: 1; font-size: 0.9rem; min-width: 70px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); ${isCompleted ? 'opacity: 0.5; cursor: not-allowed; background: #ccc;' : ''}">
                                     ✏️ Editar
                                 </button>
-                                ${!isCompleted && rifa.numbers_sold > 0 ? `
-                                <button class="btn" onclick="quickDraw(${rifa.id}, '${rifa.title}')" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; flex: 1; font-size: 0.9rem; min-width: 70px; font-weight: bold; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+                                ${!isCompleted ? `
+                                <button class="btn" onclick="${rifa.numbers_sold > 0 ? `quickDraw(${rifa.id}, '${rifa.title}')` : ''}" ${rifa.numbers_sold === 0 ? 'disabled' : ''} style="background: ${rifa.numbers_sold > 0 ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : '#ccc'}; color: white; flex: 1; font-size: 0.9rem; min-width: 70px; font-weight: bold; box-shadow: 0 4px 15px rgba(102, 126, 234, ${rifa.numbers_sold > 0 ? '0.4' : '0.1'}); ${rifa.numbers_sold === 0 ? 'opacity: 0.5; cursor: not-allowed;' : ''}" title="${rifa.numbers_sold === 0 ? 'No hay números vendidos' : 'Realizar sorteo'}">
                                     🎲 Sortear
                                 </button>
                                 ` : ''}
@@ -1185,8 +1185,10 @@ async function showPerfilPage() {
                                     📊 Ver Ganador
                                 </button>
                                 ` : ''}
-                                <button class="btn" onclick="deleteRifa(${rifa.id})" style="background: #ff6b6b; color: white; flex: 0.5; font-size: 0.9rem; min-width: 45px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
-                                    🗑️
+                            </div>
+                            <div style="display: flex; gap: 8px; margin-top: 8px;">
+                                <button class="btn" onclick="deleteRifa(${rifa.id})" style="background: #ff6b6b; color: white; flex: 1; font-size: 0.9rem; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                                    🗑️ Eliminar
                                 </button>
                             </div>
                         </div>
@@ -1412,7 +1414,7 @@ async function viewPublicRifa(rifaId) {
                         <!-- FASE 8: Imagen del premio -->
                         ${rifa.image_url ? `
                             <div class="prize-image-container">
-                                <img src="${rifa.image_url}" alt="${rifa.title}" class="prize-image">
+                                <img src="${rifa.image_url}" alt="${rifa.title}" class="prize-image" onclick="openLightbox('${rifa.image_url}')" style="cursor: zoom-in;" title="Click para ampliar">
                             </div>
                         ` : ''}
 
@@ -1726,7 +1728,7 @@ async function viewRifa(rifaId) {
                     <!-- FASE 8: Imagen del premio -->
                     ${rifa.image_url ? `
                         <div class="prize-image-container">
-                            <img src="${rifa.image_url}" alt="${rifa.title}" class="prize-image">
+                            <img src="${rifa.image_url}" alt="${rifa.title}" class="prize-image" onclick="openLightbox('${rifa.image_url}')" style="cursor: zoom-in;" title="Click para ampliar">
                         </div>
                     ` : ''}
 
@@ -2255,10 +2257,25 @@ function showCreateRifaModal() {
 
 function closeCreateRifaModal() {
     document.getElementById('createRifaModal').style.display = 'none';
+
+    // FASE 8: Limpiar formulario y variables globales
+    document.getElementById('createRifaForm').reset();
+    document.getElementById('rifaImageUrl').value = '';
+    removeImagePreview();
+    currentImageUrl = null;
 }
 
 function closeEditRifaModal() {
     document.getElementById('editRifaModal').style.display = 'none';
+
+    // FASE 8: Limpiar formulario y variables globales para prevenir precarga entre usuarios
+    document.getElementById('editRifaForm').reset();
+    document.getElementById('editRifaImageUrl').value = '';
+    removeImagePreviewEdit();
+    editImageUrl = null;
+
+    // Limpiar dataset
+    delete document.getElementById('editRifaForm').dataset.rifaId;
 }
 
 // Event listeners para formularios (configurados después de DOMContentLoaded)
@@ -2646,7 +2663,7 @@ async function viewRifaByCode(rifa, accessCode) {
             <!-- FASE 8: Imagen del premio -->
             ${rifa.image_url ? `
                 <div class="prize-image-container" style="margin: 20px 0;">
-                    <img src="${rifa.image_url}" alt="${rifa.title}" class="prize-image">
+                    <img src="${rifa.image_url}" alt="${rifa.title}" class="prize-image" onclick="openLightbox('${rifa.image_url}')" style="cursor: zoom-in;" title="Click para ampliar">
                 </div>
             ` : ''}
         </div>
@@ -2723,7 +2740,7 @@ async function viewRifaByCode(rifa, accessCode) {
                 <!-- FASE 8: Imagen del premio en panel lateral -->
                 ${rifa.image_url ? `
                     <div class="prize-image-container" style="margin-bottom: 20px;">
-                        <img src="${rifa.image_url}" alt="${rifa.title}" class="prize-image">
+                        <img src="${rifa.image_url}" alt="${rifa.title}" class="prize-image" onclick="openLightbox('${rifa.image_url}')" style="cursor: zoom-in;" title="Click para ampliar">
                     </div>
                 ` : ''}
             
@@ -3744,5 +3761,45 @@ document.addEventListener('DOMContentLoaded', function() {
                 reader.readAsDataURL(file);
             }
         });
+    }
+});
+
+// ========== FASE 8: LIGHTBOX PARA AMPLIAR IMÁGENES ==========
+
+/**
+ * Abrir modal lightbox para ampliar imagen
+ * @param {string} imageSrc - URL de la imagen a ampliar
+ */
+function openLightbox(imageSrc) {
+    const lightbox = document.getElementById('imageLightbox');
+    const lightboxImage = document.getElementById('lightboxImage');
+
+    if (lightbox && lightboxImage) {
+        lightboxImage.src = imageSrc;
+        lightbox.style.display = 'flex';
+
+        // Prevenir scroll del body cuando el lightbox está abierto
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+/**
+ * Cerrar modal lightbox
+ */
+function closeLightbox() {
+    const lightbox = document.getElementById('imageLightbox');
+
+    if (lightbox) {
+        lightbox.style.display = 'none';
+
+        // Restaurar scroll del body
+        document.body.style.overflow = 'auto';
+    }
+}
+
+// Cerrar lightbox con tecla ESC
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeLightbox();
     }
 });
