@@ -1133,6 +1133,11 @@ async function showPerfilPage() {
 
                     return `
                         <div class="rifa-card" style="background: ${isCompleted ? 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%)' : 'white'}; box-shadow: 0 5px 20px rgba(0,0,0,${isCompleted ? '0.15' : '0.1'}); ${isCompleted ? 'border: 3px solid #4caf50;' : ''}">
+                            ${rifa.image_url ? `
+                            <div class="rifa-card-image-container" onclick="openLightbox('${rifa.image_url}')" style="cursor: zoom-in;" title="Click para ampliar">
+                                <img src="${rifa.image_url}" alt="${rifa.title}" class="rifa-card-image">
+                            </div>
+                            ` : ''}
                             <div class="rifa-image">${isCompleted ? '🏆' : '🎯'}</div>
                             <h3>${rifa.title}</h3>
                             <p class="rifa-description">${rifa.description}</p>
@@ -2660,10 +2665,10 @@ async function viewRifaByCode(rifa, accessCode) {
                 🏆 ¡SIMULACIÓN COMPLETADA! Ganador: Número ${winnerNumber} (${rifa.winner.participant_name})
             </p>` : ''}
 
-            <!-- FASE 8: Imagen del premio -->
+            <!-- FASE 8: Imagen del premio (banner) -->
             ${rifa.image_url ? `
-                <div class="prize-image-container" style="margin: 20px 0;">
-                    <img src="${rifa.image_url}" alt="${rifa.title}" class="prize-image" onclick="openLightbox('${rifa.image_url}')" style="cursor: zoom-in;" title="Click para ampliar">
+                <div class="prize-image-container-header" style="margin: 20px 0;">
+                    <img src="${rifa.image_url}" alt="${rifa.title}" class="prize-image-header">
                 </div>
             ` : ''}
         </div>
