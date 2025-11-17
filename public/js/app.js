@@ -3808,3 +3808,69 @@ document.addEventListener('keydown', function(event) {
         closeLightbox();
     }
 });
+
+// ========== FASE 8: MODO DE SORTEO MANUAL/AUTOMÁTICO ==========
+
+/**
+ * Mostrar/ocultar contenedor de modo de sorteo en modal crear
+ */
+function toggleSorteoModeVisibility() {
+    const dateInput = document.getElementById('rifaScheduledDate');
+    const modeContainer = document.getElementById('sorteoModeContainer');
+
+    if (dateInput && modeContainer) {
+        if (dateInput.value) {
+            modeContainer.style.display = 'block';
+        } else {
+            modeContainer.style.display = 'none';
+        }
+    }
+}
+
+/**
+ * Mostrar/ocultar contenedor de modo de sorteo en modal editar
+ */
+function toggleSorteoModeVisibilityEdit() {
+    const dateInput = document.getElementById('editRifaScheduledDate');
+    const modeContainer = document.getElementById('editSorteoModeContainer');
+
+    if (dateInput && modeContainer) {
+        if (dateInput.value) {
+            modeContainer.style.display = 'block';
+        } else {
+            modeContainer.style.display = 'none';
+        }
+    }
+}
+
+/**
+ * Actualizar descripción del modo de sorteo - Crear
+ */
+function updateSorteoModeDescription() {
+    const selectedMode = document.querySelector('input[name="sorteoMode"]:checked');
+    const description = document.getElementById('sorteoModeDescription');
+
+    if (selectedMode && description) {
+        if (selectedMode.value === 'automatico') {
+            description.textContent = 'El sorteo se realizará automáticamente en la fecha programada.';
+        } else {
+            description.textContent = 'Deberás realizar el sorteo manualmente. Los participantes no podrán elegir números después de la fecha.';
+        }
+    }
+}
+
+/**
+ * Actualizar descripción del modo de sorteo - Editar
+ */
+function updateSorteoModeDescriptionEdit() {
+    const selectedMode = document.querySelector('input[name="editSorteoMode"]:checked');
+    const description = document.getElementById('editSorteoModeDescription');
+
+    if (selectedMode && description) {
+        if (selectedMode.value === 'automatico') {
+            description.textContent = 'El sorteo se realizará automáticamente en la fecha programada.';
+        } else {
+            description.textContent = 'Deberás realizar el sorteo manualmente. Los participantes no podrán elegir números después de la fecha.';
+        }
+    }
+}
