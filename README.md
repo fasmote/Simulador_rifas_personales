@@ -1,7 +1,7 @@
 # 🎲 SimulaRifas - Proyecto Personal
 
 ![Estado del Proyecto](https://img.shields.io/badge/Estado-En%20Producci%C3%B3n-brightgreen)
-![Versión](https://img.shields.io/badge/Versión-5.1-blue)
+![Versión](https://img.shields.io/badge/Versión-8.0-blue)
 ![Base de Datos](https://img.shields.io/badge/PostgreSQL-Vercel-blue)
 ![Licencia](https://img.shields.io/badge/Licencia-MIT-green)
 
@@ -19,7 +19,8 @@ SimulaRifas es una aplicación web educativa que simula el funcionamiento de rif
 - **Rifas Públicas**: Contenido de demostración accesible sin registro
 - **API RESTful**: Backend modular con arquitectura MVC
 - **Responsive Design**: Optimizado para todos los dispositivos (320px - 1920px+)
-- **FASE 5 NUEVA**: **Layout Responsivo Mejorado** - 6 breakpoints, touch optimizado, fluid typography
+- **FASE 8 NUEVA**: **Imágenes de Productos** - Sistema dual URL/Upload con Cloudinary, preview en tiempo real
+- **FASE 5**: **Layout Responsivo Mejorado** - 6 breakpoints, touch optimizado, fluid typography
 - **FASE 4**: **Colores por Participante** - Cada usuario con color único distintivo (12 colores)
 - **FASE 3**: **Gestión de Números** - Botones × para eliminar números individuales
 - **FASE 2**: **Tooltips con Timestamps** - Información detallada de participaciones
@@ -45,6 +46,8 @@ SimulaRifas es una aplicación web educativa que simula el funcionamiento de rif
 - **PostgreSQL** - Base de datos en producción (Vercel Postgres)
 - **SQLite** - Base de datos en desarrollo local
 - **Switch Automático** - Detecta entorno y usa DB apropiada
+- **Cloudinary** - Almacenamiento de imágenes en la nube (FASE 8)
+- **Multer** - Upload de archivos multipart/form-data (FASE 8)
 - **CORS** - Configuración de dominios cruzados
 
 ### Deploy y Herramientas
@@ -269,6 +272,12 @@ DELETE /api/rifas/:id/numbers/:number # FASE 3: Eliminar número individual
 DELETE /api/rifas/:id/participants/:user/numbers # FASE 3: Eliminar todos los números de usuario
 ```
 
+### Upload de Imágenes
+```http
+POST   /api/upload/image           # FASE 8: Subir imagen a Cloudinary
+DELETE /api/upload/image/:publicId # FASE 8: Eliminar imagen de Cloudinary
+```
+
 ## 🔒 Seguridad y Consideraciones
 
 ### Legales
@@ -294,6 +303,7 @@ DELETE /api/rifas/:id/participants/:user/numbers # FASE 3: Eliminar todos los n�
 - **FASE 3**: Botones × eliminación con estilos CSS permanentes
 - **FASE 4**: Sistema completo de colores por participante (12 gradientes)
 - **FASE 5**: Layout responsivo mejorado (6 breakpoints, touch-optimized)
+- **FASE 8**: Sistema de imágenes de productos (URL/Upload, Cloudinary, preview)
 
 ### 🔄 En Progreso
 - Testing exhaustivo en producción
@@ -302,9 +312,9 @@ DELETE /api/rifas/:id/participants/:user/numbers # FASE 3: Eliminar todos los n�
 ### 📋 Próximas Features (Ver [Roadmap](docs/ROADMAP_COMPLETO.md))
 - **FASE 6**: Botón sorteo directo desde "Mis Simulaciones"
 - **FASE 7**: Sistema de fechas programadas para sorteos
-- **FASE 8**: Notificaciones por email
-- **FASE 9**: Modo oscuro con toggle
-- **FASE 10**: PWA (Progressive Web App)
+- **FASE 9**: Zona horaria del propietario
+- **FASE 10**: Historial de cambios
+- **FASE 11**: Rangos personalizables base
 - **FASE 18**: Posible migración a Firebase/Firestore
 
 ## 🗺️ Roadmap de Desarrollo
@@ -317,6 +327,7 @@ El proyecto sigue un roadmap estructurado en **200 fases** organizadas en **11 b
 - ✅ **FASE 3**: Gestión de Números *(COMPLETADA)*
 - ✅ **FASE 4**: Colores por Participante *(COMPLETADA)*
 - ✅ **FASE 5**: Layout Responsivo Mejorado *(COMPLETADA)*
+- ✅ **FASE 8**: Imágenes de Productos *(COMPLETADA)*
 - 📅 **FASE 6**: Botón Sorteo Directo *(PRÓXIMA)*
 
 ### **BLOQUE II: EXPERIENCIA PREMIUM** *(Fases 21-40)*
@@ -329,12 +340,12 @@ Para ver el roadmap completo, consulta [ROADMAP_COMPLETO.md](docs/ROADMAP_COMPLE
 
 Para ver todos los cambios detallados por fase, consulta [CHANGELOG.md](docs/CHANGELOG.md)
 
-### Últimos Cambios (FASE 5)
+### Últimos Cambios (FASE 8)
+- ✅ **FASE 8**: Sistema de imágenes de productos - URL/Upload con Cloudinary, preview en tiempo real
 - ✅ **FASE 5**: Layout responsivo mejorado - 6 breakpoints, touch-optimized
 - ✅ **FASE 4**: Sistema completo de colores por participante (12 gradientes)
 - ✅ **FASE 3**: Botones × eliminación con estilos CSS permanentes
 - ✅ **FASE 2**: Tooltips informativos con timestamps formateados
-- ✅ **FASE 1**: Vista administrativa completa de participantes
 
 ## 🤝 Contribución
 

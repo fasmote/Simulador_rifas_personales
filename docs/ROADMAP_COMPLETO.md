@@ -9,7 +9,7 @@
 
 **Filosofía**: Cambios pequeños, incrementales, testeables de a uno.
 
-**Estado Actual**: **FASE 4 COMPLETADA** - Colores por participante + gestión de números
+**Estado Actual**: **FASE 8 COMPLETADA** - Sistema de imágenes de productos + Fases 1-5
 
 ---
 
@@ -51,6 +51,16 @@
 - ✅ **Colores**: Gradientes elegantes desde `user-color-1` hasta `user-color-12`
 - ✅ **Test**: ✓ Cada usuario tiene color único, persistencia por sesión de rifa
 
+### **✅ FASE 8: "Imágenes de Productos" - COMPLETADA (17/11/2025)**
+*Sistema dual URL/Upload para agregar imágenes a premios*
+
+**Objetivo**: Permitir a los propietarios agregar imágenes representativas del premio/producto
+- ✅ **Archivos modificados**: Backend (cloudinary.js, upload.js, rifas.js, init.js), Frontend (app.js +267 líneas, styles.css +130 líneas, index.html +70 líneas)
+- ✅ **Funcionalidad**: Toggle URL/Upload, preview en tiempo real, almacenamiento Cloudinary
+- ✅ **Endpoints**: POST /api/upload/image, DELETE /api/upload/image/:publicId
+- ✅ **Features**: Límite 5MB, optimización 800x800px, validación de formatos, responsive
+- ✅ **Test**: ✓ Upload funciona, preview correcto, fallback sin Cloudinary operativo
+
 ---
 
 ## 📚 **ROADMAP COMPLETO ORGANIZADO**
@@ -65,14 +75,14 @@
 3. **✅ FASE 3**: Gestión de Números *(COMPLETADA)*
 4. **✅ FASE 4**: Colores por Participante *(COMPLETADA)*
    - *Cada usuario tiene color único en la grilla*
-5. **FASE 5**: Layout Responsivo Mejorado
-   - *Optimizar diseño en mobile y primera simulación*
+5. **✅ FASE 5**: Layout Responsivo Mejorado *(COMPLETADA)*
+   - *Diseño optimizado en mobile y todos los dispositivos*
 6. **FASE 6**: Botón Sorteo Directo
    - *Sortear desde "Mis Simulaciones" sin entrar a detalles*
 7. **FASE 7**: Sistema de Fechas
    - *Programar fecha/hora de sorteo futuro*
-8. **FASE 8**: Imágenes de Producto
-   - *URL de imagen para representar el premio*
+8. **✅ FASE 8**: Imágenes de Producto *(COMPLETADA)*
+   - *Sistema dual URL/Upload para representar el premio*
 9. **FASE 9**: Zona Horaria del Propietario
    - *Configurar timezone en perfil de usuario*
 10. **FASE 10**: Historial de Cambios
@@ -588,6 +598,9 @@
 - ✅ **FASE 1**: 100% funcionalidad administrativa implementada
 - ✅ **FASE 2**: 100% tooltips con timestamps funcionando
 - ✅ **FASE 3**: 100% gestión de números completada
+- ✅ **FASE 4**: 100% sistema de colores por participante
+- ✅ **FASE 5**: 100% layout responsivo mejorado
+- ✅ **FASE 8**: 100% sistema de imágenes de productos
 - 📋 Configuración flexible al 100% (meta)
 
 ### **Bloque II (Experiencia - Fases 21-40)**
@@ -611,7 +624,9 @@
 - ✅ **FASE 2**: Timestamps Informativos *(COMPLETADA - 02/08/2025)*
 - ✅ **FASE 3**: Gestión de Números *(COMPLETADA - 28/08/2025)*
 - ✅ **FASE 4**: Colores por Participante *(COMPLETADA - 28/08/2025)*
-- 📅 **FASES 5-10**: Mejoras UX y gestión avanzada *(PRÓXIMAS)*
+- ✅ **FASE 5**: Layout Responsivo Mejorado *(COMPLETADA - 07/11/2025)*
+- ✅ **FASE 8**: Imágenes de Productos *(COMPLETADA - 17/11/2025)*
+- 📅 **FASES 6-7, 9-10**: Mejoras UX y gestión avanzada *(PRÓXIMAS)*
 
 #### **PRÓXIMA ETAPA: CONFIGURACIÓN FLEXIBLE**
 - 🎯 **FASES 11-20**: Rangos personalizables y optimización
@@ -671,14 +686,16 @@ npm run dev
 
 ## 📈 **ESTADO ACTUAL DEL PROYECTO**
 
-### **✅ Completado (FASE 4)**
+### **✅ Completado (FASE 8)**
 - Sistema base completo y funcional
 - Autenticación JWT robusta
 - CRUD completo de rifas
 - Vista administrativa de participantes
 - Tooltips informativos con timestamps
-- **Gestión completa de números (eliminar individual/por usuario)**
-- **Sistema de colores por participante (12 colores únicos)**
+- Gestión completa de números (eliminar individual/por usuario)
+- Sistema de colores por participante (12 colores únicos)
+- **Layout responsivo mejorado (6 breakpoints, touch-optimized)**
+- **Sistema de imágenes de productos (URL/Upload, Cloudinary)**
 - Deploy en Vercel funcionando
 
 ### **🔧 Stack Tecnológico Actual**
@@ -689,19 +706,21 @@ npm run dev
 - **DB**: SQLite (migración a Firebase planificada)
 
 ### **📊 Métricas Actuales**
-- **Fases completadas**: 4/220 (1.8%)
-- **Líneas de código**: ~3,500 líneas
+- **Fases completadas**: 6/220 (2.7%) - Fases 1-5 + FASE 8
+- **Líneas de código**: ~5,100+ líneas
 - **Funcionalidades core**: 100% operativas
 - **Funcionalidades admin**: 100% operativas
 - **Funcionalidades visuales**: 100% operativas
+- **Sistema de imágenes**: 100% funcional
+- **Responsive design**: 100% optimizado
 - **Estado**: Proyecto personal en desarrollo activo
 
 ---
 
-*Documento actualizado: Agosto 2025*  
-*Proyecto: SimulaRifas Personal 2.0*  
-*Estado: FASE 4 completada - Colores por participante*  
-*Objetivo: Plataforma personal completa de simulación de rifas*  
+*Documento actualizado: Noviembre 2025*
+*Proyecto: SimulaRifas Personal 2.0*
+*Estado: FASE 8 completada - Sistema de imágenes de productos*
+*Objetivo: Plataforma personal completa de simulación de rifas*
 *Visión: 220 fases de desarrollo incremental*
 
 ---
