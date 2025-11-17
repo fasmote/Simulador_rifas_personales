@@ -5,6 +5,7 @@ require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
 const rifasRoutes = require('./routes/rifas');
+const uploadRoutes = require('./routes/upload'); // FASE 8
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -17,6 +18,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/rifas', rifasRoutes);
+app.use('/api/upload', uploadRoutes); // FASE 8: Upload de imágenes
 
 // Endpoint temporal para regenerar rifas demo (TEMPORAL - REMOVER DESPUÉS)
 app.get('/api/admin/regenerate-demo', async (req, res) => {
