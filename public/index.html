@@ -87,7 +87,27 @@
                 <label for="rifaScheduledDate" style="display: block; margin-top: 15px; margin-bottom: 5px; color: #666; font-size: 0.9rem;">
                     📅 Fecha y hora del sorteo (opcional):
                 </label>
-                <input type="datetime-local" id="rifaScheduledDate" class="form-input" placeholder="Fecha del sorteo">
+                <input type="datetime-local" id="rifaScheduledDate" class="form-input" placeholder="Fecha del sorteo" onchange="toggleSorteoModeVisibility()">
+
+                <!-- FASE 8: Modo de sorteo (solo visible si hay fecha) -->
+                <div id="sorteoModeContainer" style="display: none; margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #ddd;">
+                    <label style="display: block; margin-bottom: 10px; color: #666; font-size: 0.9rem; font-weight: 600;">
+                        ⚙️ Modo de sorteo:
+                    </label>
+                    <div style="display: flex; gap: 10px;">
+                        <label style="flex: 1; cursor: pointer;">
+                            <input type="radio" name="sorteoMode" value="automatico" checked onchange="updateSorteoModeDescription()">
+                            <span style="margin-left: 5px;">🤖 Automático</span>
+                        </label>
+                        <label style="flex: 1; cursor: pointer;">
+                            <input type="radio" name="sorteoMode" value="manual" onchange="updateSorteoModeDescription()">
+                            <span style="margin-left: 5px;">✋ Manual</span>
+                        </label>
+                    </div>
+                    <p id="sorteoModeDescription" style="margin: 10px 0 0 0; font-size: 0.85rem; color: #666; font-style: italic;">
+                        El sorteo se realizará automáticamente en la fecha programada.
+                    </p>
+                </div>
 
                 <!-- FASE 7: Mensaje del propietario -->
                 <label for="rifaOwnerMessage" style="display: block; margin-top: 15px; margin-bottom: 5px; color: #666; font-size: 0.9rem;">
@@ -151,10 +171,30 @@
                 <label for="editRifaScheduledDate" style="display: block; margin-top: 15px; margin-bottom: 5px; color: #666; font-size: 0.9rem;">
                     📅 Fecha y hora del sorteo (opcional):
                 </label>
-                <input type="datetime-local" id="editRifaScheduledDate" class="form-input">
+                <input type="datetime-local" id="editRifaScheduledDate" class="form-input" onchange="toggleSorteoModeVisibilityEdit()">
                 <button type="button" class="btn btn-secondary" onclick="clearScheduledDate()" style="margin-top: 5px; font-size: 0.85rem; padding: 8px 12px;">
                     🗑️ Quitar fecha programada
                 </button>
+
+                <!-- FASE 8: Modo de sorteo (solo visible si hay fecha) -->
+                <div id="editSorteoModeContainer" style="display: none; margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border: 1px solid #ddd;">
+                    <label style="display: block; margin-bottom: 10px; color: #666; font-size: 0.9rem; font-weight: 600;">
+                        ⚙️ Modo de sorteo:
+                    </label>
+                    <div style="display: flex; gap: 10px;">
+                        <label style="flex: 1; cursor: pointer;">
+                            <input type="radio" name="editSorteoMode" value="automatico" checked onchange="updateSorteoModeDescriptionEdit()">
+                            <span style="margin-left: 5px;">🤖 Automático</span>
+                        </label>
+                        <label style="flex: 1; cursor: pointer;">
+                            <input type="radio" name="editSorteoMode" value="manual" onchange="updateSorteoModeDescriptionEdit()">
+                            <span style="margin-left: 5px;">✋ Manual</span>
+                        </label>
+                    </div>
+                    <p id="editSorteoModeDescription" style="margin: 10px 0 0 0; font-size: 0.85rem; color: #666; font-style: italic;">
+                        El sorteo se realizará automáticamente en la fecha programada.
+                    </p>
+                </div>
 
                 <!-- FASE 7: Mensaje del propietario -->
                 <label for="editRifaOwnerMessage" style="display: block; margin-top: 15px; margin-bottom: 5px; color: #666; font-size: 0.9rem;">
