@@ -2255,10 +2255,25 @@ function showCreateRifaModal() {
 
 function closeCreateRifaModal() {
     document.getElementById('createRifaModal').style.display = 'none';
+
+    // FASE 8: Limpiar formulario y variables globales
+    document.getElementById('createRifaForm').reset();
+    document.getElementById('rifaImageUrl').value = '';
+    removeImagePreview();
+    currentImageUrl = null;
 }
 
 function closeEditRifaModal() {
     document.getElementById('editRifaModal').style.display = 'none';
+
+    // FASE 8: Limpiar formulario y variables globales para prevenir precarga entre usuarios
+    document.getElementById('editRifaForm').reset();
+    document.getElementById('editRifaImageUrl').value = '';
+    removeImagePreviewEdit();
+    editImageUrl = null;
+
+    // Limpiar dataset
+    delete document.getElementById('editRifaForm').dataset.rifaId;
 }
 
 // Event listeners para formularios (configurados después de DOMContentLoaded)

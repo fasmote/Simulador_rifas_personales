@@ -2025,13 +2025,18 @@ h3 {
     border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
 }
 
 .prize-image {
     width: 100%;
     height: auto;
     max-height: 300px;
-    object-fit: cover;
+    object-fit: contain;
     display: block;
     border-radius: 10px;
 }
@@ -2098,13 +2103,18 @@ h3 {
     border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 180px;
 }
 
 .image-preview img {
     width: 100%;
     height: auto;
     max-height: 250px;
-    object-fit: cover;
+    object-fit: contain;
     display: block;
 }
 
