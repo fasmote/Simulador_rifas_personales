@@ -20,7 +20,7 @@ Desarrollar una plataforma completa de simulación de rifas aplicando mejores pr
 
 ---
 
-## 💥 **Estado Actual - FASE 5 COMPLETADA**
+## 💥 **Estado Actual - FASE 8 COMPLETADA**
 
 ### **✅ FASE 1: Vista Administrativa - COMPLETADA**
 - **✅ Funcionalidad**: Lista detallada de participantes para propietarios
@@ -110,6 +110,32 @@ Desarrollar una plataforma completa de simulación de rifas aplicando mejores pr
   - ✅ **Touch devices**: Media query (hover: none) para feedback táctil
   - ✅ **Viewport debugger**: Herramienta de desarrollo para testing local
 
+### **✅ FASE 8: Imágenes de Productos - COMPLETADA (17/11/2025)**
+- **✅ Objetivo**: Sistema completo para agregar imágenes a los premios/productos de rifas
+- **✅ Archivos modificados**:
+  - `backend/database/init.js` - Campo image_url en tabla rifas
+  - `backend/config/cloudinary.js` - Configuración Cloudinary (NUEVO)
+  - `backend/routes/upload.js` - Rutas de upload/delete (NUEVO - 114 líneas)
+  - `backend/app.js` - Montar rutas de upload
+  - `backend/routes/rifas.js` - Incluir image_url en endpoints
+  - `backend/.env.example` - Variables CLOUDINARY_*
+  - `backend/package.json` - Dependencias cloudinary y multer
+  - `public/index.html` - Secciones imagen en modales (+70 líneas)
+  - `public/js/app.js` - Funciones upload/preview (+267 líneas)
+  - `public/css/styles.css` - Estilos para imágenes (+130 líneas)
+- **✅ Features implementadas**:
+  - ✅ **Sistema dual**: Por URL (pegar enlace) o Upload (subir archivo)
+  - ✅ **Toggle elegante**: Botones con gradientes en modales crear/editar
+  - ✅ **Preview en tiempo real**: Ver imagen antes de guardar
+  - ✅ **Cloudinary integration**: Almacenamiento en la nube con optimización
+  - ✅ **Validación robusta**: Límite 5MB, solo formatos imagen
+  - ✅ **Optimización automática**: 800x800px, quality auto
+  - ✅ **Endpoints RESTful**: POST /api/upload/image, DELETE /api/upload/image/:publicId
+  - ✅ **Visualización responsive**: Max 200px móvil, 400px desktop
+  - ✅ **Graceful fallback**: Funciona sin Cloudinary (solo URL)
+  - ✅ **Botón quitar imagen**: × absolute position en preview
+  - ✅ **Multer configurado**: File upload con validación de tipo
+
 ---
 
 ## 📊 **Funcionalidades Completadas**
@@ -166,8 +192,9 @@ Desarrollar una plataforma completa de simulación de rifas aplicando mejores pr
 - ✅ **FASE 3**: Gestión de Números *(COMPLETADA)*
 - ✅ **FASE 4**: Colores por Participante *(COMPLETADA)*
 - ✅ **FASE 5**: Layout Responsivo Mejorado *(COMPLETADA)*
+- ✅ **FASE 8**: Imágenes de Productos *(COMPLETADA)*
 - 📅 **FASE 6**: Botón Sorteo Directo *(PRÓXIMA)*
-- 📅 **FASES 7-10**: Mejoras de gestión y UX
+- 📅 **FASES 7,9-10**: Mejoras de gestión y UX
 - 📅 **FASES 11-20**: Configuración flexible
 
 ### **🎨 BLOQUE II: EXPERIENCIA PREMIUM (Fases 21-40)**
@@ -183,12 +210,13 @@ Desarrollar una plataforma completa de simulación de rifas aplicando mejores pr
 ## 📈 **Métricas del Proyecto**
 
 ### **Progreso Actual**
-- **Fases completadas**: 5/220 (2.3%)
-- **Líneas de código**: ~4,200+ líneas (+669 en FASE 5)
-- **Archivos**: ~32 archivos (+CHANGELOG.md)
+- **Fases completadas**: 6/220 (2.7%) - Fases 1-5 + FASE 8
+- **Líneas de código**: ~5,100+ líneas (+901 en FASE 8)
+- **Archivos**: ~36 archivos (+4 en FASE 8: cloudinary.js, upload.js, package updates)
 - **Funcionalidades core**: 100% operativas
 - **Responsive design**: 100% optimizado (FASE 5)
 - **Mobile UX**: 100% touch-optimized (FASE 5)
+- **Sistema de imágenes**: 100% funcional (FASE 8)
 
 ### **Calidad del Código**
 - **Funciones documentadas**: Todas las nuevas funciones
@@ -202,6 +230,7 @@ Desarrollar una plataforma completa de simulación de rifas aplicando mejores pr
 - ✅ **FASE 3**: Gestión de números completamente probada
 - ✅ **FASE 4**: Colores por participante verificados
 - ✅ **FASE 5**: Responsive probado en Chrome DevTools (320px-1920px)
+- ✅ **FASE 8**: Sistema de imágenes probado (URL + Upload + Preview + Cloudinary)
 
 ---
 
@@ -267,21 +296,21 @@ git push origin main
 
 ## 🎉 **Próximos Pasos**
 
-### **✅ FASE 5 COMPLETADA! - Testing y verificación:**
-1. ✅ Sistema de breakpoints implementado (6 niveles)
-2. ✅ Tipografía fluida con clamp()
-3. ✅ Touch targets optimizados (44x44px)
-4. ✅ Grid dinámico según dispositivo
-5. ✅ JavaScript móvil funcionando
-6. ✅ Modales con swipe-down
-7. ✅ Viewport meta optimizado
-8. ✅ Accesibilidad completa
+### **✅ FASE 8 COMPLETADA! - Testing y verificación:**
+1. ✅ Campo image_url en base de datos
+2. ✅ Configuración Cloudinary funcionando
+3. ✅ Upload routes implementadas y testeadas
+4. ✅ Toggle URL/Upload en modales
+5. ✅ Preview en tiempo real funcionando
+6. ✅ Validación de archivos (5MB, solo imágenes)
+7. ✅ Visualización responsive en rifas
+8. ✅ Fallback sin Cloudinary operativo
 
 ### **Comandos para testing:**
 ```bash
 cd backend
 npm run dev
-# ✅ FASE 5 COMPLETADA - Layout responsivo optimizado
+# ✅ FASE 8 COMPLETADA - Sistema de imágenes de productos
 # ⭕ Listo para FASE 6: Botón Sorteo Directo
 ```
 
@@ -297,7 +326,7 @@ Landscape: Mobile horizontal
 
 *Documento actualizado: Noviembre 2025*
 *Proyecto: SimulaRifas Personal*
-*Estado: FASE 5 completada - Layout responsivo mejorado*
+*Estado: FASE 8 completada - Sistema de imágenes de productos*
 *Próxima: FASE 6 - Botón sorteo directo*
 
 ---

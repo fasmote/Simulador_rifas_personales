@@ -214,6 +214,157 @@ Ver **`docs/GUIA_MERGE_FINAL.md`** para instrucciones completas de:
 
 ---
 
+## 🎉 **FASE 8: Imágenes de Productos** *(17/11/2025)*
+
+### ✨ Nuevas Características
+
+#### **🖼️ Sistema Dual de Imágenes**
+- ✅ **Dos métodos de carga**:
+  - Por URL - Pegar enlace directo de imagen
+  - Por Upload - Subir archivo desde dispositivo
+- ✅ **Toggle elegante** entre métodos en modales crear/editar
+- ✅ **Preview en tiempo real** de la imagen seleccionada
+- ✅ **Validaciones robustas**:
+  - Límite de 5MB por archivo
+  - Formatos: JPG, PNG, GIF, WEBP
+  - URLs válidas verificadas
+
+#### **☁️ Integración Cloudinary**
+- ✅ **Almacenamiento en la nube** para imágenes subidas
+- ✅ **Optimización automática**:
+  - Límite 800x800px
+  - Calidad automática (quality: auto:good)
+  - Carpeta organizada: simularifas/
+- ✅ **Gestión completa**:
+  - Upload endpoint: POST /api/upload/image
+  - Delete endpoint: DELETE /api/upload/image/:publicId
+- ✅ **Fallback inteligente**: Si Cloudinary no está configurado, permite usar URLs
+
+#### **🎨 Interfaz de Usuario**
+- ✅ **Modal crear rifa**:
+  - Toggle URL/Upload con botones con gradientes
+  - Input URL con placeholder
+  - Input file con estilo personalizado
+  - Preview container con imagen responsiva
+  - Botón × para quitar imagen
+- ✅ **Modal editar rifa**:
+  - Mismas funcionalidades que crear
+  - Muestra imagen actual si existe
+  - Permite cambiar o quitar imagen
+- ✅ **Vista de rifas**:
+  - Imagen destacada en detalles de rifa
+  - Container con sombras elegantes
+  - Responsive: max 200px en móvil, 400px en desktop
+  - Fallback: icono de premio si no hay imagen
+
+#### **💾 Backend**
+- ✅ **Database**: Campo `image_url TEXT` en tabla rifas
+- ✅ **Cloudinary Config**: backend/config/cloudinary.js
+- ✅ **Upload Routes**: backend/routes/upload.js (114 líneas)
+- ✅ **Multer**: File upload middleware configurado
+- ✅ **Variables de entorno**:
+  - CLOUDINARY_CLOUD_NAME
+  - CLOUDINARY_API_KEY
+  - CLOUDINARY_API_SECRET
+
+### 📝 Archivos Modificados
+
+1. **`backend/database/init.js`**
+   - Agregado campo `image_url TEXT` a tabla rifas
+   - Migration automática para tablas existentes
+   - Comentarios FASE 8 documentados
+
+2. **`backend/config/cloudinary.js`** (NUEVO)
+   - Configuración de Cloudinary
+   - Función isConfigured() para verificar setup
+   - Manejo de credenciales desde .env
+
+3. **`backend/routes/upload.js`** (NUEVO - 114 líneas)
+   - POST /api/upload/image - Subir imagen
+   - DELETE /api/upload/image/:publicId - Eliminar imagen
+   - Multer configurado (memoria, 5MB límite)
+   - Validación de formatos de imagen
+   - Transformaciones Cloudinary (800x800, quality auto)
+
+4. **`backend/app.js`**
+   - Importar y montar rutas de upload
+   - app.use('/api/upload', uploadRoutes)
+
+5. **`backend/routes/rifas.js`**
+   - Modificar POST /api/rifas - Incluir image_url
+   - Modificar PUT /api/rifas/:id - Actualizar image_url
+   - Incluir image_url en respuestas GET
+
+6. **`backend/.env.example`**
+   - Documentar variables CLOUDINARY_*
+   - Instrucciones para obtener credenciales
+
+7. **`public/index.html`**
+   - Sección imagen en modal crear rifa (+30 líneas)
+   - Sección imagen en modal editar rifa (+30 líneas)
+   - Toggle buttons URL/Upload
+   - Input file y URL
+   - Preview container
+   - Botón quitar imagen
+
+8. **`public/js/app.js`** (+267 líneas)
+   - Función `switchImageMethod(method)` - Toggle crear
+   - Función `switchImageMethodEdit(method)` - Toggle editar
+   - Función `handleImageUrlInput()` - Preview URL
+   - Función `handleImageFileInput()` - Preview archivo
+   - Función `removeImagePreview()` - Quitar imagen
+   - Función `uploadImageToCloudinary(file)` - Upload
+   - Event listeners para inputs de imagen
+   - Integración con modales crear/editar
+   - Renderizado de imagen en vista de rifas
+
+9. **`public/css/styles.css`** (+130 líneas)
+   - `.image-upload-container` - Container principal
+   - `.image-method-toggle` - Toggle buttons
+   - `.toggle-btn` - Botones con gradientes
+   - `.image-preview-container` - Preview con sombra
+   - `.prize-image-container` - Visualización en rifas
+   - `.prize-image` - Imagen responsiva
+   - `.remove-image-btn` - Botón × absolute
+   - Media queries mobile (max-width: 600px)
+
+10. **`backend/package.json`**
+    - Dependencia: `"cloudinary": "^2.0.0"`
+    - Dependencia: `"multer": "^1.4.5-lts.1"`
+
+### 🎯 Features Implementadas
+
+- ✅ **Upload a Cloudinary**: Imágenes se almacenan en la nube
+- ✅ **URL directa**: Alternativa para usar imágenes existentes
+- ✅ **Preview real-time**: Ver imagen antes de guardar
+- ✅ **Optimización automática**: 800x800px, quality auto
+- ✅ **Validación robusta**: 5MB, solo imágenes
+- ✅ **Responsive**: Mobile-first, adaptativo
+- ✅ **Graceful fallback**: Funciona sin Cloudinary (solo URL)
+- ✅ **Manejo de errores**: Mensajes claros al usuario
+
+### 🧪 Testing
+
+- ✅ Crear rifa con imagen por URL
+- ✅ Crear rifa con imagen por upload
+- ✅ Editar rifa y cambiar imagen
+- ✅ Editar rifa y quitar imagen
+- ✅ Preview funciona correctamente
+- ✅ Responsive en mobile y desktop
+- ✅ Fallback sin Cloudinary configurado
+
+### 📊 Impacto
+
+- **+901 líneas** totales (código + configuración)
+- **+267 líneas** JavaScript (app.js)
+- **+130 líneas** CSS (styles.css)
+- **+114 líneas** Upload routes (backend)
+- **+70 líneas** HTML (modales)
+- **2 archivos nuevos** (cloudinary.js, upload.js)
+- **2 dependencias** (cloudinary, multer)
+
+---
+
 ## 🎉 **FASE 5: Layout Responsivo Mejorado** *(07/11/2025)*
 
 ### ✨ Nuevas Características
