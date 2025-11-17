@@ -214,6 +214,185 @@ Ver **`docs/GUIA_MERGE_FINAL.md`** para instrucciones completas de:
 
 ---
 
+## 🎉 **FASE 6: Botón Sorteo Directo** *(13/11/2025)*
+
+### ✨ Nuevas Características
+
+#### **🎲 Sorteo Directo desde Mis Simulaciones**
+- ✅ **Botón "🎲 Sortear"** en tarjetas de Mis Simulaciones
+  - Solo aparece si la rifa NO está completada
+  - Solo aparece si hay números seleccionados (numbers_sold > 0)
+  - Estilo destacado con gradiente morado
+- ✅ **Modal de confirmación elegante**
+  - Emoji 🎲 animado
+  - Muestra título de la rifa
+  - Advertencia de acción irreversible
+- ✅ **Modal de carga**
+  - Spinner con animación
+  - Mensaje "Realizando sorteo..."
+- ✅ **Modal de resultado (Ganador)**
+  - Fondo con gradiente + borde dorado
+  - Emoji 🏆 con animación bounce
+  - Número ganador en grande con formato 00
+  - Nombre del participante
+  - Auto-refresh después de 3s
+
+#### **🎨 Animaciones y Efectos**
+- ✅ **5 animaciones CSS nuevas**:
+  - @keyframes fadeOut
+  - @keyframes slideUp
+  - @keyframes spin
+  - @keyframes bounce
+  - @keyframes winnerPulse
+
+#### **💫 Mejoras Visuales**
+- ✅ **Sombras agregadas** a cards y botones
+- ✅ **Tono diferente** para rifas completadas (fondo gris-verdoso)
+- ✅ **Medalla dorada** al número ganador en grilla
+- ✅ **Panel del ganador** con efectos en sidebar
+- ✅ **Responsive** con flex-wrap y min-width
+
+### 📝 Archivos Modificados
+
+1. **`public/js/app.js`**
+   - Botón "🎲 Sortear" en layout de tarjetas
+   - Funciones FASE 6 (5 nuevas):
+     - quickDraw(rifaId, rifaTitle)
+     - closeQuickDrawModal()
+     - executeQuickDraw(rifaId, rifaTitle)
+     - showQuickDrawResult(winner, rifaTitle)
+     - closeQuickDrawResultModal()
+
+2. **`public/css/styles.css`**
+   - 5 animaciones nuevas (fadeOut, slideUp, spin, bounce, winnerPulse)
+   - Estilos mejorados para tarjetas completadas
+
+### 🎯 Flujo Completo
+
+1. Usuario clickea "🎲 Sortear" en tarjeta
+2. Modal de confirmación → Confirmar o Cancelar
+3. Si confirma → Modal de carga (spinner)
+4. API realiza sorteo → POST /api/rifas/:id/draw
+5. Modal de resultado con ganador (animado)
+6. Lista se actualiza automáticamente
+7. Rifa cambia a estado "completed"
+
+### 🧪 Testing
+
+- ✅ Botón aparece solo en rifas activas con números
+- ✅ Modal de confirmación funciona correctamente
+- ✅ Sorteo se ejecuta sin errores
+- ✅ Ganador se muestra con animaciones
+- ✅ Auto-refresh actualiza la lista
+- ✅ Responsive en mobile y desktop
+
+### 📊 Impacto
+
+- **+215 líneas** JavaScript (app.js)
+- **+25 líneas** CSS (animations)
+- **Mejora UX**: Ahorra 2 clicks (no entrar a detalles)
+- **Feedback visual**: Modales elegantes con animaciones
+
+---
+
+## 🎉 **FASE 7: Sistema de Fechas Programadas** *(13/11/2025)*
+
+### ✨ Nuevas Características
+
+#### **📅 Sorteo Programado Automático**
+- ✅ **Campos en base de datos**:
+  - scheduled_draw_date (TIMESTAMP) - Fecha/hora del sorteo
+  - owner_message (TEXT) - Mensaje del propietario
+  - timezone (VARCHAR) - Zona horaria (default: America/Argentina/Buenos_Aires)
+- ✅ **Función checkAndExecuteScheduledDraw()**
+  - Verifica si fecha programada ha pasado
+  - Ejecuta sorteo automáticamente
+  - Protección anti-concurrencia
+- ✅ **Verificación automática** en endpoints GET
+
+#### **🎨 Modales Crear/Editar**
+- ✅ **Campo datetime-local** para seleccionar fecha/hora
+- ✅ **Textarea para mensaje** del propietario
+  - Contador de caracteres en tiempo real
+  - Máximo 100 caracteres
+  - Validación en backend
+- ✅ **Botón "Quitar fecha programada"** en modal editar
+- ✅ **Event listeners** para contador de caracteres
+
+#### **👁️ Visualización**
+- ✅ **Badges visuales** para fecha programada:
+  - Fondo azul si fecha futura
+  - Fondo rojo si fecha pasada ("se sorteará automáticamente")
+  - Fondo gris si sin fecha ("Sorteo manual")
+- ✅ **Badge naranja** para mensaje del propietario
+- ✅ **Formato de fecha**: DD/MM/YYYY a las HH:MM (es-AR)
+- ✅ **Ubicación**: Después del título, antes del banner ganador
+- ✅ **Responsive**: Optimizado para mobile
+
+#### **🔒 Bloqueos y Protecciones**
+- ✅ **Bloqueo de edición** en simulaciones completadas
+- ✅ **Prevención de participación** después de sorteo programado
+- ✅ **Deshabilitar botón Editar** en grilla para rifas completadas
+- ✅ **Modal de confirmación** antes de realizar sorteo
+- ✅ **Animación de banner ganador** en todas las vistas
+
+### 📝 Archivos Modificados
+
+1. **`backend/database/init.js`**
+   - ALTER TABLE para agregar scheduled_draw_date
+   - ALTER TABLE para agregar owner_message
+   - ALTER TABLE para agregar timezone
+
+2. **`backend/routes/rifas.js`**
+   - Función checkAndExecuteScheduledDraw()
+   - Modificar endpoints GET para verificar y ejecutar sorteo
+   - Validación owner_message max 100 caracteres
+   - Protección WHERE status='active' en sorteo manual
+
+3. **`public/index.html`**
+   - Campos en modal crear: datetime-local, textarea mensaje
+   - Campos en modal editar: datetime-local, textarea mensaje, botón quitar fecha
+   - Contadores de caracteres
+
+4. **`public/js/app.js`**
+   - Event listeners para contador de caracteres
+   - Función clearScheduledDate()
+   - Cargar valores actuales en modal editar
+   - Visualización de fecha y mensaje en vistas
+   - Badges con colores según estado
+
+### 🎯 Features Implementadas
+
+- ✅ **Sorteo automático** cuando fecha programada pasa
+- ✅ **Mensaje personalizado** del propietario
+- ✅ **Timezone** configurable (default Argentina)
+- ✅ **Visualización clara** de estado con badges de colores
+- ✅ **Validaciones robustas** en frontend y backend
+- ✅ **Protección anti-concurrencia** en sorteos
+- ✅ **Bloqueo de edición** post-sorteo
+- ✅ **Responsive** mobile/desktop
+
+### 🧪 Testing
+
+- ✅ Crear rifa con fecha programada futura
+- ✅ Crear rifa sin fecha programada
+- ✅ Editar rifa y cambiar fecha
+- ✅ Quitar fecha programada
+- ✅ Sorteo automático al pasar fecha
+- ✅ Bloqueo de edición en rifas completadas
+- ✅ Badges con colores correctos
+- ✅ Mensaje del propietario se muestra correctamente
+
+### 📊 Impacto
+
+- **+313 líneas** totales backend
+- **+244 líneas** totales frontend (+119 visualización, +84 modales, +35 HTML)
+- **3 campos nuevos** en base de datos
+- **Automatización completa** de sorteos programados
+- **UX mejorada** con feedback visual claro
+
+---
+
 ## 🎉 **FASE 8: Imágenes de Productos** *(17/11/2025)*
 
 ### ✨ Nuevas Características

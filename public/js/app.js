@@ -2642,6 +2642,13 @@ async function viewRifaByCode(rifa, accessCode) {
             ${isCompleted ? `<p class="winner-banner">
                 🏆 ¡SIMULACIÓN COMPLETADA! Ganador: Número ${winnerNumber} (${rifa.winner.participant_name})
             </p>` : ''}
+
+            <!-- FASE 8: Imagen del premio -->
+            ${rifa.image_url ? `
+                <div class="prize-image-container" style="margin: 20px 0;">
+                    <img src="${rifa.image_url}" alt="${rifa.title}" class="prize-image">
+                </div>
+            ` : ''}
         </div>
         
         <div style="margin-bottom: 20px;">
@@ -2712,6 +2719,13 @@ async function viewRifaByCode(rifa, accessCode) {
                         ${rifa.description}
                     </p>
                 </div>
+
+                <!-- FASE 8: Imagen del premio en panel lateral -->
+                ${rifa.image_url ? `
+                    <div class="prize-image-container" style="margin-bottom: 20px;">
+                        <img src="${rifa.image_url}" alt="${rifa.title}" class="prize-image">
+                    </div>
+                ` : ''}
             
                 ${isCompleted ? `
                 <div class="winner-panel">

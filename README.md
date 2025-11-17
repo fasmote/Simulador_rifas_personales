@@ -20,6 +20,8 @@ SimulaRifas es una aplicación web educativa que simula el funcionamiento de rif
 - **API RESTful**: Backend modular con arquitectura MVC
 - **Responsive Design**: Optimizado para todos los dispositivos (320px - 1920px+)
 - **FASE 8 NUEVA**: **Imágenes de Productos** - Sistema dual URL/Upload con Cloudinary, preview en tiempo real
+- **FASE 7**: **Sistema de Fechas Programadas** - Sorteo automático programado con mensaje del propietario
+- **FASE 6**: **Botón Sorteo Directo** - Sortear desde "Mis Simulaciones" sin entrar a detalles
 - **FASE 5**: **Layout Responsivo Mejorado** - 6 breakpoints, touch optimizado, fluid typography
 - **FASE 4**: **Colores por Participante** - Cada usuario con color único distintivo (12 colores)
 - **FASE 3**: **Gestión de Números** - Botones × para eliminar números individuales
@@ -303,6 +305,8 @@ DELETE /api/upload/image/:publicId # FASE 8: Eliminar imagen de Cloudinary
 - **FASE 3**: Botones × eliminación con estilos CSS permanentes
 - **FASE 4**: Sistema completo de colores por participante (12 gradientes)
 - **FASE 5**: Layout responsivo mejorado (6 breakpoints, touch-optimized)
+- **FASE 6**: Botón sorteo directo desde Mis Simulaciones (modales animados, confetis)
+- **FASE 7**: Sistema de fechas programadas (sorteo automático, mensaje del propietario)
 - **FASE 8**: Sistema de imágenes de productos (URL/Upload, Cloudinary, preview)
 
 ### 🔄 En Progreso
@@ -310,11 +314,11 @@ DELETE /api/upload/image/:publicId # FASE 8: Eliminar imagen de Cloudinary
 - Optimizaciones de rendimiento
 
 ### 📋 Próximas Features (Ver [Roadmap](docs/ROADMAP_COMPLETO.md))
-- **FASE 6**: Botón sorteo directo desde "Mis Simulaciones"
-- **FASE 7**: Sistema de fechas programadas para sorteos
 - **FASE 9**: Zona horaria del propietario
 - **FASE 10**: Historial de cambios
 - **FASE 11**: Rangos personalizables base
+- **FASE 21**: Sistema de temas base
+- **FASE 22**: Modo oscuro/claro
 - **FASE 18**: Posible migración a Firebase/Firestore
 
 ## 🗺️ Roadmap de Desarrollo
@@ -327,8 +331,10 @@ El proyecto sigue un roadmap estructurado en **200 fases** organizadas en **11 b
 - ✅ **FASE 3**: Gestión de Números *(COMPLETADA)*
 - ✅ **FASE 4**: Colores por Participante *(COMPLETADA)*
 - ✅ **FASE 5**: Layout Responsivo Mejorado *(COMPLETADA)*
+- ✅ **FASE 6**: Botón Sorteo Directo *(COMPLETADA)*
+- ✅ **FASE 7**: Sistema de Fechas Programadas *(COMPLETADA)*
 - ✅ **FASE 8**: Imágenes de Productos *(COMPLETADA)*
-- 📅 **FASE 6**: Botón Sorteo Directo *(PRÓXIMA)*
+- 📅 **FASE 9**: Zona Horaria del Propietario *(PRÓXIMA)*
 
 ### **BLOQUE II: EXPERIENCIA PREMIUM** *(Fases 21-40)*
 - Temas y personalización
@@ -342,10 +348,10 @@ Para ver todos los cambios detallados por fase, consulta [CHANGELOG.md](docs/CHA
 
 ### Últimos Cambios (FASE 8)
 - ✅ **FASE 8**: Sistema de imágenes de productos - URL/Upload con Cloudinary, preview en tiempo real
+- ✅ **FASE 7**: Sistema de fechas programadas - Sorteo automático y mensaje del propietario
+- ✅ **FASE 6**: Botón sorteo directo - Sortear desde Mis Simulaciones con modales animados
 - ✅ **FASE 5**: Layout responsivo mejorado - 6 breakpoints, touch-optimized
 - ✅ **FASE 4**: Sistema completo de colores por participante (12 gradientes)
-- ✅ **FASE 3**: Botones × eliminación con estilos CSS permanentes
-- ✅ **FASE 2**: Tooltips informativos con timestamps formateados
 
 ## 🤝 Contribución
 

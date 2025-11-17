@@ -110,6 +110,38 @@ Desarrollar una plataforma completa de simulación de rifas aplicando mejores pr
   - ✅ **Touch devices**: Media query (hover: none) para feedback táctil
   - ✅ **Viewport debugger**: Herramienta de desarrollo para testing local
 
+### **✅ FASE 6: Botón Sorteo Directo - COMPLETADA (13/11/2025)**
+- **✅ Objetivo**: Sortear directamente desde "Mis Simulaciones" sin entrar a detalles
+- **✅ Archivos modificados**:
+  - `public/js/app.js` - 5 funciones nuevas (+215 líneas)
+  - `public/css/styles.css` - 5 animaciones nuevas (+25 líneas)
+- **✅ Features implementadas**:
+  - ✅ **Botón "🎲 Sortear"**: En tarjetas de Mis Simulaciones
+  - ✅ **Modal de confirmación**: Advertencia de acción irreversible
+  - ✅ **Modal de carga**: Spinner animado durante sorteo
+  - ✅ **Modal de resultado**: Ganador con animaciones (bounce, pulse)
+  - ✅ **Animaciones CSS**: fadeOut, slideUp, spin, bounce, winnerPulse
+  - ✅ **Mejoras visuales**: Sombras, tono diferente para rifas completadas
+  - ✅ **Auto-refresh**: Lista se actualiza después de sorteo
+  - ✅ **Responsive**: flex-wrap y min-width en botones
+
+### **✅ FASE 7: Sistema de Fechas Programadas - COMPLETADA (13/11/2025)**
+- **✅ Objetivo**: Programar sorteos automáticos con fecha/hora específica
+- **✅ Archivos modificados**:
+  - `backend/database/init.js` - 3 campos nuevos en tabla rifas
+  - `backend/routes/rifas.js` - checkAndExecuteScheduledDraw() (+313 líneas)
+  - `public/index.html` - Campos datetime-local y textarea (+35 líneas)
+  - `public/js/app.js` - Visualización y modales (+244 líneas)
+- **✅ Features implementadas**:
+  - ✅ **Campos DB**: scheduled_draw_date, owner_message, timezone
+  - ✅ **Sorteo automático**: checkAndExecuteScheduledDraw() ejecuta cuando fecha pasa
+  - ✅ **Modales crear/editar**: datetime-local, textarea con contador (max 100)
+  - ✅ **Visualización badges**: Azul (futura), Rojo (pasada), Gris (manual)
+  - ✅ **Mensaje del propietario**: Badge naranja con texto personalizado
+  - ✅ **Bloqueos**: Edición deshabilitada post-sorteo, no participar después
+  - ✅ **Protecciones**: Anti-concurrencia, validaciones robustas
+  - ✅ **Responsive**: Optimizado para mobile
+
 ### **✅ FASE 8: Imágenes de Productos - COMPLETADA (17/11/2025)**
 - **✅ Objetivo**: Sistema completo para agregar imágenes a los premios/productos de rifas
 - **✅ Archivos modificados**:
@@ -192,10 +224,11 @@ Desarrollar una plataforma completa de simulación de rifas aplicando mejores pr
 - ✅ **FASE 3**: Gestión de Números *(COMPLETADA)*
 - ✅ **FASE 4**: Colores por Participante *(COMPLETADA)*
 - ✅ **FASE 5**: Layout Responsivo Mejorado *(COMPLETADA)*
+- ✅ **FASE 6**: Botón Sorteo Directo *(COMPLETADA)*
+- ✅ **FASE 7**: Sistema de Fechas Programadas *(COMPLETADA)*
 - ✅ **FASE 8**: Imágenes de Productos *(COMPLETADA)*
-- 📅 **FASE 6**: Botón Sorteo Directo *(PRÓXIMA)*
-- 📅 **FASES 7,9-10**: Mejoras de gestión y UX
-- 📅 **FASES 11-20**: Configuración flexible
+- 📅 **FASE 9**: Zona Horaria del Propietario *(PRÓXIMA)*
+- 📅 **FASES 10-20**: Mejoras de gestión y configuración flexible
 
 ### **🎨 BLOQUE II: EXPERIENCIA PREMIUM (Fases 21-40)**
 - 📅 **FASES 21-30**: Temas, modo oscuro, personalización
@@ -210,12 +243,17 @@ Desarrollar una plataforma completa de simulación de rifas aplicando mejores pr
 ## 📈 **Métricas del Proyecto**
 
 ### **Progreso Actual**
-- **Fases completadas**: 6/220 (2.7%) - Fases 1-5 + FASE 8
-- **Líneas de código**: ~5,100+ líneas (+901 en FASE 8)
-- **Archivos**: ~36 archivos (+4 en FASE 8: cloudinary.js, upload.js, package updates)
+- **Fases completadas**: 8/220 (3.6%) - Fases 1-8 completas
+- **Líneas de código**: ~6,300+ líneas
+  - FASE 5: +669 líneas (responsive)
+  - FASE 6: +240 líneas (sorteo directo)
+  - FASE 7: +557 líneas (fechas programadas)
+  - FASE 8: +901 líneas (imágenes)
+- **Archivos**: ~38 archivos
 - **Funcionalidades core**: 100% operativas
 - **Responsive design**: 100% optimizado (FASE 5)
 - **Mobile UX**: 100% touch-optimized (FASE 5)
+- **Sorteos automatizados**: 100% funcional (FASE 6 + FASE 7)
 - **Sistema de imágenes**: 100% funcional (FASE 8)
 
 ### **Calidad del Código**
@@ -230,6 +268,8 @@ Desarrollar una plataforma completa de simulación de rifas aplicando mejores pr
 - ✅ **FASE 3**: Gestión de números completamente probada
 - ✅ **FASE 4**: Colores por participante verificados
 - ✅ **FASE 5**: Responsive probado en Chrome DevTools (320px-1920px)
+- ✅ **FASE 6**: Sorteo directo probado (modales, animaciones, auto-refresh)
+- ✅ **FASE 7**: Fechas programadas probadas (sorteo automático, badges, bloqueos)
 - ✅ **FASE 8**: Sistema de imágenes probado (URL + Upload + Preview + Cloudinary)
 
 ---
@@ -296,22 +336,33 @@ git push origin main
 
 ## 🎉 **Próximos Pasos**
 
-### **✅ FASE 8 COMPLETADA! - Testing y verificación:**
-1. ✅ Campo image_url en base de datos
-2. ✅ Configuración Cloudinary funcionando
-3. ✅ Upload routes implementadas y testeadas
-4. ✅ Toggle URL/Upload en modales
-5. ✅ Preview en tiempo real funcionando
-6. ✅ Validación de archivos (5MB, solo imágenes)
-7. ✅ Visualización responsive en rifas
-8. ✅ Fallback sin Cloudinary operativo
+### **✅ FASES 6, 7 y 8 COMPLETADAS! - Resumen:**
+
+**FASE 6 - Botón Sorteo Directo:**
+1. ✅ Botón "🎲 Sortear" en tarjetas
+2. ✅ 3 modales elegantes (confirmación, carga, resultado)
+3. ✅ 5 animaciones CSS nuevas
+4. ✅ Auto-refresh después de sorteo
+
+**FASE 7 - Sistema de Fechas Programadas:**
+1. ✅ 3 campos nuevos en DB (fecha, mensaje, timezone)
+2. ✅ Sorteo automático cuando fecha pasa
+3. ✅ Modales con datetime-local y contador
+4. ✅ Badges visuales según estado
+5. ✅ Bloqueos post-sorteo
+
+**FASE 8 - Imágenes de Productos:**
+1. ✅ Sistema dual URL/Upload
+2. ✅ Cloudinary integration
+3. ✅ Preview en tiempo real
+4. ✅ Validación 5MB, optimización automática
 
 ### **Comandos para testing:**
 ```bash
 cd backend
 npm run dev
-# ✅ FASE 8 COMPLETADA - Sistema de imágenes de productos
-# ⭕ Listo para FASE 6: Botón Sorteo Directo
+# ✅ FASES 6, 7 y 8 COMPLETADAS
+# ⭕ Listo para FASE 9: Zona Horaria del Propietario
 ```
 
 ### **Testing Responsivo:**
