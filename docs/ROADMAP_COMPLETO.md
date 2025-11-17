@@ -9,7 +9,7 @@
 
 **Filosofía**: Cambios pequeños, incrementales, testeables de a uno.
 
-**Estado Actual**: **FASE 8 COMPLETADA** - Sistema de imágenes de productos + Fases 1-5
+**Estado Actual**: **FASE 8 COMPLETADA** - Sistema de imágenes de productos + Fases 1-7 completas
 
 ---
 
@@ -51,6 +51,27 @@
 - ✅ **Colores**: Gradientes elegantes desde `user-color-1` hasta `user-color-12`
 - ✅ **Test**: ✓ Cada usuario tiene color único, persistencia por sesión de rifa
 
+### **✅ FASE 6: "Botón Sorteo Directo" - COMPLETADA (13/11/2025)**
+*Sortear directamente desde "Mis Simulaciones" sin entrar a detalles*
+
+**Objetivo**: Ahorrar clicks y mejorar UX al realizar sorteos
+- ✅ **Archivos modificados**: Frontend (app.js +215 líneas, styles.css +25 líneas animaciones)
+- ✅ **Funcionalidad**: Botón "🎲 Sortear", 3 modales (confirmación, carga, resultado), 5 animaciones CSS
+- ✅ **Modales**: Confirmación elegante, spinner de carga, resultado con confetis y animaciones
+- ✅ **Features**: Auto-refresh lista, tono diferente rifas completadas, medalla dorada ganador
+- ✅ **Test**: ✓ Botón aparece correctamente, modales funcionan, sorteo exitoso, actualización automática
+
+### **✅ FASE 7: "Sistema de Fechas Programadas" - COMPLETADA (13/11/2025)**
+*Programar sorteos automáticos con fecha/hora específica*
+
+**Objetivo**: Automatizar sorteos en fecha/hora programada
+- ✅ **Archivos modificados**: Backend (init.js +3 campos, rifas.js +313 líneas), Frontend (index.html +35 líneas, app.js +244 líneas)
+- ✅ **Funcionalidad**: Campos scheduled_draw_date, owner_message, timezone + checkAndExecuteScheduledDraw()
+- ✅ **Modales**: datetime-local, textarea con contador (max 100 caracteres), botón quitar fecha
+- ✅ **Visualización**: Badges de colores (azul futura, rojo pasada, gris manual, naranja mensaje)
+- ✅ **Protecciones**: Bloqueo edición post-sorteo, anti-concurrencia, prevención participación
+- ✅ **Test**: ✓ Sorteo automático ejecuta, badges correctos, bloqueos funcionan
+
 ### **✅ FASE 8: "Imágenes de Productos" - COMPLETADA (17/11/2025)**
 *Sistema dual URL/Upload para agregar imágenes a premios*
 
@@ -77,10 +98,10 @@
    - *Cada usuario tiene color único en la grilla*
 5. **✅ FASE 5**: Layout Responsivo Mejorado *(COMPLETADA)*
    - *Diseño optimizado en mobile y todos los dispositivos*
-6. **FASE 6**: Botón Sorteo Directo
-   - *Sortear desde "Mis Simulaciones" sin entrar a detalles*
-7. **FASE 7**: Sistema de Fechas
-   - *Programar fecha/hora de sorteo futuro*
+6. **✅ FASE 6**: Botón Sorteo Directo *(COMPLETADA)*
+   - *Sortear desde "Mis Simulaciones" con modales animados*
+7. **✅ FASE 7**: Sistema de Fechas Programadas *(COMPLETADA)*
+   - *Sorteo automático programado + mensaje del propietario*
 8. **✅ FASE 8**: Imágenes de Producto *(COMPLETADA)*
    - *Sistema dual URL/Upload para representar el premio*
 9. **FASE 9**: Zona Horaria del Propietario
@@ -600,6 +621,8 @@
 - ✅ **FASE 3**: 100% gestión de números completada
 - ✅ **FASE 4**: 100% sistema de colores por participante
 - ✅ **FASE 5**: 100% layout responsivo mejorado
+- ✅ **FASE 6**: 100% botón sorteo directo con modales
+- ✅ **FASE 7**: 100% sistema de fechas programadas y sorteo automático
 - ✅ **FASE 8**: 100% sistema de imágenes de productos
 - 📋 Configuración flexible al 100% (meta)
 
@@ -625,8 +648,10 @@
 - ✅ **FASE 3**: Gestión de Números *(COMPLETADA - 28/08/2025)*
 - ✅ **FASE 4**: Colores por Participante *(COMPLETADA - 28/08/2025)*
 - ✅ **FASE 5**: Layout Responsivo Mejorado *(COMPLETADA - 07/11/2025)*
+- ✅ **FASE 6**: Botón Sorteo Directo *(COMPLETADA - 13/11/2025)*
+- ✅ **FASE 7**: Sistema de Fechas Programadas *(COMPLETADA - 13/11/2025)*
 - ✅ **FASE 8**: Imágenes de Productos *(COMPLETADA - 17/11/2025)*
-- 📅 **FASES 6-7, 9-10**: Mejoras UX y gestión avanzada *(PRÓXIMAS)*
+- 📅 **FASES 9-10**: Mejoras UX y gestión avanzada *(PRÓXIMAS)*
 
 #### **PRÓXIMA ETAPA: CONFIGURACIÓN FLEXIBLE**
 - 🎯 **FASES 11-20**: Rangos personalizables y optimización
@@ -694,7 +719,9 @@ npm run dev
 - Tooltips informativos con timestamps
 - Gestión completa de números (eliminar individual/por usuario)
 - Sistema de colores por participante (12 colores únicos)
-- **Layout responsivo mejorado (6 breakpoints, touch-optimized)**
+- Layout responsivo mejorado (6 breakpoints, touch-optimized)
+- **Botón sorteo directo (modales animados, auto-refresh)**
+- **Sistema de fechas programadas (sorteo automático, mensaje propietario)**
 - **Sistema de imágenes de productos (URL/Upload, Cloudinary)**
 - Deploy en Vercel funcionando
 
@@ -706,11 +733,16 @@ npm run dev
 - **DB**: SQLite (migración a Firebase planificada)
 
 ### **📊 Métricas Actuales**
-- **Fases completadas**: 6/220 (2.7%) - Fases 1-5 + FASE 8
-- **Líneas de código**: ~5,100+ líneas
+- **Fases completadas**: 8/220 (3.6%) - Fases 1-8 completas
+- **Líneas de código**: ~6,300+ líneas
+  - FASE 5: +669 (responsive)
+  - FASE 6: +240 (sorteo directo)
+  - FASE 7: +557 (fechas programadas)
+  - FASE 8: +901 (imágenes)
 - **Funcionalidades core**: 100% operativas
 - **Funcionalidades admin**: 100% operativas
 - **Funcionalidades visuales**: 100% operativas
+- **Sorteos automatizados**: 100% funcional
 - **Sistema de imágenes**: 100% funcional
 - **Responsive design**: 100% optimizado
 - **Estado**: Proyecto personal en desarrollo activo
