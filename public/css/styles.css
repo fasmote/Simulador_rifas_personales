@@ -2041,6 +2041,53 @@ h3 {
     border-radius: 10px;
 }
 
+/* Contenedor e imagen del premio en banner/header (sin click) */
+.prize-image-container-header {
+    margin: 15px 0;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f5f7fa;
+}
+
+.prize-image-header {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Imagen en cards de rifas (grilla "Mis Simulaciones") */
+.rifa-card-image-container {
+    width: 100%;
+    height: 120px;
+    overflow: hidden;
+    border-radius: 10px 10px 0 0;
+    position: relative;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: -20px -20px 15px -20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.rifa-card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.rifa-card-image-container:hover .rifa-card-image {
+    transform: scale(1.05);
+}
+
 /* Contenedor de upload de imágenes en modales */
 .image-upload-container {
     margin-top: 15px;
@@ -2143,6 +2190,14 @@ h3 {
 @media (max-width: 768px) {
     .prize-image {
         max-height: 200px;
+    }
+
+    .prize-image-container-header {
+        height: 180px;
+    }
+
+    .rifa-card-image-container {
+        height: 100px;
     }
 
     .image-preview img {
