@@ -15,7 +15,7 @@ const initDatabase = async () => {
             )
         `);
 
-        // Crear tabla de rifas/simulaciones - ACTUALIZADA PARA FASE 12
+        // Crear tabla de rifas/simulaciones - ACTUALIZADA PARA FASE 8
         await runQuery(`
             CREATE TABLE IF NOT EXISTS rifas (
                 id SERIAL PRIMARY KEY,
@@ -27,6 +27,7 @@ const initDatabase = async () => {
                 status VARCHAR(20) DEFAULT 'active',
                 is_public BOOLEAN DEFAULT FALSE,
                 winner_number INTEGER,
+                image_url TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id)
             )
@@ -81,6 +82,14 @@ const initDatabase = async () => {
             console.log('✅ Campo timezone agregado');
         } catch (err) {
             console.log('📋 Campo timezone ya existe o no se pudo agregar');
+        }
+
+        // FASE 8: Agregar campo para imagen del producto/premio
+        try {
+            await runQuery(`ALTER TABLE rifas ADD COLUMN image_url TEXT`);
+            console.log('✅ Campo image_url agregado (FASE 8)');
+        } catch (err) {
+            console.log('📋 Campo image_url ya existe o no se pudo agregar');
         }
 
         // Crear índices para optimización

@@ -98,6 +98,39 @@
                     <span id="rifaOwnerMessageCount">0</span>/100
                 </div>
 
+                <!-- FASE 8: Imagen del producto/premio -->
+                <label style="display: block; margin-top: 20px; margin-bottom: 10px; color: #666; font-size: 0.9rem;">
+                    🖼️ Imagen del premio (opcional):
+                </label>
+                <div class="image-upload-container">
+                    <div class="image-method-toggle">
+                        <button type="button" class="toggle-btn active" id="urlMethodBtn" onclick="switchImageMethod('url')">
+                            🔗 Por URL
+                        </button>
+                        <button type="button" class="toggle-btn" id="uploadMethodBtn" onclick="switchImageMethod('upload')">
+                            📤 Subir archivo
+                        </button>
+                    </div>
+
+                    <!-- Opción URL -->
+                    <div id="urlInputContainer" class="image-input-container active">
+                        <input type="url" id="rifaImageUrl" placeholder="https://ejemplo.com/imagen.jpg" class="form-input">
+                        <small style="color: #999; display: block; margin-top: 5px;">Pega la URL de una imagen ya publicada en internet</small>
+                    </div>
+
+                    <!-- Opción Upload -->
+                    <div id="uploadInputContainer" class="image-input-container" style="display: none;">
+                        <input type="file" id="rifaImageFile" accept="image/*" class="form-input-file">
+                        <small style="color: #999; display: block; margin-top: 5px;">Máximo 5MB (JPG, PNG, GIF, WEBP)</small>
+                    </div>
+
+                    <!-- Preview de la imagen -->
+                    <div id="imagePreview" class="image-preview" style="display: none;">
+                        <img id="previewImage" src="" alt="Preview">
+                        <button type="button" class="btn-remove-image" onclick="removeImagePreview()">❌ Quitar imagen</button>
+                    </div>
+                </div>
+
                 <div class="modal-buttons">
                     <button type="button" class="btn btn-secondary" onclick="closeCreateRifaModal()">Cancelar</button>
                     <button type="submit" class="btn btn-success">Crear Simulación</button>
@@ -130,6 +163,39 @@
                 <textarea id="editRifaOwnerMessage" placeholder="Ej: El sorteo se realizará en vivo por Instagram" class="form-textarea" maxlength="100" rows="3"></textarea>
                 <div style="text-align: right; font-size: 0.8rem; color: #999; margin-top: -5px;">
                     <span id="editRifaOwnerMessageCount">0</span>/100
+                </div>
+
+                <!-- FASE 8: Imagen del producto/premio -->
+                <label style="display: block; margin-top: 20px; margin-bottom: 10px; color: #666; font-size: 0.9rem;">
+                    🖼️ Imagen del premio (opcional):
+                </label>
+                <div class="image-upload-container">
+                    <div class="image-method-toggle">
+                        <button type="button" class="toggle-btn active" id="editUrlMethodBtn" onclick="switchImageMethodEdit('url')">
+                            🔗 Por URL
+                        </button>
+                        <button type="button" class="toggle-btn" id="editUploadMethodBtn" onclick="switchImageMethodEdit('upload')">
+                            📤 Subir archivo
+                        </button>
+                    </div>
+
+                    <!-- Opción URL -->
+                    <div id="editUrlInputContainer" class="image-input-container active">
+                        <input type="url" id="editRifaImageUrl" placeholder="https://ejemplo.com/imagen.jpg" class="form-input">
+                        <small style="color: #999; display: block; margin-top: 5px;">Pega la URL de una imagen ya publicada en internet</small>
+                    </div>
+
+                    <!-- Opción Upload -->
+                    <div id="editUploadInputContainer" class="image-input-container" style="display: none;">
+                        <input type="file" id="editRifaImageFile" accept="image/*" class="form-input-file">
+                        <small style="color: #999; display: block; margin-top: 5px;">Máximo 5MB (JPG, PNG, GIF, WEBP)</small>
+                    </div>
+
+                    <!-- Preview de la imagen -->
+                    <div id="editImagePreview" class="image-preview" style="display: none;">
+                        <img id="editPreviewImage" src="" alt="Preview">
+                        <button type="button" class="btn-remove-image" onclick="removeImagePreviewEdit()">❌ Quitar imagen</button>
+                    </div>
                 </div>
 
                 <div class="modal-buttons">

@@ -301,7 +301,7 @@ router.get('/access/:code', async (req, res) => {
 // Crear nueva simulación (solo usuarios logueados)
 router.post('/', authenticateToken, async (req, res) => {
     try {
-        const { title, description, scheduled_draw_date, owner_message, timezone } = req.body;
+        const { title, description, scheduled_draw_date, owner_message, timezone, image_url } = req.body;
 
         if (!title) {
             return res.status(400).json({ error: 'El título es requerido' });
@@ -328,9 +328,9 @@ router.post('/', authenticateToken, async (req, res) => {
         const result = await runQuery(`
             INSERT INTO rifas (
                 user_id, title, description, access_code, is_public,
-                scheduled_draw_date, owner_message, timezone
+                scheduled_draw_date, owner_message, timezone, image_url
             )
-            VALUES (?, ?, ?, ?, FALSE, ?, ?, ?)
+            VALUES (?, ?, ?, ?, FALSE, ?, ?, ?, ?)
         `, [
             req.user.id,
             title,
@@ -338,7 +338,8 @@ router.post('/', authenticateToken, async (req, res) => {
             accessCode,
             scheduled_draw_date || null,
             owner_message || null,
-            timezone || 'America/Argentina/Buenos_Aires'
+            timezone || 'America/Argentina/Buenos_Aires',
+            image_url || null  // FASE 8: URL de imagen del producto
         ]);
 
         const newRifa = await getQuery(
@@ -360,7 +361,7 @@ router.post('/', authenticateToken, async (req, res) => {
 // Editar simulación
 router.put('/:id', authenticateToken, async (req, res) => {
     try {
-        const { title, description, scheduled_draw_date, owner_message, timezone } = req.body;
+        const { title, description, scheduled_draw_date, owner_message, timezone, image_url } = req.body;
         const rifaId = req.params.id;
 
         // Verificar que la simulación pertenece al usuario
@@ -395,7 +396,8 @@ router.put('/:id', authenticateToken, async (req, res) => {
                 description = ?,
                 scheduled_draw_date = ?,
                 owner_message = ?,
-                timezone = ?
+                timezone = ?,
+                image_url = ?
             WHERE id = ?
         `, [
             title,
@@ -403,6 +405,7 @@ router.put('/:id', authenticateToken, async (req, res) => {
             drawDate,
             owner_message || null,
             timezone || 'America/Argentina/Buenos_Aires',
+            image_url || null,  // FASE 8: URL de imagen del producto
             rifaId
         ]);
 

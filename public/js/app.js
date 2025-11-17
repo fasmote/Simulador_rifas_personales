@@ -1408,7 +1408,14 @@ async function viewPublicRifa(rifaId) {
                             </h3>
                             <p class="rifa-description-text">${rifa.description}</p>
                         </div>
-                        
+
+                        <!-- FASE 8: Imagen del premio -->
+                        ${rifa.image_url ? `
+                            <div class="prize-image-container">
+                                <img src="${rifa.image_url}" alt="${rifa.title}" class="prize-image">
+                            </div>
+                        ` : ''}
+
                         <div class="rifa-progress" style="margin-bottom: 20px;">
                             <h4 style="color: #333; margin-bottom: 10px;">📈 Progreso</h4>
                             <div class="progress-bar">
@@ -1716,6 +1723,13 @@ async function viewRifa(rifaId) {
                         <p class="rifa-description-text">${rifa.description}</p>
                     </div>
 
+                    <!-- FASE 8: Imagen del premio -->
+                    ${rifa.image_url ? `
+                        <div class="prize-image-container">
+                            <img src="${rifa.image_url}" alt="${rifa.title}" class="prize-image">
+                        </div>
+                    ` : ''}
+
                     <div style="margin-bottom: 20px;">
                         <h4 style="color: #333; margin-bottom: 10px;">📈 Progreso</h4>
                         <div class="progress-bar">
@@ -1880,6 +1894,15 @@ async function editRifa(rifaId) {
             const ownerMessageInput = document.getElementById('editRifaOwnerMessage');
             ownerMessageInput.value = rifa.owner_message || '';
             document.getElementById('editRifaOwnerMessageCount').textContent = (rifa.owner_message || '').length;
+
+            // FASE 8: Cargar imagen existente
+            if (rifa.image_url) {
+                document.getElementById('editRifaImageUrl').value = rifa.image_url;
+                showImagePreview(rifa.image_url, true);
+            } else {
+                document.getElementById('editRifaImageUrl').value = '';
+                removeImagePreviewEdit();
+            }
 
             // Mostrar modal
             document.getElementById('editRifaModal').style.display = 'flex';
@@ -2271,6 +2294,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         try {
+            // FASE 8: Obtener URL de imagen (si existe)
+            const image_url = await getFinalImageUrl(false);
+
             const response = await fetch(`${API_BASE}/rifas`, {
                 method: 'POST',
                 headers: {
@@ -2281,7 +2307,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     title,
                     description,
                     scheduled_draw_date,
-                    owner_message
+                    owner_message,
+                    image_url  // FASE 8: Incluir imagen
                 })
             });
 
@@ -2291,6 +2318,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 closeCreateRifaModal();
                 document.getElementById('createRifaForm').reset();
                 document.getElementById('rifaOwnerMessageCount').textContent = '0';
+                // FASE 8: Limpiar preview de imagen
+                removeImagePreview();
                 // Recargar la página de perfil para mostrar la nueva simulación
                 showPerfilPage();
             } else {
@@ -2319,6 +2348,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         try {
+            // FASE 8: Obtener URL de imagen (si existe)
+            const image_url = await getFinalImageUrl(true);
+
             const response = await fetch(`${API_BASE}/rifas/${rifaId}`, {
                 method: 'PUT',
                 headers: {
@@ -2329,7 +2361,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     title,
                     description,
                     scheduled_draw_date,
-                    owner_message
+                    owner_message,
+                    image_url  // FASE 8: Incluir imagen
                 })
             });
 
@@ -3467,6 +3500,234 @@ document.addEventListener('DOMContentLoaded', function() {
             if (participantNameCallback) {
                 participantNameCallback.resolve(name);
                 participantNameCallback = null;
+            }
+        });
+    }
+});
+
+// ========================================
+// FASE 8: GESTIÓN DE IMÁGENES
+// ========================================
+
+// Variable global para la URL final de la imagen
+let currentImageUrl = null;
+let editImageUrl = null;
+
+/**
+ * Cambiar método de entrada de imagen (URL o Upload) - Crear
+ */
+function switchImageMethod(method) {
+    const urlBtn = document.getElementById('urlMethodBtn');
+    const uploadBtn = document.getElementById('uploadMethodBtn');
+    const urlContainer = document.getElementById('urlInputContainer');
+    const uploadContainer = document.getElementById('uploadInputContainer');
+
+    if (method === 'url') {
+        urlBtn.classList.add('active');
+        uploadBtn.classList.remove('active');
+        urlContainer.style.display = 'block';
+        uploadContainer.style.display = 'none';
+
+        // Limpiar input de archivo
+        document.getElementById('rifaImageFile').value = '';
+    } else {
+        uploadBtn.classList.add('active');
+        urlBtn.classList.remove('active');
+        uploadContainer.style.display = 'block';
+        urlContainer.style.display = 'none';
+
+        // Limpiar input de URL
+        document.getElementById('rifaImageUrl').value = '';
+    }
+}
+
+/**
+ * Cambiar método de entrada de imagen (URL o Upload) - Editar
+ */
+function switchImageMethodEdit(method) {
+    const urlBtn = document.getElementById('editUrlMethodBtn');
+    const uploadBtn = document.getElementById('editUploadMethodBtn');
+    const urlContainer = document.getElementById('editUrlInputContainer');
+    const uploadContainer = document.getElementById('editUploadInputContainer');
+
+    if (method === 'url') {
+        urlBtn.classList.add('active');
+        uploadBtn.classList.remove('active');
+        urlContainer.style.display = 'block';
+        uploadContainer.style.display = 'none';
+
+        // Limpiar input de archivo
+        document.getElementById('editRifaImageFile').value = '';
+    } else {
+        uploadBtn.classList.add('active');
+        urlBtn.classList.remove('active');
+        uploadContainer.style.display = 'block';
+        urlContainer.style.display = 'none';
+
+        // Limpiar input de URL
+        document.getElementById('editRifaImageUrl').value = '';
+    }
+}
+
+/**
+ * Mostrar preview de imagen desde URL
+ */
+function showImagePreview(imageUrl, isEdit = false) {
+    const previewId = isEdit ? 'editImagePreview' : 'imagePreview';
+    const imgId = isEdit ? 'editPreviewImage' : 'previewImage';
+
+    const preview = document.getElementById(previewId);
+    const img = document.getElementById(imgId);
+
+    img.src = imageUrl;
+    preview.style.display = 'block';
+
+    if (isEdit) {
+        editImageUrl = imageUrl;
+    } else {
+        currentImageUrl = imageUrl;
+    }
+}
+
+/**
+ * Remover preview de imagen - Crear
+ */
+function removeImagePreview() {
+    document.getElementById('imagePreview').style.display = 'none';
+    document.getElementById('previewImage').src = '';
+    document.getElementById('rifaImageUrl').value = '';
+    document.getElementById('rifaImageFile').value = '';
+    currentImageUrl = null;
+}
+
+/**
+ * Remover preview de imagen - Editar
+ */
+function removeImagePreviewEdit() {
+    document.getElementById('editImagePreview').style.display = 'none';
+    document.getElementById('editPreviewImage').src = '';
+    document.getElementById('editRifaImageUrl').value = '';
+    document.getElementById('editRifaImageFile').value = '';
+    editImageUrl = null;
+}
+
+/**
+ * Subir imagen a Cloudinary
+ */
+async function uploadImageToCloudinary(file) {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+        const response = await fetch(`${API_BASE}/upload/image`, {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            return data.imageUrl;
+        } else {
+            throw new Error(data.message || 'Error al subir la imagen');
+        }
+    } catch (error) {
+        console.error('Error uploading image:', error);
+        throw error;
+    }
+}
+
+/**
+ * Obtener URL final de la imagen (desde URL o archivo)
+ */
+async function getFinalImageUrl(isEdit = false) {
+    const urlInput = isEdit ?
+        document.getElementById('editRifaImageUrl').value.trim() :
+        document.getElementById('rifaImageUrl').value.trim();
+    const fileInput = isEdit ?
+        document.getElementById('editRifaImageFile') :
+        document.getElementById('rifaImageFile');
+
+    // Si hay URL, usarla
+    if (urlInput) {
+        return urlInput;
+    }
+
+    // Si hay archivo, subirlo
+    if (fileInput.files && fileInput.files[0]) {
+        const file = fileInput.files[0];
+
+        // Validar tamaño (5MB máximo)
+        if (file.size > 5 * 1024 * 1024) {
+            showNotification('La imagen no puede superar los 5MB', 'error');
+            return null;
+        }
+
+        try {
+            showNotification('Subiendo imagen...', 'info');
+            const imageUrl = await uploadImageToCloudinary(file);
+            showNotification('Imagen subida exitosamente', 'success');
+            return imageUrl;
+        } catch (error) {
+            showNotification(error.message, 'error');
+            return null;
+        }
+    }
+
+    // No hay imagen
+    return null;
+}
+
+// Event listeners para preview en tiempo real
+document.addEventListener('DOMContentLoaded', function() {
+    // Preview de URL - Crear
+    const urlInput = document.getElementById('rifaImageUrl');
+    if (urlInput) {
+        urlInput.addEventListener('blur', function() {
+            const url = this.value.trim();
+            if (url) {
+                showImagePreview(url, false);
+            }
+        });
+    }
+
+    // Preview de archivo - Crear
+    const fileInput = document.getElementById('rifaImageFile');
+    if (fileInput) {
+        fileInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    showImagePreview(e.target.result, false);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // Preview de URL - Editar
+    const editUrlInput = document.getElementById('editRifaImageUrl');
+    if (editUrlInput) {
+        editUrlInput.addEventListener('blur', function() {
+            const url = this.value.trim();
+            if (url) {
+                showImagePreview(url, true);
+            }
+        });
+    }
+
+    // Preview de archivo - Editar
+    const editFileInput = document.getElementById('editRifaImageFile');
+    if (editFileInput) {
+        editFileInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    showImagePreview(e.target.result, true);
+                };
+                reader.readAsDataURL(file);
             }
         });
     }

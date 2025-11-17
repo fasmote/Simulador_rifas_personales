@@ -2014,3 +2014,133 @@ h3 {
         gap: 2px;
     }
 }
+
+/* ========================================
+   FASE 8: ESTILOS PARA IMÁGENES
+   ======================================== */
+
+/* Contenedor de imagen del premio */
+.prize-image-container {
+    margin: 15px 0;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.prize-image {
+    width: 100%;
+    height: auto;
+    max-height: 300px;
+    object-fit: cover;
+    display: block;
+    border-radius: 10px;
+}
+
+/* Contenedor de upload de imágenes en modales */
+.image-upload-container {
+    margin-top: 15px;
+}
+
+.image-method-toggle {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.toggle-btn {
+    flex: 1;
+    padding: 10px 15px;
+    border: 2px solid #ddd;
+    background: #fff;
+    color: #666;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.toggle-btn:hover {
+    border-color: #667eea;
+    color: #667eea;
+    transform: translateY(-2px);
+}
+
+.toggle-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #667eea;
+    color: #fff;
+    font-weight: bold;
+}
+
+.image-input-container {
+    transition: all 0.3s ease;
+}
+
+.form-input-file {
+    width: 100%;
+    padding: 12px;
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    background: #f8f9fa;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.form-input-file:hover {
+    border-color: #667eea;
+    background: #f0f2ff;
+}
+
+/* Preview de imagen en modales */
+.image-preview {
+    margin-top: 15px;
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.image-preview img {
+    width: 100%;
+    height: auto;
+    max-height: 250px;
+    object-fit: cover;
+    display: block;
+}
+
+.btn-remove-image {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 8px 15px;
+    background: rgba(220, 53, 69, 0.9);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-remove-image:hover {
+    background: rgba(220, 53, 69, 1);
+    transform: scale(1.05);
+}
+
+/* Responsive - Mobile */
+@media (max-width: 768px) {
+    .prize-image {
+        max-height: 200px;
+    }
+
+    .image-preview img {
+        max-height: 180px;
+    }
+
+    .toggle-btn {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+}
