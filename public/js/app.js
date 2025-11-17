@@ -1132,7 +1132,7 @@ async function showPerfilPage() {
                     const hasWinner = rifa.winner && rifa.winner.number !== undefined;
 
                     return `
-                        <div class="rifa-card" style="background: ${isCompleted ? 'linear-gradient(135deg, #f5f5f5 0%, #e8f5e9 100%)' : 'white'}; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+                        <div class="rifa-card" style="background: ${isCompleted ? 'linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%)' : 'white'}; box-shadow: 0 5px 20px rgba(0,0,0,${isCompleted ? '0.15' : '0.1'}); ${isCompleted ? 'border: 3px solid #4caf50;' : ''}">
                             <div class="rifa-image">${isCompleted ? '🏆' : '🎯'}</div>
                             <h3>${rifa.title}</h3>
                             <p class="rifa-description">${rifa.description}</p>
@@ -1176,7 +1176,7 @@ async function showPerfilPage() {
                                     ✏️ Editar
                                 </button>
                                 ${!isCompleted ? `
-                                <button class="btn" onclick="quickDraw(${rifa.id}, '${rifa.title}')" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; flex: 1; font-size: 0.9rem; min-width: 70px; font-weight: bold; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+                                <button class="btn" onclick="${rifa.numbers_sold > 0 ? `quickDraw(${rifa.id}, '${rifa.title}')` : ''}" ${rifa.numbers_sold === 0 ? 'disabled' : ''} style="background: ${rifa.numbers_sold > 0 ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : '#ccc'}; color: white; flex: 1; font-size: 0.9rem; min-width: 70px; font-weight: bold; box-shadow: 0 4px 15px rgba(102, 126, 234, ${rifa.numbers_sold > 0 ? '0.4' : '0.1'}); ${rifa.numbers_sold === 0 ? 'opacity: 0.5; cursor: not-allowed;' : ''}" title="${rifa.numbers_sold === 0 ? 'No hay números vendidos' : 'Realizar sorteo'}">
                                     🎲 Sortear
                                 </button>
                                 ` : ''}
@@ -1185,8 +1185,10 @@ async function showPerfilPage() {
                                     📊 Ver Ganador
                                 </button>
                                 ` : ''}
-                                <button class="btn" onclick="deleteRifa(${rifa.id})" style="background: #ff6b6b; color: white; flex: 0.5; font-size: 0.9rem; min-width: 45px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
-                                    🗑️
+                            </div>
+                            <div style="display: flex; gap: 8px; margin-top: 8px;">
+                                <button class="btn" onclick="deleteRifa(${rifa.id})" style="background: #ff6b6b; color: white; flex: 1; font-size: 0.9rem; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
+                                    🗑️ Eliminar
                                 </button>
                             </div>
                         </div>
