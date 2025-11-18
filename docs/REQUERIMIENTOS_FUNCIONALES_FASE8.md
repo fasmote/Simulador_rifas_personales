@@ -571,6 +571,21 @@ SimulaRifas es una aplicación web educativa que simula el funcionamiento de rif
 
 ---
 
+### RN-07: Acceso por Código para Usuarios Logueados
+
+**Descripción:** Los usuarios logueados también pueden acceder a rifas de otros usuarios mediante código de acceso.
+
+**Reglas:**
+- Usuario logueado puede ingresar código de cualquier rifa (propia o ajena)
+- Al participar en rifa ajena, se guarda automáticamente el nombre del usuario logueado
+- Al acceder a rifa propia por código, puede seleccionar números normalmente
+- El nombre del usuario logueado se mantiene consistente en todas las participaciones
+- No requiere ingresar nombre manualmente (se usa el del perfil)
+
+**Justificación:** Permite flexibilidad de uso - usuarios registrados pueden participar en rifas de amigos/familia sin perder su identidad, y también pueden acceder rápidamente a sus propias rifas usando el código compartido.
+
+---
+
 ## 9. CRITERIOS DE ACEPTACIÓN
 
 ### CA-01: Sistema de Upload
