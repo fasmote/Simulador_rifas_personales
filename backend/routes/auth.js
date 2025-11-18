@@ -1,13 +1,79 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { runQuery, getQuery } = require('../database/database');
+const rateLimit = require('express-rate-limit');
+const { runQuery, getQuery, getAllQuery } = require('../database/database');
 const { authenticateToken } = require('../middleware/auth');
+const blockedEmailDomains = require('../config/blocked-emails');
+const { generateToken, sendVerificationEmail, sendResetPasswordEmail } = require('../services/email');
 
 const router = express.Router();
 
+// ========== RATE LIMITING ==========
+
+// Límite estricto para autenticación (5 intentos por hora)
+const authLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hora
+    max: 5,
+    message: { error: 'Demasiados intentos. Por favor espera 1 hora.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+    skipSuccessfulRequests: true
+});
+
+// Límite para recuperación de contraseña (3 intentos por hora)
+const forgotLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hora
+    max: 3,
+    message: { error: 'Demasiadas solicitudes de recuperación. Espera 1 hora.' },
+    standardHeaders: true,
+    legacyHeaders: false
+});
+
+// Límite para reenvío de verificación
+const resendLimiter = rateLimit({
+    windowMs: 5 * 60 * 1000, // 5 minutos
+    max: 2,
+    message: { error: 'Espera 5 minutos antes de solicitar otro email.' },
+    standardHeaders: true,
+    legacyHeaders: false
+});
+
+// ========== MIDDLEWARES DE SEGURIDAD ==========
+
+// Honeypot - detecta bots que llenan campos ocultos
+const checkHoneypot = (req, res, next) => {
+    if (req.body.website || req.body.phone_confirm) {
+        console.log(`🤖 Bot detectado desde IP: ${req.ip}`);
+        // Responder como si funcionara para confundir al bot
+        return res.json({ message: 'Operación completada' });
+    }
+    next();
+};
+
+// Validar que email no sea temporal
+const validateEmail = (req, res, next) => {
+    const email = req.body.email?.toLowerCase().trim();
+
+    if (!email) {
+        return next(); // Dejar que la validación posterior lo maneje
+    }
+
+    const domain = email.split('@')[1];
+
+    if (domain && blockedEmailDomains.includes(domain)) {
+        return res.status(400).json({
+            error: 'Por favor usa un email permanente. Los emails temporales no están permitidos.'
+        });
+    }
+
+    next();
+};
+
+// ========== ENDPOINTS ==========
+
 // Registro de usuario
-router.post('/register', async (req, res) => {
+router.post('/register', checkHoneypot, validateEmail, authLimiter, async (req, res) => {
     try {
         const { username, email, password } = req.body;
 
@@ -20,10 +86,24 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
         }
 
+        // Validar formato de email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ error: 'Formato de email inválido' });
+        }
+
+        // Validar username (solo alfanuméricos y guiones)
+        const usernameRegex = /^[a-zA-Z0-9_-]{3,30}$/;
+        if (!usernameRegex.test(username)) {
+            return res.status(400).json({
+                error: 'El usuario debe tener 3-30 caracteres (letras, números, guiones)'
+            });
+        }
+
         // Verificar si el usuario ya existe
         const existingUser = await getQuery(
             'SELECT id FROM users WHERE username = ? OR email = ?',
-            [username, email]
+            [username.toLowerCase(), email.toLowerCase()]
         );
 
         if (existingUser) {
@@ -33,23 +113,27 @@ router.post('/register', async (req, res) => {
         // Encriptar contraseña
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Crear usuario
+        // Generar token de verificación
+        const verificationToken = generateToken();
+        const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(); // 24 horas
+
+        // Crear usuario (email_verified = 0 por defecto)
         const result = await runQuery(
-            'INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)',
-            [username, email, hashedPassword]
+            `INSERT INTO users (username, email, password_hash, email_verified, verification_token, verification_expires)
+             VALUES (?, ?, ?, 0, ?, ?)`,
+            [username.toLowerCase(), email.toLowerCase(), hashedPassword, verificationToken, verificationExpires]
         );
 
-        // Generar token
-        const token = jwt.sign(
-            { id: result.id, username, email },
-            process.env.JWT_SECRET,
-            { expiresIn: '24h' }
-        );
+        // Enviar email de verificación
+        const emailResult = await sendVerificationEmail(email, verificationToken);
 
+        // Responder sin token JWT (debe verificar primero)
         res.status(201).json({
-            message: 'Usuario creado exitosamente',
-            user: { id: result.id, username, email },
-            token
+            message: emailResult.success
+                ? 'Cuenta creada. Revisa tu email para verificar tu cuenta.'
+                : 'Cuenta creada. Por favor contacta soporte para verificar tu cuenta.',
+            user: { id: result.id, username: username.toLowerCase(), email: email.toLowerCase() },
+            needsVerification: true
         });
 
     } catch (error) {
@@ -59,7 +143,7 @@ router.post('/register', async (req, res) => {
 });
 
 // Login
-router.post('/login', async (req, res) => {
+router.post('/login', checkHoneypot, authLimiter, async (req, res) => {
     try {
         const { username, password } = req.body;
 
@@ -70,7 +154,7 @@ router.post('/login', async (req, res) => {
         // Buscar usuario por username o email
         const user = await getQuery(
             'SELECT * FROM users WHERE username = ? OR email = ?',
-            [username, username]
+            [username.toLowerCase(), username.toLowerCase()]
         );
 
         if (!user) {
@@ -79,9 +163,18 @@ router.post('/login', async (req, res) => {
 
         // Verificar contraseña
         const validPassword = await bcrypt.compare(password, user.password_hash);
-        
+
         if (!validPassword) {
             return res.status(401).json({ error: 'Credenciales inválidas' });
+        }
+
+        // Verificar si el email está verificado
+        if (!user.email_verified) {
+            return res.status(403).json({
+                error: 'Email no verificado. Revisa tu bandeja de entrada o solicita un nuevo email.',
+                needsVerification: true,
+                email: user.email
+            });
         }
 
         // Generar token
@@ -93,10 +186,10 @@ router.post('/login', async (req, res) => {
 
         res.json({
             message: 'Login exitoso',
-            user: { 
-                id: user.id, 
-                username: user.username, 
-                email: user.email 
+            user: {
+                id: user.id,
+                username: user.username,
+                email: user.email
             },
             token
         });
@@ -104,6 +197,196 @@ router.post('/login', async (req, res) => {
     } catch (error) {
         console.error('Error en login:', error);
         res.status(500).json({ error: 'Error interno del servidor' });
+    }
+});
+
+// Verificar email
+router.get('/verify-email', async (req, res) => {
+    try {
+        const { token } = req.query;
+
+        if (!token) {
+            return res.status(400).json({ error: 'Token de verificación requerido' });
+        }
+
+        // Buscar usuario con token válido
+        const user = await getQuery(
+            `SELECT id, username, email FROM users
+             WHERE verification_token = ? AND verification_expires > datetime('now')`,
+            [token]
+        );
+
+        if (!user) {
+            return res.status(400).json({ error: 'Token inválido o expirado' });
+        }
+
+        // Marcar email como verificado
+        await runQuery(
+            `UPDATE users
+             SET email_verified = 1, verification_token = NULL, verification_expires = NULL
+             WHERE id = ?`,
+            [user.id]
+        );
+
+        // Generar token JWT para auto-login
+        const jwtToken = jwt.sign(
+            { id: user.id, username: user.username, email: user.email },
+            process.env.JWT_SECRET,
+            { expiresIn: '24h' }
+        );
+
+        res.json({
+            message: 'Email verificado exitosamente',
+            user: {
+                id: user.id,
+                username: user.username,
+                email: user.email
+            },
+            token: jwtToken
+        });
+
+    } catch (error) {
+        console.error('Error verificando email:', error);
+        res.status(500).json({ error: 'Error al verificar email' });
+    }
+});
+
+// Reenviar email de verificación
+router.post('/resend-verification', resendLimiter, async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ error: 'Email requerido' });
+        }
+
+        // Buscar usuario no verificado
+        const user = await getQuery(
+            'SELECT id, username FROM users WHERE email = ? AND email_verified = 0',
+            [email.toLowerCase()]
+        );
+
+        // Mensaje genérico (no revelar si existe)
+        const genericMessage = 'Si el email existe y no está verificado, recibirás un nuevo enlace.';
+
+        if (!user) {
+            return res.json({ message: genericMessage });
+        }
+
+        // Generar nuevo token
+        const verificationToken = generateToken();
+        const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+
+        // Actualizar token
+        await runQuery(
+            `UPDATE users SET verification_token = ?, verification_expires = ? WHERE id = ?`,
+            [verificationToken, verificationExpires, user.id]
+        );
+
+        // Enviar email
+        await sendVerificationEmail(email, verificationToken);
+
+        res.json({ message: genericMessage });
+
+    } catch (error) {
+        console.error('Error reenviando verificación:', error);
+        res.status(500).json({ error: 'Error al procesar solicitud' });
+    }
+});
+
+// Solicitar recuperación de contraseña
+router.post('/forgot-password', checkHoneypot, forgotLimiter, async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ error: 'Email requerido' });
+        }
+
+        // Mensaje genérico (no revelar si existe)
+        const genericMessage = 'Si el email existe, recibirás instrucciones para recuperar tu contraseña.';
+
+        // Buscar usuario
+        const user = await getQuery(
+            'SELECT id FROM users WHERE email = ?',
+            [email.toLowerCase()]
+        );
+
+        if (!user) {
+            return res.json({ message: genericMessage });
+        }
+
+        // Generar token
+        const resetToken = generateToken();
+        const expiresAt = new Date(Date.now() + 30 * 60 * 1000).toISOString(); // 30 minutos
+
+        // Guardar token
+        await runQuery(
+            `INSERT INTO password_resets (user_id, token, expires_at) VALUES (?, ?, ?)`,
+            [user.id, resetToken, expiresAt]
+        );
+
+        // Enviar email
+        await sendResetPasswordEmail(email, resetToken);
+
+        res.json({ message: genericMessage });
+
+    } catch (error) {
+        console.error('Error en forgot password:', error);
+        res.status(500).json({ error: 'Error al procesar solicitud' });
+    }
+});
+
+// Resetear contraseña
+router.post('/reset-password', async (req, res) => {
+    try {
+        const { token, newPassword } = req.body;
+
+        if (!token || !newPassword) {
+            return res.status(400).json({ error: 'Token y nueva contraseña son requeridos' });
+        }
+
+        if (newPassword.length < 6) {
+            return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
+        }
+
+        // Buscar token válido
+        const resetRecord = await getQuery(
+            `SELECT user_id FROM password_resets
+             WHERE token = ? AND expires_at > datetime('now') AND used = 0`,
+            [token]
+        );
+
+        if (!resetRecord) {
+            return res.status(400).json({ error: 'Token inválido o expirado' });
+        }
+
+        // Hash nueva contraseña
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        // Actualizar contraseña
+        await runQuery(
+            'UPDATE users SET password_hash = ? WHERE id = ?',
+            [hashedPassword, resetRecord.user_id]
+        );
+
+        // Marcar token como usado
+        await runQuery(
+            'UPDATE password_resets SET used = 1 WHERE token = ?',
+            [token]
+        );
+
+        // Invalidar todos los tokens de reset del usuario
+        await runQuery(
+            'UPDATE password_resets SET used = 1 WHERE user_id = ?',
+            [resetRecord.user_id]
+        );
+
+        res.json({ message: 'Contraseña actualizada exitosamente' });
+
+    } catch (error) {
+        console.error('Error reseteando password:', error);
+        res.status(500).json({ error: 'Error al actualizar contraseña' });
     }
 });
 
