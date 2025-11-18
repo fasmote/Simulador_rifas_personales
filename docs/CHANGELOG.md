@@ -393,7 +393,7 @@ Ver **`docs/GUIA_MERGE_FINAL.md`** para instrucciones completas de:
 
 ---
 
-## 🎉 **FASE 8: Imágenes de Productos** *(17/11/2025)*
+## 🎉 **FASE 8: Imágenes de Productos - COMPLETA** *(17-18/11/2025)*
 
 ### ✨ Nuevas Características
 
@@ -419,7 +419,7 @@ Ver **`docs/GUIA_MERGE_FINAL.md`** para instrucciones completas de:
   - Delete endpoint: DELETE /api/upload/image/:publicId
 - ✅ **Fallback inteligente**: Si Cloudinary no está configurado, permite usar URLs
 
-#### **🎨 Interfaz de Usuario**
+#### **🎨 Interfaz de Usuario - Múltiples Contextos**
 - ✅ **Modal crear rifa**:
   - Toggle URL/Upload con botones con gradientes
   - Input URL con placeholder
@@ -430,11 +430,41 @@ Ver **`docs/GUIA_MERGE_FINAL.md`** para instrucciones completas de:
   - Mismas funcionalidades que crear
   - Muestra imagen actual si existe
   - Permite cambiar o quitar imagen
-- ✅ **Vista de rifas**:
-  - Imagen destacada en detalles de rifa
-  - Container con sombras elegantes
-  - Responsive: max 200px en móvil, 400px en desktop
-  - Fallback: icono de premio si no hay imagen
+- ✅ **Banner Header (Imagen grande)**:
+  - object-fit: cover para llenar espacio
+  - height: 250px fijo
+  - object-position: center para centrar contenido
+  - SIN lightbox (solo visual)
+- ✅ **Sidebar (Imagen lateral)**:
+  - object-fit: contain para mostrar imagen completa
+  - object-position: center
+  - CON lightbox (click para ampliar)
+  - Cursor: zoom-in para indicar interacción
+- ✅ **Cards (Tarjetas de rifas)**:
+  - Rectángulo pequeño en parte superior (120px)
+  - object-fit: cover, object-position: center
+  - CON lightbox (click para ampliar)
+  - Centrado horizontal perfecto
+- ✅ **Grid del propietario**:
+  - Imagen visible para el dueño de la rifa
+  - Mismo comportamiento que cards
+
+#### **🔍 Lightbox Modal**
+- ✅ **Implementación completa**:
+  - Fondo oscuro semi-transparente (rgba(0,0,0,0.95))
+  - Imagen centrada con max 90% viewport
+  - Tres formas de cerrar:
+    1. Botón × en esquina superior derecha
+    2. Click fuera de la imagen
+    3. Tecla ESC
+- ✅ **Animaciones**:
+  - @keyframes fadeIn para el fondo
+  - @keyframes zoomIn para la imagen
+  - Transiciones suaves
+- ✅ **UX/UI**:
+  - Bloqueo de scroll del body cuando está abierto
+  - Cursor pointer en áreas clicables
+  - Event listeners optimizados
 
 #### **💾 Backend**
 - ✅ **Database**: Campo `image_url TEXT` en tabla rifas
@@ -446,7 +476,112 @@ Ver **`docs/GUIA_MERGE_FINAL.md`** para instrucciones completas de:
   - CLOUDINARY_API_KEY
   - CLOUDINARY_API_SECRET
 
+#### **🔒 Privacy & Security**
+- ✅ **Bug crítico de privacidad RESUELTO**:
+  - Problema: Imágenes de un usuario aparecían en modales de otro usuario
+  - Causa: Falta de limpieza de variables globales al cerrar modales
+  - Solución:
+    - closeEditRifaModal(): Reset completo del form + cleanup de editImageUrl
+    - closeCreateRifaModal(): Reset completo del form + cleanup de currentImageUrl
+    - Eliminación de previews de imagen
+    - Limpieza de dataset.rifaId
+- ✅ **Prevención de data leakage** entre usuarios
+
+#### **🎨 Mejoras Visuales y UX**
+
+##### **Botón SORTEAR Mejorado**
+- ✅ **Siempre visible** en rifas activas (no completadas)
+- ✅ **Estado deshabilitado** cuando numbers_sold === 0:
+  - Color gris (#ccc)
+  - Opacity 0.5
+  - Cursor: not-allowed
+  - Tooltip: "No hay números vendidos"
+- ✅ **Estado activo** cuando hay números vendidos:
+  - Gradiente morado elegante
+  - Cursor pointer
+  - Ejecuta sorteo al hacer click
+
+##### **Cards de Rifas Completadas**
+- ✅ **Identificación visual clara**:
+  - Fondo: linear-gradient verde (#e8f5e9 → #c8e6c9)
+  - Borde: 3px solid verde (#4caf50)
+  - Contrasta claramente con rifas activas (fondo blanco)
+
+##### **Botón Eliminar (Basura)**
+- ✅ **Centrado** en fila separada
+- ✅ **Ancho completo** (width: 100%)
+- ✅ **Mismo ancho** que otros botones de acción
+
+##### **🏆 Medalla Ganador - Mobile Optimizado**
+- ✅ **Posición ajustada** para no tapar número:
+  - top: -20px (antes: -10px)
+  - right: -5px (antes: -10px)
+  - font-size: 1.5rem (antes: 2rem)
+- ✅ **Menos invasiva** en pantallas pequeñas
+
+##### **🔐 Navegación Reorganizada**
+- ✅ **Botón "ACCESO POR CÓDIGO" destacado**:
+  - Gradiente morado prominent (135deg, #667eea → #764ba2)
+  - Emoji 🔑 para identificación visual
+  - Ubicación principal en navbar
+  - Solo visible cuando NO hay usuario logueado
+- ✅ **"Iniciar Sesión" movido a hamburguesa**:
+  - Ahora está en menú móvil (authLinkMobile)
+  - Aparece solo cuando NO hay usuario logueado
+  - Libera espacio para ACCESO POR CÓDIGO
+- ✅ **Lógica condicional** en updateNavForLoggedUser():
+  - Usuario logueado: Muestra nombre/logout, oculta acceso por código
+  - Usuario NO logueado: Muestra acceso por código prominent, iniciar sesión en hamburguesa
+
+##### **📋 Códigos Destacados y Fáciles de Copiar**
+- ✅ **Diseño visual prominent**:
+  - Background: linear-gradient morado (#667eea → #764ba2)
+  - Border-radius: 10px para suavidad
+  - Padding: 12px para respiración
+- ✅ **Código grande y legible**:
+  - Font-size: 1.3rem (antes: 1rem)
+  - Font-family: monospace para claridad
+  - Letter-spacing: 2px para separación
+  - Font-weight: bold
+  - Color: white sobre fondo morado
+- ✅ **Label claro**:
+  - "🔑 Código de Acceso"
+  - Color: rgba(255,255,255,0.8)
+  - Separado visualmente del código
+- ✅ **Botón copiar integrado**:
+  - Emoji 📋 para reconocimiento visual
+  - Background: rgba(255,255,255,0.2) semi-transparente
+  - Color: white
+  - Border-radius: 5px
+  - Función copyCode() mejorada con feedback
+- ✅ **Ubicaciones actualizadas**:
+  - Cards de rifas públicas
+  - Grid de "Mis Simulaciones"
+  - Vista de detalles de rifa
+  - Todos con mismo diseño consistente
+
+##### **⚙️ Modo Sorteo Manual/Automático (UI Base)**
+- ✅ **Switch de selección**:
+  - Radio buttons: Automático / Manual
+  - Solo visible cuando hay fecha programada
+  - Emojis distintivos (🤖 / ✋)
+- ✅ **Descripciones dinámicas**:
+  - Automático: "El sorteo se realizará automáticamente en la fecha..."
+  - Manual: "Deberás realizar el sorteo manualmente después de la fecha..."
+- ✅ **Integración en modales**:
+  - Modal crear rifa
+  - Modal editar rifa
+  - Toggle visibility según campo de fecha
+- ✅ **Funciones JavaScript**:
+  - toggleSorteoModeVisibility()
+  - toggleSorteoModeVisibilityEdit()
+  - updateSorteoModeDescription()
+  - updateSorteoModeDescriptionEdit()
+- ⚠️ **Nota**: Backend implementation pendiente (solo UI por ahora)
+
 ### 📝 Archivos Modificados
+
+**Backend:**
 
 1. **`backend/database/init.js`**
    - Agregado campo `image_url TEXT` a tabla rifas
@@ -474,73 +609,173 @@ Ver **`docs/GUIA_MERGE_FINAL.md`** para instrucciones completas de:
    - Modificar PUT /api/rifas/:id - Actualizar image_url
    - Incluir image_url en respuestas GET
 
-6. **`backend/.env.example`**
+6. **`backend/.env.example`** / **`backend/.env`**
    - Documentar variables CLOUDINARY_*
    - Instrucciones para obtener credenciales
+   - Configuradas credenciales de producción
 
-7. **`public/index.html`**
+7. **`backend/package.json`**
+   - Dependencia: `"cloudinary": "^2.0.0"`
+   - Dependencia: `"multer": "^1.4.5-lts.1"`
+
+**Frontend:**
+
+8. **`public/index.html`** (+135 líneas)
    - Sección imagen en modal crear rifa (+30 líneas)
    - Sección imagen en modal editar rifa (+30 líneas)
    - Toggle buttons URL/Upload
    - Input file y URL
    - Preview container
    - Botón quitar imagen
+   - Lightbox modal HTML (+25 líneas)
+   - Modo sorteo radio buttons en crear (+20 líneas)
+   - Modo sorteo radio buttons en editar (+20 líneas)
+   - Navegación reorganizada (codigoBtn, authLinkMobile) (+10 líneas)
 
-8. **`public/js/app.js`** (+267 líneas)
-   - Función `switchImageMethod(method)` - Toggle crear
-   - Función `switchImageMethodEdit(method)` - Toggle editar
-   - Función `handleImageUrlInput()` - Preview URL
-   - Función `handleImageFileInput()` - Preview archivo
-   - Función `removeImagePreview()` - Quitar imagen
-   - Función `uploadImageToCloudinary(file)` - Upload
-   - Event listeners para inputs de imagen
-   - Integración con modales crear/editar
-   - Renderizado de imagen en vista de rifas
+9. **`public/js/app.js`** (+520 líneas totales FASE 8)
+   - **Sistema de imágenes** (+267 líneas):
+     - switchImageMethod(method) - Toggle crear
+     - switchImageMethodEdit(method) - Toggle editar
+     - handleImageUrlInput() - Preview URL
+     - handleImageFileInput() - Preview archivo
+     - removeImagePreview() / removeImagePreviewEdit()
+     - uploadImageToCloudinary(file) - Upload
+     - Event listeners para inputs de imagen
+     - Integración con modales crear/editar
+   - **Lightbox** (+45 líneas):
+     - openLightbox(imageSrc)
+     - closeLightbox()
+     - Event listener ESC key
+     - Bloqueo de scroll body
+   - **Renderizado de imágenes** (+80 líneas):
+     - Banner header (object-fit: cover, sin click)
+     - Sidebar (object-fit: contain, con click)
+     - Cards (rectángulo pequeño, con click)
+     - Grid propietario (con imagen visible)
+   - **Privacy fixes** (+25 líneas):
+     - closeEditRifaModal() - Reset completo
+     - closeCreateRifaModal() - Reset completo
+     - Limpieza de variables globales
+   - **UI/UX improvements** (+103 líneas):
+     - updateNavForLoggedUser() - Navegación condicional
+     - copyCode() mejorado con feedback
+     - Códigos con diseño destacado
+     - SORTEAR button con estados condicionales
+     - Cards completadas con estilos verdes
+     - Modo sorteo functions (toggle, descriptions)
 
-9. **`public/css/styles.css`** (+130 líneas)
-   - `.image-upload-container` - Container principal
-   - `.image-method-toggle` - Toggle buttons
-   - `.toggle-btn` - Botones con gradientes
-   - `.image-preview-container` - Preview con sombra
-   - `.prize-image-container` - Visualización en rifas
-   - `.prize-image` - Imagen responsiva
-   - `.remove-image-btn` - Botón × absolute
-   - Media queries mobile (max-width: 600px)
-
-10. **`backend/package.json`**
-    - Dependencia: `"cloudinary": "^2.0.0"`
-    - Dependencia: `"multer": "^1.4.5-lts.1"`
+10. **`public/css/styles.css`** (+285 líneas totales FASE 8)
+    - **Sistema de imágenes** (+130 líneas):
+      - .image-upload-container - Container principal
+      - .image-method-toggle - Toggle buttons
+      - .toggle-btn - Botones con gradientes
+      - .image-preview-container - Preview con sombra
+      - .prize-image-container - Visualización en rifas
+      - .prize-image - Imagen responsiva
+      - .remove-image-btn - Botón × absolute
+    - **Lightbox modal** (+35 líneas):
+      - #imageLightbox - Overlay oscuro
+      - #lightboxImage - Imagen centrada
+      - @keyframes fadeIn / zoomIn
+      - Botón cerrar (X)
+    - **Display de imágenes** (+40 líneas):
+      - .prize-image-header (banner: cover, 250px)
+      - .prize-image (sidebar: contain)
+      - .rifa-card-image (cards: cover, 120px, centered)
+      - object-position: center en todos
+    - **UI improvements** (+80 líneas):
+      - Medalla ganador mobile (top: -20px, right: -5px)
+      - Cards completadas (green gradient + border)
+      - Códigos destacados (purple gradient box)
+      - SORTEAR disabled styles (gray, opacity)
+      - Botón eliminar centrado (width: 100%)
+      - Media queries mobile optimization
 
 ### 🎯 Features Implementadas
 
+**Sistema Core:**
 - ✅ **Upload a Cloudinary**: Imágenes se almacenan en la nube
 - ✅ **URL directa**: Alternativa para usar imágenes existentes
 - ✅ **Preview real-time**: Ver imagen antes de guardar
 - ✅ **Optimización automática**: 800x800px, quality auto
 - ✅ **Validación robusta**: 5MB, solo imágenes
-- ✅ **Responsive**: Mobile-first, adaptativo
 - ✅ **Graceful fallback**: Funciona sin Cloudinary (solo URL)
+
+**Mejoras Visuales:**
+- ✅ **Lightbox completo**: Ampliar imágenes con 3 formas de cerrar
+- ✅ **object-fit optimizado**: cover/contain según contexto
+- ✅ **Imágenes centradas**: object-position: center
+- ✅ **Códigos destacados**: Purple gradient, monospace, fácil copiar
+- ✅ **Navegación mejorada**: ACCESO POR CÓDIGO prominent
+- ✅ **Cards diferenciadas**: Verde para completadas
+- ✅ **Medalla optimizada**: Menos invasiva en mobile
+
+**UX/Seguridad:**
+- ✅ **Privacy bug fixed**: Cleanup completo de modales
+- ✅ **SORTEAR inteligente**: Disabled cuando no hay números
+- ✅ **Modo sorteo UI**: Base para manual/automático
+- ✅ **Responsive**: Mobile-first, adaptativo
 - ✅ **Manejo de errores**: Mensajes claros al usuario
 
 ### 🧪 Testing
 
+**Sistema de Imágenes:**
 - ✅ Crear rifa con imagen por URL
 - ✅ Crear rifa con imagen por upload
 - ✅ Editar rifa y cambiar imagen
 - ✅ Editar rifa y quitar imagen
 - ✅ Preview funciona correctamente
-- ✅ Responsive en mobile y desktop
 - ✅ Fallback sin Cloudinary configurado
 
-### 📊 Impacto
+**Visualización:**
+- ✅ Banner muestra imagen con cover (sin lightbox)
+- ✅ Sidebar muestra imagen con contain (con lightbox)
+- ✅ Cards muestran imagen centrada (con lightbox)
+- ✅ Lightbox abre y cierra correctamente (X, click, ESC)
+- ✅ Scroll bloqueado cuando lightbox activo
 
-- **+901 líneas** totales (código + configuración)
-- **+267 líneas** JavaScript (app.js)
-- **+130 líneas** CSS (styles.css)
+**Privacy & Security:**
+- ✅ Modales se limpian completamente al cerrar
+- ✅ No hay data leakage entre usuarios
+- ✅ Variables globales reseteadas correctamente
+
+**UI/UX:**
+- ✅ Códigos destacados y fáciles de copiar (desktop/mobile)
+- ✅ ACCESO POR CÓDIGO prominent en navbar
+- ✅ Iniciar Sesión en hamburguesa (mobile)
+- ✅ Cards completadas visualmente distintivas
+- ✅ SORTEAR grayed out cuando no hay números
+- ✅ Medalla no tapa número ganador (mobile)
+- ✅ Responsive en todos los dispositivos
+
+### 📊 Impacto Total FASE 8
+
+**Código:**
+- **+1,070 líneas** totales nuevas
+- **+520 líneas** JavaScript (app.js)
+- **+285 líneas** CSS (styles.css)
 - **+114 líneas** Upload routes (backend)
-- **+70 líneas** HTML (modales)
-- **2 archivos nuevos** (cloudinary.js, upload.js)
-- **2 dependencias** (cloudinary, multer)
+- **+135 líneas** HTML (modales + lightbox + navegación)
+- **+16 líneas** Backend config y database
+
+**Archivos:**
+- **2 archivos nuevos**: cloudinary.js, upload.js
+- **10 archivos modificados**: init.js, app.js, rifas.js, .env, package.json, index.html, app.js, styles.css, README.md, CHANGELOG.md
+- **2 dependencias**: cloudinary, multer
+
+**Funcionalidades:**
+- **6 bugs críticos resueltos** (privacy, display, UX)
+- **15+ mejoras visuales** implementadas
+- **4 contextos de imagen** diferentes (banner, sidebar, cards, grid)
+- **3 formas de cerrar lightbox** implementadas
+
+**Commits durante FASE 8:**
+1. `fix(FASE 8): Arreglar visualización de imágenes y bug de privacidad`
+2. `feat(FASE 8): Lightbox para ampliar imágenes + Fix botón SORTEAR`
+3. `feat(FASE 8): Mejoras UI en cards de rifas y botón SORTEAR`
+4. `feat(FASE 8): Imagen en cards + Banner con cover sin click`
+5. `feat(FASE 8): UI mejoras + Base para modo sorteo manual/automático`
+6. `feat(FASE 8): Mejoras UI en móvil, códigos destacados y navegación`
 
 ---
 

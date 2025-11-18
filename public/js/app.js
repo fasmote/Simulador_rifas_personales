@@ -491,23 +491,47 @@ async function checkAuthStatus() {
 function updateNavForLoggedUser() {
     const userInfo = document.getElementById('userInfo');
     const authBtn = document.getElementById('authBtn');
+    const authLinkMobile = document.getElementById('authLinkMobile');
+    const codigoBtn = document.getElementById('codigoBtn');
     const perfilLink = document.getElementById('perfilLink');
-    
+
     if (currentUser) {
         userInfo.textContent = `Hola, ${currentUser.username}`;
         userInfo.style.display = 'block';
         authBtn.textContent = 'Cerrar Sesión';
         authBtn.onclick = logout;
-        
+        authBtn.style.display = 'inline-block';
+
+        // Ocultar botón de código cuando está logueado
+        if (codigoBtn) {
+            codigoBtn.style.display = 'none';
+        }
+
+        // Ocultar "Iniciar Sesión" del móvil cuando está logueado
+        if (authLinkMobile) {
+            authLinkMobile.style.display = 'none';
+        }
+
         // Mostrar opción "Mis Simulaciones" cuando está logueado
         if (perfilLink) {
             perfilLink.style.display = 'block';
         }
     } else {
         userInfo.style.display = 'none';
-        authBtn.textContent = 'Iniciar Sesión';
-        authBtn.onclick = showAuthModal;
-        
+
+        // Ocultar botón "Iniciar Sesión" desktop
+        authBtn.style.display = 'none';
+
+        // Mostrar "Iniciar Sesión" en hamburguesa móvil
+        if (authLinkMobile) {
+            authLinkMobile.style.display = 'block';
+        }
+
+        // Mostrar botón ACCESO POR CÓDIGO destacado
+        if (codigoBtn) {
+            codigoBtn.style.display = 'inline-block';
+        }
+
         // Ocultar opción "Mis Simulaciones" cuando NO está logueado
         if (perfilLink) {
             perfilLink.style.display = 'none';
@@ -1164,13 +1188,17 @@ async function showPerfilPage() {
                                 <p class="progress-text">${rifa.numbers_sold}/100 números ${isCompleted ? '(Completada)' : ''}</p>
                             </div>
 
-                            <div style="margin-top: 15px;">
-                                <p style="font-size: 0.9rem; color: #666; margin-bottom: 10px;">
-                                    🔑 Código: <strong>${rifa.access_code || 'Generando...'}</strong>
-                                    <button class="copy-code-btn" onclick="copyCode('${rifa.access_code}')" title="Copiar código" style="margin-left: 5px; padding: 3px 6px; font-size: 0.7rem;">
-                                        📋
+                            <!-- FASE 8: Código de acceso destacado -->
+                            <div style="margin-top: 15px; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <p style="font-size: 0.75rem; color: rgba(255,255,255,0.8); margin: 0 0 4px 0;">🔑 Código de Acceso</p>
+                                        <p style="font-size: 1.3rem; color: white; font-weight: bold; margin: 0; font-family: monospace; letter-spacing: 2px;">${rifa.access_code || 'GENERANDO...'}</p>
+                                    </div>
+                                    <button class="copy-code-btn" onclick="copyCode('${rifa.access_code}')" title="Copiar código" style="background: rgba(255,255,255,0.2); color: white; border: 2px solid white; padding: 8px 12px; font-size: 0.9rem; border-radius: 8px; cursor: pointer; transition: all 0.3s ease;">
+                                        📋 Copiar
                                     </button>
-                                </p>
+                                </div>
                             </div>
 
                             <div style="display: flex; gap: 8px; margin-top: 15px; flex-wrap: wrap;">
@@ -1745,15 +1773,16 @@ async function viewRifa(rifaId) {
                         <p class="progress-text">${rifa.numbers_sold}/100 números</p>
                     </div>
                     
-                    <div style="margin-bottom: 20px;">
-                        <h4 style="color: #333; margin-bottom: 10px;">🔑 Código de Acceso</h4>
-                        <div class="access-code-display" style="display: flex; align-items: center; justify-content: space-between;">
-                            <span id="displayCode">${rifa.access_code || 'GENERANDO...'}</span>
-                            <button class="copy-code-btn" onclick="copyCode('${rifa.access_code}')" title="Copiar código">
-                                📋
+                    <!-- FASE 8: Código de acceso destacado -->
+                    <div style="margin-bottom: 20px; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
+                        <p style="font-size: 0.8rem; color: rgba(255,255,255,0.9); margin: 0 0 8px 0; text-align: center;">🔑 Código de Acceso</p>
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                            <span id="displayCode" style="font-size: 1.4rem; color: white; font-weight: bold; font-family: monospace; letter-spacing: 3px; flex: 1; text-align: center;">${rifa.access_code || 'GENERANDO...'}</span>
+                            <button class="copy-code-btn" onclick="copyCode('${rifa.access_code}')" title="Copiar código" style="background: rgba(255,255,255,0.2); color: white; border: 2px solid white; padding: 10px 15px; font-size: 0.9rem; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; white-space: nowrap;">
+                                📋 Copiar
                             </button>
                         </div>
-                        <p style="font-size: 0.8rem; color: #666; text-align: center;">Comparte este código para que otros participen</p>
+                        <p style="font-size: 0.75rem; color: rgba(255,255,255,0.8); text-align: center; margin: 8px 0 0 0;">Comparte este código para que otros participen</p>
                     </div>
                     
                     ${!isCompleted ? `
@@ -3441,15 +3470,16 @@ async function viewRifa(rifaId) {
                         <p class="progress-text">${rifa.numbers_sold}/100 números</p>
                     </div>
                     
-                    <div style="margin-bottom: 20px;">
-                        <h4 style="color: #333; margin-bottom: 10px;">🔑 Código de Acceso</h4>
-                        <div class="access-code-display" style="display: flex; align-items: center; justify-content: space-between;">
-                            <span id="displayCode">${rifa.access_code || 'GENERANDO...'}</span>
-                            <button class="copy-code-btn" onclick="copyCode('${rifa.access_code}')" title="Copiar código">
-                                📋
+                    <!-- FASE 8: Código de acceso destacado -->
+                    <div style="margin-bottom: 20px; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
+                        <p style="font-size: 0.8rem; color: rgba(255,255,255,0.9); margin: 0 0 8px 0; text-align: center;">🔑 Código de Acceso</p>
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                            <span id="displayCode" style="font-size: 1.4rem; color: white; font-weight: bold; font-family: monospace; letter-spacing: 3px; flex: 1; text-align: center;">${rifa.access_code || 'GENERANDO...'}</span>
+                            <button class="copy-code-btn" onclick="copyCode('${rifa.access_code}')" title="Copiar código" style="background: rgba(255,255,255,0.2); color: white; border: 2px solid white; padding: 10px 15px; font-size: 0.9rem; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; white-space: nowrap;">
+                                📋 Copiar
                             </button>
                         </div>
-                        <p style="font-size: 0.8rem; color: #666; text-align: center;">Comparte este código para que otros participen</p>
+                        <p style="font-size: 0.75rem; color: rgba(255,255,255,0.8); text-align: center; margin: 8px 0 0 0;">Comparte este código para que otros participen</p>
                     </div>
                     
                     ${!isCompleted ? `

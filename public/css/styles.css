@@ -928,6 +928,13 @@ h3 {
         min-height: 44px;
         min-width: 44px;
     }
+
+    /* FASE 8: Ajustar medalla ganador para no tapar número */
+    .number-cell.winner::before {
+        top: -20px;
+        right: -5px;
+        font-size: 1.5rem;
+    }
 }
 
 /* ========================================
