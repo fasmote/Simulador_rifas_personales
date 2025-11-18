@@ -262,6 +262,24 @@ function closeMobileMenu() {
     }
 }
 
+// Event listener para cerrar menú al hacer click fuera
+document.addEventListener('click', function(event) {
+    const navLinks = document.getElementById('navLinks');
+    const menuBtn = document.querySelector('.mobile-menu-btn');
+
+    // Si el menú está abierto
+    if (navLinks && navLinks.classList.contains('active')) {
+        // Verificar si el click fue fuera del menú y fuera del botón hamburguesa
+        const clickedInsideMenu = navLinks.contains(event.target);
+        const clickedOnMenuBtn = menuBtn && menuBtn.contains(event.target);
+
+        // Si hizo click fuera del menú (pero no en el botón hamburguesa)
+        if (!clickedInsideMenu && !clickedOnMenuBtn) {
+            closeMobileMenu();
+        }
+    }
+});
+
 // ========== FUNCIONES NUEVAS FASE 15C ==========
 
 // FASE 3: Modal de confirmación personalizado
@@ -530,6 +548,7 @@ function updateNavForLoggedUser() {
     const authBtn = document.getElementById('authBtn');
     const authLinkMobile = document.getElementById('authLinkMobile');
     const codigoBtn = document.getElementById('codigoBtn');
+    const codigoLinkMobile = document.getElementById('codigoLinkMobile');
     const perfilLink = document.getElementById('perfilLink');
 
     if (currentUser) {
@@ -542,6 +561,11 @@ function updateNavForLoggedUser() {
         // Ocultar botón de código cuando está logueado
         if (codigoBtn) {
             codigoBtn.style.display = 'none';
+        }
+
+        // Ocultar "Acceso por Código" del móvil cuando está logueado
+        if (codigoLinkMobile) {
+            codigoLinkMobile.style.display = 'none';
         }
 
         // Ocultar "Iniciar Sesión" del móvil cuando está logueado
@@ -564,7 +588,12 @@ function updateNavForLoggedUser() {
             authLinkMobile.style.display = 'block';
         }
 
-        // Mostrar botón ACCESO POR CÓDIGO destacado
+        // Mostrar "Acceso por Código" en hamburguesa móvil
+        if (codigoLinkMobile) {
+            codigoLinkMobile.style.display = 'block';
+        }
+
+        // Mostrar botón ACCESO POR CÓDIGO destacado (desktop)
         if (codigoBtn) {
             codigoBtn.style.display = 'inline-block';
         }
