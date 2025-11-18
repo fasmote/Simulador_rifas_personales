@@ -19,7 +19,7 @@ SimulaRifas es una aplicación web educativa que simula el funcionamiento de rif
 - **Rifas Públicas**: Contenido de demostración accesible sin registro
 - **API RESTful**: Backend modular con arquitectura MVC
 - **Responsive Design**: Optimizado para todos los dispositivos (320px - 1920px+)
-- **FASE 8 NUEVA**: **Imágenes de Productos** - Sistema dual URL/Upload con Cloudinary, preview en tiempo real
+- **FASE 8 COMPLETA**: **Sistema de Imágenes** - Cloudinary upload/URL dual, lightbox ampliar, privacy fix, códigos destacados, UI mejorada mobile/desktop
 - **FASE 7**: **Sistema de Fechas Programadas** - Sorteo automático programado con mensaje del propietario
 - **FASE 6**: **Botón Sorteo Directo** - Sortear desde "Mis Simulaciones" sin entrar a detalles
 - **FASE 5**: **Layout Responsivo Mejorado** - 6 breakpoints, touch optimizado, fluid typography
@@ -346,8 +346,17 @@ Para ver el roadmap completo, consulta [ROADMAP_COMPLETO.md](docs/ROADMAP_COMPLE
 
 Para ver todos los cambios detallados por fase, consulta [CHANGELOG.md](docs/CHANGELOG.md)
 
-### Últimos Cambios (FASE 8)
-- ✅ **FASE 8**: Sistema de imágenes de productos - URL/Upload con Cloudinary, preview en tiempo real
+### Últimos Cambios (FASE 8 - COMPLETA)
+- ✅ **FASE 8 COMPLETA**: Sistema de imágenes completo
+  - Upload a Cloudinary + URL directo (dual method)
+  - Lightbox para ampliar imágenes (3 formas de cerrar)
+  - object-fit optimizado (cover/contain según contexto)
+  - Privacy bug fix (cleanup completo de modales)
+  - Códigos destacados con gradiente morado
+  - Navegación reorganizada (ACCESO POR CÓDIGO prominent)
+  - UI mobile optimizada (medalla ganador, cards verdes)
+  - SORTEAR inteligente (disabled cuando vacío)
+  - Base UI para modo sorteo manual/automático
 - ✅ **FASE 7**: Sistema de fechas programadas - Sorteo automático y mensaje del propietario
 - ✅ **FASE 6**: Botón sorteo directo - Sortear desde Mis Simulaciones con modales animados
 - ✅ **FASE 5**: Layout responsivo mejorado - 6 breakpoints, touch-optimized
