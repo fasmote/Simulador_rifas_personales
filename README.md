@@ -1,4 +1,6 @@
-# 🎲 SimulaRifas - Proyecto Personal
+# 🎲 SimulaRifa - Proyecto Personal
+
+<img width="943" height="924" alt="image" src="https://github.com/user-attachments/assets/0136cf4b-f593-4e53-98fb-0f50ae8486c3" />
 
 ![Estado del Proyecto](https://img.shields.io/badge/Estado-En%20Producci%C3%B3n-brightgreen)
 ![Versión](https://img.shields.io/badge/Versión-8.0-blue)
@@ -32,6 +34,7 @@ SimulaRifas es una aplicación web educativa que simula el funcionamiento de rif
 - **Aplicación**: [https://simulador-rifas-personales.vercel.app/](https://simulador-rifas-personales.vercel.app/)
 - **Repositorio**: [https://github.com/fasmote/Simulador_rifas_personales](https://github.com/fasmote/Simulador_rifas_personales)
 - **Estado**: ✅ En producción con PostgreSQL (Vercel Postgres)
+
 
 ## 🛠️ Tecnologías Utilizadas
 
