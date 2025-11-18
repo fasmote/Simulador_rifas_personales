@@ -549,7 +549,6 @@ function updateNavForLoggedUser() {
     const authLinkMobile = document.getElementById('authLinkMobile');
     const codigoBtn = document.getElementById('codigoBtn');
     const codigoLinkMobile = document.getElementById('codigoLinkMobile');
-    const perfilLink = document.getElementById('perfilLink');
 
     if (currentUser) {
         userInfo.textContent = `Hola, ${currentUser.username}`;
@@ -581,10 +580,6 @@ function updateNavForLoggedUser() {
             authLinkMobile.style.display = 'block';
         }
 
-        // Mostrar opción "Mis Simulaciones" cuando está logueado
-        if (perfilLink) {
-            perfilLink.style.display = 'block';
-        }
     } else {
         userInfo.style.display = 'none';
 
@@ -612,11 +607,6 @@ function updateNavForLoggedUser() {
         // Mostrar botón ACCESO POR CÓDIGO destacado (desktop)
         if (codigoBtn) {
             codigoBtn.style.display = 'inline-block';
-        }
-
-        // Ocultar opción "Mis Simulaciones" cuando NO está logueado
-        if (perfilLink) {
-            perfilLink.style.display = 'none';
         }
     }
 }
@@ -724,6 +714,16 @@ async function logout() {
 }
 
 // ========== NAVEGACIÓN ==========
+
+// Función para "Mis Simulaciones" - muestra login si no está logueado
+function navigateToPerfilOrLogin() {
+    closeMobileMenu();
+    if (currentUser) {
+        navigateTo('perfil');
+    } else {
+        showAuthModal();
+    }
+}
 
 function navigateTo(page) {
     // FASE 7: Limpiar polling de status cuando se cambia de página
