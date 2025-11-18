@@ -558,19 +558,27 @@ function updateNavForLoggedUser() {
         authBtn.onclick = logout;
         authBtn.style.display = 'inline-block';
 
-        // Ocultar botón de código cuando está logueado
+        // Ocultar botón de código en desktop cuando está logueado
         if (codigoBtn) {
             codigoBtn.style.display = 'none';
         }
 
-        // Ocultar "Acceso por Código" del móvil cuando está logueado
+        // Mantener "Acceso por Código" visible en móvil (siempre útil)
         if (codigoLinkMobile) {
-            codigoLinkMobile.style.display = 'none';
+            codigoLinkMobile.style.display = 'block';
         }
 
-        // Ocultar "Iniciar Sesión" del móvil cuando está logueado
+        // Cambiar "Iniciar Sesión" a "Cerrar Sesión" en móvil
         if (authLinkMobile) {
-            authLinkMobile.style.display = 'none';
+            const authLinkA = authLinkMobile.querySelector('a');
+            if (authLinkA) {
+                authLinkA.textContent = 'Cerrar Sesión';
+                authLinkA.onclick = function(e) {
+                    e.preventDefault();
+                    logout();
+                };
+            }
+            authLinkMobile.style.display = 'block';
         }
 
         // Mostrar opción "Mis Simulaciones" cuando está logueado
@@ -585,6 +593,14 @@ function updateNavForLoggedUser() {
 
         // Mostrar "Iniciar Sesión" en hamburguesa móvil
         if (authLinkMobile) {
+            const authLinkA = authLinkMobile.querySelector('a');
+            if (authLinkA) {
+                authLinkA.textContent = 'Iniciar Sesión';
+                authLinkA.onclick = function(e) {
+                    e.preventDefault();
+                    showAuthModal();
+                };
+            }
             authLinkMobile.style.display = 'block';
         }
 
