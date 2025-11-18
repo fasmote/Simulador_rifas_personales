@@ -20,12 +20,16 @@
             <ul class="nav-links" id="navLinks">
                 <li><a href="#" class="active" onclick="navigateTo('demo')">Inicio</a></li>
                 <li><a href="#" onclick="navigateTo('rifas')">Simulaciones Públicas</a></li>
-                <li><a href="#" onclick="navigateTo('codigo')">Acceder por Código</a></li>
                 <li><a href="#" onclick="navigateTo('perfil')" id="perfilLink" style="display: none;">Mis Simulaciones</a></li>
+                <li id="authLinkMobile" style="display: none;"><a href="#" onclick="showAuthModal()">Iniciar Sesión</a></li>
             </ul>
             <div class="nav-user" id="navUser">
                 <span class="user-info" id="userInfo" style="display: none;"></span>
-                <button class="btn btn-secondary" id="authBtn" onclick="showAuthModal()">Iniciar Sesión</button>
+                <!-- FASE 8: Botón ACCESO POR CÓDIGO destacado -->
+                <button class="btn" id="codigoBtn" onclick="navigateTo('codigo')" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-weight: 600; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); margin-right: 10px;">
+                    🔑 Acceso por Código
+                </button>
+                <button class="btn btn-secondary" id="authBtn" onclick="showAuthModal()" style="display: none;">Iniciar Sesión</button>
             </div>
             <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
         </div>
