@@ -16,11 +16,12 @@
     <!-- Navegación -->
     <nav class="navbar">
         <div class="nav-container">
-            <a href="#" class="logo" onclick="navigateTo('demo')">🎲 SimulaRifa TT</a>
+            <a href="#" class="logo" onclick="navigateTo('demo')">🎲 SimulaRifa</a>
             <ul class="nav-links" id="navLinks">
                 <li><a href="#" class="active" onclick="navigateTo('demo')">Inicio</a></li>
                 <li><a href="#" onclick="navigateTo('rifas')">Simulaciones Públicas</a></li>
                 <li><a href="#" onclick="navigateTo('perfil')" id="perfilLink" style="display: none;">Mis Simulaciones</a></li>
+                <li id="codigoLinkMobile"><a href="#" onclick="navigateTo('codigo')" style="color: #667eea; font-weight: 600;">🔑 Acceso por Código</a></li>
                 <li id="authLinkMobile" style="display: none;"><a href="#" onclick="showAuthModal()">Iniciar Sesión</a></li>
             </ul>
             <div class="nav-user" id="navUser">
