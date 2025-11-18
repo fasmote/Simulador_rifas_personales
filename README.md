@@ -1,4 +1,4 @@
-# 🎲 SimulaRifas - Proyecto Personal
+# 🎲 SimulaRifa - Proyecto Personal
 
 <img width="943" height="924" alt="image" src="https://github.com/user-attachments/assets/0136cf4b-f593-4e53-98fb-0f50ae8486c3" />
 
