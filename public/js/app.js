@@ -621,6 +621,95 @@ function closeAuthModal() {
     document.getElementById('authForm').reset();
 }
 
+// ========== FUNCIONES DE VERIFICACIÓN Y RECUPERACIÓN ==========
+
+function showForgotPasswordModal() {
+    closeAuthModal();
+    document.getElementById('forgotPasswordModal').style.display = 'flex';
+}
+
+function closeForgotPasswordModal() {
+    document.getElementById('forgotPasswordModal').style.display = 'none';
+    document.getElementById('forgotPasswordForm').reset();
+}
+
+function showResetPasswordModal(token) {
+    document.getElementById('resetToken').value = token;
+    document.getElementById('resetPasswordModal').style.display = 'flex';
+}
+
+function closeResetPasswordModal() {
+    document.getElementById('resetPasswordModal').style.display = 'none';
+    document.getElementById('resetPasswordForm').reset();
+}
+
+function showVerificationModal(email) {
+    document.getElementById('verificationEmail').value = email;
+    document.getElementById('verificationModal').style.display = 'flex';
+}
+
+function closeVerificationModal() {
+    document.getElementById('verificationModal').style.display = 'none';
+}
+
+async function resendVerification() {
+    const email = document.getElementById('verificationEmail').value;
+
+    try {
+        const response = await fetch(`${API_BASE}/auth/resend-verification`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+
+        const data = await response.json();
+        showNotification(data.message || 'Email enviado');
+        closeVerificationModal();
+    } catch (error) {
+        console.error('Error reenviando verificación:', error);
+        showNotification('Error al enviar email', 'error');
+    }
+}
+
+// Verificar token de email desde URL
+async function checkUrlTokens() {
+    const params = new URLSearchParams(window.location.search);
+
+    // Verificación de email
+    const verifyToken = params.get('verify');
+    if (verifyToken) {
+        try {
+            const response = await fetch(`${API_BASE}/auth/verify-email?token=${verifyToken}`);
+            const data = await response.json();
+
+            if (response.ok) {
+                // Auto-login después de verificar
+                localStorage.setItem('authToken', data.token);
+                currentUser = data.user;
+                updateNavForLoggedUser();
+                showNotification('Email verificado exitosamente');
+                navigateTo('perfil');
+            } else {
+                showNotification(data.error || 'Error al verificar email', 'error');
+            }
+        } catch (error) {
+            console.error('Error verificando email:', error);
+            showNotification('Error de conexión', 'error');
+        }
+
+        // Limpiar URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    // Reset de contraseña
+    const resetToken = params.get('reset');
+    if (resetToken) {
+        showResetPasswordModal(resetToken);
+        // Limpiar URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+}
+
 function switchAuthMode(mode = null) {
     const title = document.getElementById('authTitle');
     const emailField = document.getElementById('authEmail');
@@ -650,19 +739,24 @@ function switchAuthMode(mode = null) {
 
 // Event listener para autenticación (configurado después de DOMContentLoaded)
 document.addEventListener('DOMContentLoaded', function() {
+    // Verificar tokens en URL (verificación email, reset password)
+    checkUrlTokens();
+
+    // Formulario de login/registro
     document.getElementById('authForm').addEventListener('submit', async function(e) {
         e.preventDefault();
-        
+
         const username = document.getElementById('authUsername').value;
         const email = document.getElementById('authEmail').value;
         const password = document.getElementById('authPassword').value;
-        
+        const honeypot = document.getElementById('honeypotField')?.value || '';
+
         try {
             const endpoint = isAuthMode === 'register' ? 'register' : 'login';
-            const body = isAuthMode === 'register' 
-                ? { username, email, password }
-                : { username, password };
-            
+            const body = isAuthMode === 'register'
+                ? { username, email, password, website: honeypot }
+                : { username, password, website: honeypot };
+
             const response = await fetch(`${API_BASE}/auth/${endpoint}`, {
                 method: 'POST',
                 headers: {
@@ -670,23 +764,93 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify(body)
             });
-            
+
             const data = await response.json();
-            
+
             if (response.ok) {
+                // Si necesita verificación, mostrar modal
+                if (data.needsVerification) {
+                    closeAuthModal();
+                    showNotification(data.message);
+                    return;
+                }
+
                 localStorage.setItem('authToken', data.token);
                 currentUser = data.user;
                 updateNavForLoggedUser();
                 closeAuthModal();
                 showNotification(data.message);
-                
-                // NUEVO: Ir directo a "Mis Simulaciones" después del login
+
+                // Ir directo a "Mis Simulaciones" después del login
                 navigateTo('perfil');
+            } else {
+                // Si necesita verificación (403)
+                if (data.needsVerification) {
+                    closeAuthModal();
+                    showVerificationModal(data.email);
+                } else {
+                    showNotification(data.error, 'error');
+                }
+            }
+        } catch (error) {
+            console.error('Error en autenticación:', error);
+            showNotification('Error de conexión', 'error');
+        }
+    });
+
+    // Formulario de recuperar contraseña
+    document.getElementById('forgotPasswordForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const email = document.getElementById('forgotEmail').value;
+
+        try {
+            const response = await fetch(`${API_BASE}/auth/forgot-password`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+
+            const data = await response.json();
+            showNotification(data.message || 'Revisa tu email');
+            closeForgotPasswordModal();
+        } catch (error) {
+            console.error('Error en forgot password:', error);
+            showNotification('Error de conexión', 'error');
+        }
+    });
+
+    // Formulario de restablecer contraseña
+    document.getElementById('resetPasswordForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const token = document.getElementById('resetToken').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+
+        if (newPassword !== confirmPassword) {
+            showNotification('Las contraseñas no coinciden', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE}/auth/reset-password`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token, newPassword })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                showNotification(data.message);
+                closeResetPasswordModal();
+                showAuthModal();
             } else {
                 showNotification(data.error, 'error');
             }
         } catch (error) {
-            console.error('Error en autenticación:', error);
+            console.error('Error en reset password:', error);
             showNotification('Error de conexión', 'error');
         }
     });

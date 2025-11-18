@@ -49,6 +49,9 @@
         <div class="modal-content">
             <h2 id="authTitle">Iniciar Sesión</h2>
             <form id="authForm">
+                <!-- Honeypot - campo oculto para detectar bots -->
+                <input type="text" name="website" id="honeypotField" style="position: absolute; left: -9999px; opacity: 0;" tabindex="-1" autocomplete="off">
+
                 <input type="text" id="authUsername" placeholder="Usuario o Email" class="form-input" required>
                 <input type="email" id="authEmail" placeholder="Email" class="form-input" style="display: none;">
                 <div class="password-field">
@@ -65,6 +68,66 @@
             <p style="text-align: center; margin-top: 15px;">
                 <a href="#" id="authSwitch" onclick="switchAuthMode()">¿No tienes cuenta? Regístrate</a>
             </p>
+            <p id="forgotPasswordLink" style="text-align: center; margin-top: 10px;">
+                <a href="#" onclick="showForgotPasswordModal()" style="color: #667eea; font-size: 0.9rem;">¿Olvidaste tu contraseña?</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Modal de Recuperar Contraseña -->
+    <div class="modal" id="forgotPasswordModal" style="display: none;">
+        <div class="modal-content">
+            <h2>Recuperar Contraseña</h2>
+            <p style="color: #666; margin-bottom: 15px;">Ingresa tu email y te enviaremos instrucciones para restablecer tu contraseña.</p>
+            <form id="forgotPasswordForm">
+                <!-- Honeypot -->
+                <input type="text" name="phone_confirm" style="position: absolute; left: -9999px; opacity: 0;" tabindex="-1" autocomplete="off">
+
+                <input type="email" id="forgotEmail" placeholder="Tu email" class="form-input" required>
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="closeForgotPasswordModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Enviar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Restablecer Contraseña -->
+    <div class="modal" id="resetPasswordModal" style="display: none;">
+        <div class="modal-content">
+            <h2>Nueva Contraseña</h2>
+            <form id="resetPasswordForm">
+                <input type="hidden" id="resetToken">
+                <div class="password-field">
+                    <input type="password" id="newPassword" placeholder="Nueva contraseña" class="form-input" required minlength="6">
+                    <button type="button" class="password-toggle" onclick="togglePassword('newPassword', this)">
+                        👁️
+                    </button>
+                </div>
+                <div class="password-field">
+                    <input type="password" id="confirmPassword" placeholder="Confirmar contraseña" class="form-input" required minlength="6">
+                    <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword', this)">
+                        👁️
+                    </button>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="closeResetPasswordModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Cambiar Contraseña</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Verificación Pendiente -->
+    <div class="modal" id="verificationModal" style="display: none;">
+        <div class="modal-content">
+            <h2>Verificación Requerida</h2>
+            <p style="color: #666; margin-bottom: 15px;">Tu email aún no ha sido verificado. Revisa tu bandeja de entrada (y spam).</p>
+            <input type="email" id="verificationEmail" class="form-input" readonly style="margin-bottom: 15px;">
+            <div class="modal-buttons">
+                <button type="button" class="btn btn-secondary" onclick="closeVerificationModal()">Cerrar</button>
+                <button type="button" class="btn btn-primary" onclick="resendVerification()">Reenviar Email</button>
+            </div>
         </div>
     </div>
 
