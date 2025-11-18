@@ -202,7 +202,10 @@ function addViewportDebugger() {
 /**
  * Toggle del menú móvil
  * Mejora la función existente con animación y accesibilidad
+ * Auto-cierre después de 2.5 segundos de inactividad
  */
+let mobileMenuTimeout = null;
+
 function toggleMobileMenu() {
     const navLinks = document.getElementById('navLinks');
     if (navLinks) {
@@ -215,12 +218,46 @@ function toggleMobileMenu() {
             menuBtn.setAttribute('aria-expanded', isActive);
         }
 
-        // Gestionar foco para accesibilidad
+        // Limpiar timeout anterior si existe
+        if (mobileMenuTimeout) {
+            clearTimeout(mobileMenuTimeout);
+            mobileMenuTimeout = null;
+        }
+
+        // Gestionar foco para accesibilidad y auto-cierre
         if (isActive) {
             const firstLink = navLinks.querySelector('a');
             if (firstLink) {
                 setTimeout(() => firstLink.focus(), 100);
             }
+
+            // Auto-cerrar después de 2.5 segundos de inactividad
+            mobileMenuTimeout = setTimeout(() => {
+                closeMobileMenu();
+            }, 2500);
+        }
+    }
+}
+
+/**
+ * Cierra el menú móvil
+ */
+function closeMobileMenu() {
+    const navLinks = document.getElementById('navLinks');
+    if (navLinks && navLinks.classList.contains('active')) {
+        navLinks.classList.remove('active');
+
+        // Cambiar ícono del botón
+        const menuBtn = document.querySelector('.mobile-menu-btn');
+        if (menuBtn) {
+            menuBtn.textContent = '☰';
+            menuBtn.setAttribute('aria-expanded', false);
+        }
+
+        // Limpiar timeout
+        if (mobileMenuTimeout) {
+            clearTimeout(mobileMenuTimeout);
+            mobileMenuTimeout = null;
         }
     }
 }
@@ -642,11 +679,6 @@ async function logout() {
 }
 
 // ========== NAVEGACIÓN ==========
-
-function toggleMobileMenu() {
-    const navLinks = document.getElementById('navLinks');
-    navLinks.classList.toggle('active');
-}
 
 function navigateTo(page) {
     // FASE 7: Limpiar polling de status cuando se cambia de página

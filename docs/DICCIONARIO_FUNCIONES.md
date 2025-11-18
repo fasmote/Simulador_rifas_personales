@@ -8,8 +8,9 @@ graph TB
     B --> C[🎨 styles.css - Estilos]
     B --> D[⚙️ app.js - Lógica Frontend]
     D --> E[🔗 Express Server - Backend]
-    E --> F[🗄️ SQLite Database]
+    E --> F[🗄️ PostgreSQL / SQLite Database]
     E --> G[🔐 JWT Authentication]
+    E --> H[☁️ Cloudinary - Imágenes]
     
     subgraph "🎯 FRONTEND LAYERS"
         H[🧭 Navegación] --> I[📱 Páginas SPA]
@@ -135,6 +136,91 @@ graph TB
 - Toggle visible en `viewRifa()` (línea 2450) y `viewRifaByCode()` (línea 1892)
 - Modifica comportamiento de `generateRifaGrid()` (línea 2201-2216)
 
+### 📱 **FASE 5: Layout Responsivo Mejorado**
+| Función | Archivo | Propósito | CSS Relacionado |
+|---------|---------|-----------|-----------------|
+| `initMobileEnhancements()` | app.js:2800 | Inicializa mejoras móviles | Touch events |
+| `preventDoubleTapZoom()` | app.js:2820 | Previene zoom en double-tap | `touch-action` |
+| `autoCloseMobileMenu()` | app.js:2840 | Cierra menú al navegar | `.nav-links` |
+| `improveMobileModals()` | app.js:2860 | Swipe-down para cerrar | `.modal` |
+| `addViewportDebugger()` | app.js:2880 | Debug de viewport (dev) | Overlay info |
+
+**Variables globales relacionadas:**
+- Detección automática de dispositivos táctiles
+- 6 breakpoints optimizados (360px, 480px, 600px, 768px, 1024px, 1200px)
+
+**CSS Media Queries:**
+- `> 1200px` - Large Desktop
+- `≤ 1024px` - Tablet Landscape
+- `≤ 768px` - Tablet Portrait
+- `≤ 600px` - Landscape Phone
+- `≤ 480px` - Mobile Portrait
+- `≤ 360px` - Small Mobile
+
+### 🎲 **FASE 6: Botón Sorteo Directo**
+| Función | Archivo | Propósito | CSS Relacionado |
+|---------|---------|-----------|-----------------|
+| `quickDraw(rifaId, rifaTitle)` | app.js:3000 | Inicia sorteo rápido | Modal confirmación |
+| `closeQuickDrawModal()` | app.js:3020 | Cierra modal confirmación | `.quick-draw-modal` |
+| `executeQuickDraw(rifaId, rifaTitle)` | app.js:3040 | Ejecuta sorteo | Spinner loading |
+| `showQuickDrawResult(winner, rifaTitle)` | app.js:3080 | Muestra ganador | Modal resultado |
+| `closeQuickDrawResultModal()` | app.js:3120 | Cierra modal resultado | Auto-refresh 3s |
+
+**Animaciones CSS:**
+- `@keyframes fadeOut` - Desvanecimiento
+- `@keyframes slideUp` - Deslizar hacia arriba
+- `@keyframes spin` - Spinner rotación
+- `@keyframes bounce` - Rebote emoji 🏆
+- `@keyframes winnerPulse` - Pulso ganador
+
+### 📅 **FASE 7: Sistema de Fechas Programadas**
+| Función | Archivo | Propósito | Base de Datos |
+|---------|---------|-----------|---------------|
+| `clearScheduledDate()` | app.js:3200 | Quita fecha programada | scheduled_draw_date |
+| `checkAndExecuteScheduledDraw()` | rifas.js:500 | Verifica y ejecuta sorteo | Backend automático |
+| `formatScheduledDate()` | app.js:3230 | Formato fecha DD/MM/YYYY | Locale es-AR |
+
+**Event Listeners:**
+- Contador de caracteres en mensaje (max 100)
+- Toggle visibilidad según fecha seleccionada
+
+**Campos nuevos en base de datos:**
+- `scheduled_draw_date` (TIMESTAMP) - Fecha/hora del sorteo
+- `owner_message` (TEXT) - Mensaje del propietario
+- `timezone` (VARCHAR) - Zona horaria (default: America/Argentina/Buenos_Aires)
+
+### 🖼️ **FASE 8: Sistema de Imágenes**
+| Función | Archivo | Propósito | CSS Relacionado |
+|---------|---------|-----------|-----------------|
+| `switchImageMethod(method)` | app.js:3400 | Toggle URL/Upload (crear) | `.image-method-toggle` |
+| `switchImageMethodEdit(method)` | app.js:3430 | Toggle URL/Upload (editar) | `.toggle-btn.active` |
+| `handleImageUrlInput()` | app.js:3460 | Preview URL en tiempo real | `.image-preview-container` |
+| `handleImageFileInput()` | app.js:3490 | Preview archivo local | `FileReader API` |
+| `handleImageUrlInputEdit()` | app.js:3520 | Preview URL (editar) | - |
+| `handleImageFileInputEdit()` | app.js:3550 | Preview archivo (editar) | - |
+| `removeImagePreview()` | app.js:3580 | Quitar imagen (crear) | `.remove-image-btn` |
+| `removeImagePreviewEdit()` | app.js:3600 | Quitar imagen (editar) | - |
+| `uploadImageToCloudinary(file)` | app.js:3620 | Sube imagen a Cloudinary | POST /api/upload/image |
+| `openLightbox(imageSrc)` | app.js:3700 | Abre modal ampliar imagen | `#imageLightbox` |
+| `closeLightbox()` | app.js:3730 | Cierra lightbox | ESC key listener |
+| `copyCode(code)` | app.js:3760 | Copia código al clipboard | Feedback visual |
+
+**Funciones de modo sorteo (UI Base):**
+| Función | Archivo | Propósito |
+|---------|---------|-----------|
+| `toggleSorteoModeVisibility()` | app.js:3800 | Muestra/oculta switch modo (crear) |
+| `toggleSorteoModeVisibilityEdit()` | app.js:3820 | Muestra/oculta switch modo (editar) |
+| `updateSorteoModeDescription()` | app.js:3840 | Actualiza descripción modo (crear) |
+| `updateSorteoModeDescriptionEdit()` | app.js:3860 | Actualiza descripción modo (editar) |
+
+**Variables globales relacionadas:**
+- `currentImageUrl` (app.js) - URL de imagen en modal crear
+- `editImageUrl` (app.js) - URL de imagen en modal editar
+
+**Privacy fixes (funciones actualizadas):**
+- `closeEditRifaModal()` - Reset completo del form + cleanup
+- `closeCreateRifaModal()` - Reset completo del form + cleanup
+
 ### 🔔 **SISTEMA DE NOTIFICACIONES**
 | Función | Archivo | Propósito | CSS |
 |---------|---------|-----------|-----|
@@ -144,16 +230,40 @@ graph TB
 
 ## 🗄️ **ESTRUCTURA DE BASE DE DATOS**
 
+### **Sistema Dual SQLite ↔ PostgreSQL**
+- **🏠 Desarrollo Local**: SQLite (archivo `rifas.db`)
+- **☁️ Producción (Vercel)**: PostgreSQL (Vercel Postgres)
+- **Switch automático** basado en `POSTGRES_URL`
+
 ### **Tablas Principales:**
 ```sql
 -- Usuarios registrados
 users: id, username, email, password_hash, created_at
 
--- Simulaciones de rifas
-rifas: id, user_id, title, description, access_code, status, created_at
+-- Simulaciones de rifas (ACTUALIZADA FASE 8)
+rifas: id, user_id, title, description, access_code, status, created_at,
+       winner_number, winner_name,
+       scheduled_draw_date,  -- FASE 7: Fecha programada
+       owner_message,        -- FASE 7: Mensaje propietario (max 100 chars)
+       timezone,             -- FASE 7: Zona horaria
+       image_url             -- FASE 8: URL de imagen (Cloudinary o externa)
 
 -- Participaciones en rifas (ACTUALIZADA FASE 3)
 rifa_numbers: id, rifa_id, participant_name, number, selected_at
+```
+
+### **Configuración Cloudinary (FASE 8):**
+```javascript
+// backend/config/cloudinary.js
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+// Carpeta: simularifas/
+// Límite: 800x800px
+// Quality: auto:good
 ```
 
 ---
@@ -184,6 +294,26 @@ rifa_numbers: id, rifa_id, participant_name, number, selected_at
 | GET | `/:id/numbers` | - | **FASE 2**: Números con timestamps | **FASE 2** |
 | DELETE | `/:id/numbers/:number` | authenticateToken | **FASE 3**: Eliminar número individual | **FASE 3** |
 | DELETE | `/:id/participants/:user/numbers` | authenticateToken | **FASE 3**: Eliminar todos números usuario | **FASE 3** |
+
+### **🖼️ Upload de Imágenes (/api/upload) - FASE 8**
+| Method | Endpoint | Middleware | Función | Límites |
+|--------|----------|------------|---------|---------|
+| POST | `/image` | authenticateToken, multer | Subir imagen a Cloudinary | 5MB, JPG/PNG/GIF/WEBP |
+| DELETE | `/image/:publicId` | authenticateToken | Eliminar imagen de Cloudinary | - |
+
+**Configuración Multer:**
+- Storage: memoria (no disco)
+- Límite: 5MB
+- Formatos: image/jpeg, image/png, image/gif, image/webp
+
+**Respuesta POST /api/upload/image:**
+```json
+{
+  "success": true,
+  "url": "https://res.cloudinary.com/...",
+  "public_id": "simularifas/abc123"
+}
+```
 
 ---
 
@@ -261,29 +391,122 @@ rifa_numbers: id, rifa_id, participant_name, number, selected_at
 .color-mode-btn.active - Botón seleccionado
 ```
 
+### **📱 FASE 5: Layout Responsivo**
+```css
+/* Tipografía fluida */
+clamp() - Escalado automático títulos
+
+/* Touch targets */
+min-width: 44px - Mínimo táctil WCAG 2.1
+min-height: 44px
+
+/* Grid dinámico */
+grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)) - Desktop
+grid-template-columns: repeat(10, 1fr) - Tablet
+grid-template-columns: repeat(8, 1fr) - Mobile
+grid-template-columns: repeat(6, 1fr) - Small mobile
+```
+
+### **🎲 FASE 6: Sorteo Directo**
+```css
+/* Animaciones */
+@keyframes fadeOut - Desvanecimiento modal
+@keyframes slideUp - Entrada desde abajo
+@keyframes spin - Rotación spinner
+@keyframes bounce - Rebote emoji ganador
+@keyframes winnerPulse - Pulso número ganador
+
+/* Cards completadas */
+.rifa-card.completed - Fondo gris-verdoso
+```
+
+### **📅 FASE 7: Fechas Programadas**
+```css
+/* Badges de estado */
+.badge-scheduled - Fondo azul (fecha futura)
+.badge-overdue - Fondo rojo (fecha pasada)
+.badge-manual - Fondo gris (sin fecha)
+.badge-message - Fondo naranja (mensaje propietario)
+```
+
+### **🖼️ FASE 8: Sistema de Imágenes**
+```css
+/* Upload de imágenes */
+.image-upload-container - Container principal
+.image-method-toggle - Grupo toggle URL/Upload
+.toggle-btn - Botón toggle (gradiente cuando active)
+.toggle-btn.active - Botón seleccionado
+
+/* Preview */
+.image-preview-container - Container con sombra
+.image-preview - Imagen responsiva (max 200px)
+.remove-image-btn - Botón × absolute
+
+/* Visualización en rifas */
+.prize-image-container - Container sidebar (contain)
+.prize-image-container-header - Container banner (cover, 250px)
+.prize-image - Imagen sidebar (object-fit: contain)
+.prize-image-header - Imagen banner (object-fit: cover)
+.rifa-card-image-container - Container card (120px)
+.rifa-card-image - Imagen card (object-fit: cover, centered)
+
+/* Lightbox */
+#imageLightbox - Overlay oscuro (rgba(0,0,0,0.95))
+#lightboxImage - Imagen ampliada (max 90vw/90vh)
+.lightbox-close-btn - Botón × cerrar
+
+/* Códigos destacados */
+.codigo-destacado - Gradiente morado (#667eea → #764ba2)
+/* Font monospace, 1.3rem, letter-spacing: 2px */
+
+/* Cards completadas */
+.rifa-card-completed - Fondo verde gradient + borde 3px
+
+/* Medalla ganador mobile */
+.number-cell.winner::before - Posición ajustada (top: -20px, right: -5px)
+
+/* Navegación reorganizada */
+#codigoBtn - Botón ACCESO POR CÓDIGO (gradiente morado)
+#authLinkMobile - Iniciar Sesión en hamburguesa
+```
+
 ---
 
 ## 🚦 **ESTADO ACTUAL DEL PROYECTO**
 
 ### **✅ COMPLETADO**
 - ✅ **Sistema base completo** funcionando
+- ✅ **Migración PostgreSQL** - Sistema dual SQLite/PostgreSQL
 - ✅ **FASE 1**: Vista administrativa con lista de participantes
 - ✅ **FASE 2**: Tooltips con timestamps informativos
 - ✅ **FASE 3**: Gestión de números con eliminación individual/masiva
 - ✅ **FASE 4**: Colores únicos por participante (12 gradientes)
 - ✅ **FASE 4.1**: Toggle de modos de color (simple/multi-color)
+- ✅ **FASE 5**: Layout responsivo mejorado (6 breakpoints, touch-optimized)
+- ✅ **FASE 6**: Botón sorteo directo desde "Mis Simulaciones"
+- ✅ **FASE 7**: Sistema de fechas programadas (sorteo automático)
+- ✅ **FASE 8**: Sistema de imágenes completo (Cloudinary, lightbox, UI mejorada)
 
-### **🐛 BUGS CORREGIDOS EN FASE 3**
+### **🐛 BUGS CORREGIDOS**
+
+**FASE 3:**
 - ✅ **"undefined" en participantes**: Problema de referencia corregido
 - ✅ **Ruta duplicada backend**: Eliminada ruta conflictiva `/participants`
 - ✅ **Consulta SQL**: Cambiado `created_at` por `selected_at`
-- ✅ **Función loadParticipants**: Corregida estructura de retorno
+
+**FASE 8:**
+- ✅ **Privacy bug crítico**: Imágenes de usuarios aparecían en otros modales
+- ✅ **Imágenes cortando cabezas**: object-fit optimizado por contexto
+- ✅ **Botón SORTEAR no aparecía**: Ahora siempre visible (grayed cuando vacío)
+- ✅ **Imágenes no centradas**: object-position: center aplicado
+- ✅ **Códigos difíciles de copiar**: Gradiente morado + font monospace grande
 
 ### **🎯 PRÓXIMAS FASES**
-- 📅 **FASE 5**: Layout responsivo mejorado
-- 📅 **FASE 6**: Botón sorteo directo desde "Mis Simulaciones"
-- 📅 **FASE 7**: Sistema de fechas programadas
-- 📅 **FASE 18**: Migración a Firebase/Firestore
+- 📅 **FASE 9**: Zona horaria del propietario
+- 📅 **FASE 10**: Historial de cambios
+- 📅 **FASE 11**: Rangos personalizables base
+- 📅 **FASE 21**: Sistema de temas base
+- 📅 **FASE 22**: Modo oscuro/claro
 
 ---
 
@@ -306,6 +529,18 @@ console.log('🎨 [FASE 4] Color de usuario:', getUserColor('nombreUsuario'));
 // FASE 4.1: Debug toggle de modos
 console.log('🎚️ [FASE 4.1] Modo de color actual:', colorMode);
 console.log('🎚️ [FASE 4.1] Rifa actual:', currentRifa);
+
+// FASE 6: Debug sorteo directo
+console.log('🎲 [FASE 6] Ejecutando sorteo rápido para rifa:', rifaId);
+
+// FASE 7: Debug fechas programadas
+console.log('📅 [FASE 7] Fecha programada:', scheduled_draw_date);
+console.log('📅 [FASE 7] Mensaje propietario:', owner_message);
+
+// FASE 8: Debug imágenes
+console.log('🖼️ [FASE 8] URL imagen actual (crear):', currentImageUrl);
+console.log('🖼️ [FASE 8] URL imagen actual (editar):', editImageUrl);
+console.log('🖼️ [FASE 8] Lightbox abierto con:', imageSrc);
 ```
 
 ### **Network Tab**
@@ -356,15 +591,42 @@ npm run demo-content # Contenido demo
 - **Resultado**: "Elegido por [Usuario] el [fecha] a las [hora]"
 
 ### **FASE 3: Gestión de Números** ✅
-- **Objetivo**: Eliminar números individual/masivamente  
+- **Objetivo**: Eliminar números individual/masivamente
 - **Archivos**: Backend DELETE endpoints, Frontend modals
 - **Resultado**: Botones X + "Todos" + modal confirmación
 - **BUGFIX**: Corregido "undefined" en participantes
 
+### **FASE 4: Colores por Participante** ✅
+- **Objetivo**: Diferenciar usuarios visualmente
+- **Archivos**: Frontend CSS (12 gradientes), app.js
+- **Resultado**: Cada usuario con color único persistente
+
+### **FASE 5: Layout Responsivo Mejorado** ✅
+- **Objetivo**: Optimizar UX en todos los dispositivos
+- **Archivos**: CSS con 6 breakpoints, mejoras touch
+- **Resultado**: Mobile-first, touch-optimized, WCAG 2.1
+
+### **FASE 6: Botón Sorteo Directo** ✅
+- **Objetivo**: Sortear sin entrar a detalles
+- **Archivos**: app.js funciones quickDraw, CSS animaciones
+- **Resultado**: Modal confirmación + resultado animado + auto-refresh
+
+### **FASE 7: Sistema de Fechas Programadas** ✅
+- **Objetivo**: Sorteo automático en fecha/hora específica
+- **Archivos**: Backend checkAndExecuteScheduledDraw, Frontend badges
+- **Resultado**: Sorteo automático, mensaje propietario, timezone
+
+### **FASE 8: Sistema de Imágenes** ✅
+- **Objetivo**: Agregar imágenes de premios a las rifas
+- **Archivos**: Cloudinary config, upload routes, lightbox, UI mejorada
+- **Resultado**: Upload/URL dual, lightbox, códigos destacados, privacy fix
+- **BUGFIXES**: 6 bugs críticos resueltos (privacy, display, UX)
+
 ---
 
-**📊 Este diccionario muestra el estado completo del proyecto hasta FASE 3, con todas las funciones, endpoints y características implementadas.**
+**📊 Este diccionario muestra el estado completo del proyecto hasta FASE 8, con todas las funciones, endpoints y características implementadas.**
 
-*Actualizado: Agosto 2025 - Post FASE 3*  
-*Proyecto: SimulaRifas Personal*  
-*Estado: FASE 3 completada - Gestión de números operativa*
+*Actualizado: Noviembre 2025 - Post FASE 8*
+*Proyecto: SimulaRifas Personal*
+*Estado: FASE 8 COMPLETA - Sistema de imágenes operativo*
+*Total: +10,000 líneas de código*
