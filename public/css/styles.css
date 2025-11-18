@@ -974,10 +974,27 @@ h3 {
     }
 }
 
+/* Items solo para móvil - ocultos en desktop */
+.mobile-only {
+    display: none !important;
+}
+
 /* ========================================
    BREAKPOINT: TABLET PORTRAIT (768px)
    ======================================== */
 @media (max-width: 768px) {
+    /* Mostrar items mobile-only en móvil */
+    .mobile-only {
+        display: block !important;
+    }
+
+    /* Ocultar botones de desktop en móvil */
+    #misSimulacionesBtn,
+    #codigoBtn,
+    #authBtn {
+        display: none !important;
+    }
+
     /* Navegación móvil mejorada */
     .nav-container {
         padding: 0 15px;

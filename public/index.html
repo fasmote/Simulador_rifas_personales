@@ -20,9 +20,10 @@
             <ul class="nav-links" id="navLinks">
                 <li><a href="#" class="active" onclick="navigateTo('demo')">Inicio</a></li>
                 <li><a href="#" onclick="navigateTo('rifas')">Simulaciones Públicas</a></li>
-                <li><a href="#" onclick="navigateToPerfilOrLogin()" id="perfilLink">Mis Simulaciones</a></li>
-                <li id="codigoLinkMobile"><a href="#" onclick="navigateTo('codigo')" style="color: #667eea; font-weight: 600;">🔑 Acceso por Código</a></li>
-                <li id="authLinkMobile"><a href="#" onclick="showAuthModal()">Iniciar Sesión</a></li>
+                <!-- Items solo para móvil (se ocultan en desktop) -->
+                <li class="mobile-only"><a href="#" onclick="navigateToPerfilOrLogin()" id="perfilLink">Mis Simulaciones</a></li>
+                <li class="mobile-only" id="codigoLinkMobile"><a href="#" onclick="navigateTo('codigo')" style="color: #667eea; font-weight: 600;">🔑 Acceso por Código</a></li>
+                <li class="mobile-only" id="authLinkMobile"><a href="#" onclick="showAuthModal()">Iniciar Sesión</a></li>
             </ul>
             <div class="nav-user" id="navUser">
                 <span class="user-info" id="userInfo" style="display: none;"></span>
