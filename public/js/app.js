@@ -3935,8 +3935,8 @@ function switchImageMethodEdit(method) {
         uploadContainer.style.display = 'block';
         urlContainer.style.display = 'none';
 
-        // Limpiar input de URL
-        document.getElementById('editRifaImageUrl').value = '';
+        // NO limpiar URL para preservar imagen existente
+        // El usuario puede usar "Quitar imagen" si quiere eliminarla
     }
 }
 
