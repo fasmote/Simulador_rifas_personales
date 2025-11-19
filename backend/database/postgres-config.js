@@ -112,12 +112,20 @@ const allQuery = async (sql, params = []) => {
 
 /**
  * Convierte placeholders de SQLite (?) a PostgreSQL ($1, $2, etc.)
+ * y funciones específicas de SQLite a PostgreSQL
  * @param {string} sql - Query SQL con placeholders ?
  * @returns {string} - Query SQL con placeholders $1, $2, etc.
  */
 const convertPlaceholders = (sql) => {
     let index = 0;
-    return sql.replace(/\?/g, () => `$${++index}`);
+    let convertedSql = sql.replace(/\?/g, () => `$${++index}`);
+
+    // Convertir funciones de fecha de SQLite a PostgreSQL
+    convertedSql = convertedSql.replace(/datetime\s*\(\s*'now'\s*\)/gi, 'NOW()');
+    convertedSql = convertedSql.replace(/date\s*\(\s*'now'\s*\)/gi, 'CURRENT_DATE');
+    convertedSql = convertedSql.replace(/time\s*\(\s*'now'\s*\)/gi, 'CURRENT_TIME');
+
+    return convertedSql;
 };
 
 /**
