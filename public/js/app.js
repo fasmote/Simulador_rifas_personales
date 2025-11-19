@@ -834,8 +834,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Proyecto educativo: abrir modal de reset con el token
                 console.log('✅ Token recibido:', data.resetToken);
                 closeForgotPasswordModal();
-                document.getElementById('resetToken').value = data.resetToken;
-                showResetPasswordModal();
+                showResetPasswordModal(data.resetToken);
                 showNotification('Token generado. Ingresa tu nueva contraseña.');
             } else if (response.ok) {
                 showNotification(data.message || 'Revisa tu email');
