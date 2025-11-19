@@ -49,7 +49,7 @@ body {
     text-decoration: none;
     flex-shrink: 0;
     position: absolute;
-    left: 10px;
+    left: 5px;
 }
 
 .nav-links {
@@ -57,7 +57,7 @@ body {
     list-style: none;
     gap: 15px;
     margin: 0;
-    padding: 0 180px;
+    padding: 0 220px;
     justify-content: center;
     align-items: center;
 }
