@@ -345,29 +345,51 @@ router.post('/reset-password', async (req, res) => {
     try {
         const { token, newPassword } = req.body;
 
+        console.log('🔄 Reset password request received');
+        console.log('📝 Token received:', token ? token.substring(0, 10) + '...' : 'EMPTY');
+
         if (!token || !newPassword) {
+            console.log('❌ Missing token or password');
             return res.status(400).json({ error: 'Token y nueva contraseña son requeridos' });
         }
 
         if (newPassword.length < 6) {
+            console.log('❌ Password too short');
             return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
         }
 
         // Buscar token válido
+        console.log('🔍 Searching for token in database...');
         const resetRecord = await getQuery(
-            `SELECT user_id, expires_at FROM password_resets
-             WHERE token = ? AND used = 0`,
+            `SELECT user_id, expires_at, used FROM password_resets
+             WHERE token = ?`,
             [token]
         );
 
+        console.log('📊 Token search result:', resetRecord ? JSON.stringify(resetRecord) : 'NOT FOUND');
+
         if (!resetRecord) {
-            return res.status(400).json({ error: 'Token inválido o ya utilizado' });
+            console.log('❌ Token not found in database');
+            return res.status(400).json({ error: 'Token no encontrado en la base de datos' });
+        }
+
+        if (resetRecord.used === 1) {
+            console.log('❌ Token already used');
+            return res.status(400).json({ error: 'Token ya utilizado. Solicita uno nuevo.' });
         }
 
         // Verificar si el token ha expirado
-        if (new Date(resetRecord.expires_at) < new Date()) {
+        const expiresAt = new Date(resetRecord.expires_at);
+        const now = new Date();
+        console.log('⏰ Token expires_at:', expiresAt.toISOString());
+        console.log('⏰ Current time:', now.toISOString());
+
+        if (expiresAt < now) {
+            console.log('❌ Token expired');
             return res.status(400).json({ error: 'Token expirado. Solicita uno nuevo.' });
         }
+
+        console.log('✅ Token is valid, proceeding with password reset');
 
         // Hash nueva contraseña
         const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -390,10 +412,11 @@ router.post('/reset-password', async (req, res) => {
             [resetRecord.user_id]
         );
 
+        console.log('✅ Password updated successfully for user_id:', resetRecord.user_id);
         res.json({ message: 'Contraseña actualizada exitosamente' });
 
     } catch (error) {
-        console.error('Error reseteando password:', error);
+        console.error('❌ Error reseteando password:', error);
         res.status(500).json({ error: 'Error al actualizar contraseña' });
     }
 });
