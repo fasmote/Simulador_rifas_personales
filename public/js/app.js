@@ -2186,6 +2186,7 @@ async function viewRifa(rifaId) {
 }
 
 async function editRifa(rifaId) {
+    console.log('🔧 editRifa llamado con rifaId:', rifaId);
     try {
         // Cargar datos de la rifa
         const response = await fetch(`${API_BASE}/rifas/my/${rifaId}`, {
@@ -2197,6 +2198,9 @@ async function editRifa(rifaId) {
         if (response.ok) {
             const data = await response.json();
             const rifa = data.rifa;
+
+            console.log('🔧 Datos recibidos del servidor:', rifa);
+            console.log('🔧 image_url en rifa:', rifa.image_url);
 
             // Cargar datos en el modal de edición
             document.getElementById('editRifaTitle').value = rifa.title;
@@ -2222,12 +2226,15 @@ async function editRifa(rifaId) {
             document.getElementById('editRifaOwnerMessageCount').textContent = (rifa.owner_message || '').length;
 
             // FASE 8: Cargar imagen existente
+            console.log('📸 Verificando imagen - rifa.image_url:', rifa.image_url, 'tipo:', typeof rifa.image_url);
             if (rifa.image_url) {
                 console.log('📸 Cargando imagen existente:', rifa.image_url);
                 document.getElementById('editRifaImageUrl').value = rifa.image_url;
+                console.log('📸 Valor asignado al input:', document.getElementById('editRifaImageUrl').value);
                 showImagePreview(rifa.image_url, true);
                 // Seleccionar método URL para mostrar el input
                 switchImageMethodEdit('url');
+                console.log('📸 Estado final del input editRifaImageUrl:', document.getElementById('editRifaImageUrl').value);
             } else {
                 console.log('📸 No hay imagen existente');
                 document.getElementById('editRifaImageUrl').value = '';
@@ -3930,10 +3937,19 @@ function switchImageMethod(method) {
  * Cambiar método de entrada de imagen (URL o Upload) - Editar
  */
 function switchImageMethodEdit(method) {
+    console.log('🔄 switchImageMethodEdit llamado con método:', method);
+
     const urlBtn = document.getElementById('editUrlMethodBtn');
     const uploadBtn = document.getElementById('editUploadMethodBtn');
     const urlContainer = document.getElementById('editUrlInputContainer');
     const uploadContainer = document.getElementById('editUploadInputContainer');
+
+    console.log('🔄 Elementos encontrados:', {
+        urlBtn: !!urlBtn,
+        uploadBtn: !!uploadBtn,
+        urlContainer: !!urlContainer,
+        uploadContainer: !!uploadContainer
+    });
 
     if (method === 'url') {
         urlBtn.classList.add('active');
@@ -3943,6 +3959,7 @@ function switchImageMethodEdit(method) {
 
         // Limpiar input de archivo
         document.getElementById('editRifaImageFile').value = '';
+        console.log('🔄 Método URL activado - urlContainer visible');
     } else {
         uploadBtn.classList.add('active');
         urlBtn.classList.remove('active');
@@ -3951,26 +3968,35 @@ function switchImageMethodEdit(method) {
 
         // NO limpiar URL para preservar imagen existente
         // El usuario puede usar "Quitar imagen" si quiere eliminarla
+        console.log('🔄 Método Upload activado - uploadContainer visible');
     }
+
+    console.log('🔄 Estado final - editRifaImageUrl value:', document.getElementById('editRifaImageUrl').value);
 }
 
 /**
  * Mostrar preview de imagen desde URL
  */
 function showImagePreview(imageUrl, isEdit = false) {
+    console.log('🖼️ showImagePreview llamado:', { imageUrl, isEdit });
+
     const previewId = isEdit ? 'editImagePreview' : 'imagePreview';
     const imgId = isEdit ? 'editPreviewImage' : 'previewImage';
 
     const preview = document.getElementById(previewId);
     const img = document.getElementById(imgId);
 
+    console.log('🖼️ Elementos encontrados:', { preview: !!preview, img: !!img });
+
     img.src = imageUrl;
     preview.style.display = 'block';
 
     if (isEdit) {
         editImageUrl = imageUrl;
+        console.log('🖼️ editImageUrl actualizado a:', editImageUrl);
     } else {
         currentImageUrl = imageUrl;
+        console.log('🖼️ currentImageUrl actualizado a:', currentImageUrl);
     }
 }
 
