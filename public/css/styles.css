@@ -1038,12 +1038,12 @@ h3 {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
         font-weight: 600;
-        padding: 8px 16px;
+        padding: 6px 10px;
         border: none;
-        border-radius: 8px;
-        font-size: 0.85rem;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-        margin-right: 10px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+        margin-right: 8px;
         white-space: nowrap;
     }
 

@@ -971,8 +971,21 @@ function showDemoPage() {
             <p class="subtitle">Simula sorteos para eventos, fiestas y actividades grupales</p>
         </header>
 
-        <div class="legal-notice">
-            <strong>Aviso Legal:</strong> Esta es una aplicación de simulación educativa. No involucra dinero real ni constituye un juego de apuestas. Cumple con la normativa argentina sobre juegos.
+        <div class="code-access-section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 20px; margin-bottom: 25px; color: white; text-align: center;">
+            <h3 style="margin: 0 0 10px 0; font-size: 1.1rem;">🔑 ¿Tienes un código de acceso?</h3>
+            <p style="margin: 0 0 15px 0; font-size: 0.9rem; opacity: 0.9;">
+                Si el organizador de una rifa te compartió un código, ingrésalo aquí para participar.
+            </p>
+            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                <input type="text" id="homeAccessCode" placeholder="Ingresa el código"
+                       style="padding: 10px 15px; border: none; border-radius: 8px; font-size: 1rem;
+                              text-transform: uppercase; width: 180px; text-align: center;"
+                       maxlength="6" oninput="this.value = this.value.toUpperCase()">
+                <button class="btn" onclick="accessByCodeFromHome()"
+                        style="background: white; color: #667eea; font-weight: 600; padding: 10px 20px;">
+                    Acceder
+                </button>
+            </div>
         </div>
 
         <div class="main-content">
@@ -988,7 +1001,7 @@ function showDemoPage() {
                         🏆 Simular Sorteo
                     </button>
                 </div>
-                
+
                 <div class="numbers-grid" id="numbersGrid">
                     <!-- Los números se generan con JavaScript -->
                 </div>
@@ -1000,19 +1013,19 @@ function showDemoPage() {
                     <h3 class="cart-title">Números Seleccionados</h3>
                     <div class="cart-count" id="cartCount">0</div>
                 </div>
-                
+
                 <div class="cart-items" id="cartItems">
                     <div class="empty-cart">
                         No has seleccionado números aún
                     </div>
                 </div>
-                
+
                 <button class="btn btn-primary" style="width: 100%; margin-bottom: 15px;" onclick="drawWinner()">
                     🎊 ¡Simular Sorteo!
                 </button>
-                
-                <div style="margin-bottom: 15px;">
-                    <p style="font-size: 0.9rem; color: #666; text-align: center;">
+
+                <div style="margin-bottom: 15px; margin-top: 20px;">
+                    <p style="font-size: 0.9rem; color: #666; text-align: center; margin-bottom: 12px;">
                         💡 ¿Quieres crear tus propias simulaciones privadas?
                     </p>
                     <button class="btn btn-secondary" style="width: 100%;" onclick="showAuthModal()">
@@ -1020,6 +1033,10 @@ function showDemoPage() {
                     </button>
                 </div>
             </div>
+        </div>
+
+        <div class="legal-notice" style="margin-top: 30px;">
+            <strong>Aviso Legal:</strong> Esta es una aplicación de simulación educativa. No involucra dinero real ni constituye un juego de apuestas. Cumple con la normativa argentina sobre juegos.
         </div>
     `;
     
@@ -2835,9 +2852,34 @@ async function copyCode(code) {
     }
 }
 
+// Acceder por código desde la página de inicio
+async function accessByCodeFromHome() {
+    const code = document.getElementById('homeAccessCode').value.trim().toUpperCase();
+
+    if (!code || code.length !== 6) {
+        showNotification('Por favor ingresa un código válido de 6 caracteres', 'error');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE}/rifas/access/${code}`);
+        const data = await response.json();
+
+        if (response.ok && data.rifa) {
+            showNotification('¡Simulación encontrada!');
+            viewRifaByCode(data.rifa, code);
+        } else {
+            showNotification(data.error || `Código "${code}" no encontrado`, 'error');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('Error de conexión con el servidor', 'error');
+    }
+}
+
 async function handleAccessCodeSubmit(e) {
     e.preventDefault();
-    
+
     const code = document.getElementById('accessCodePageInput').value.trim().toUpperCase();
     
     if (!code || code.length !== 6) {
