@@ -209,13 +209,18 @@ router.get('/verify-email', async (req, res) => {
 
         // Buscar usuario con token válido
         const user = await getQuery(
-            `SELECT id, username, email FROM users
-             WHERE verification_token = ? AND verification_expires > datetime('now')`,
+            `SELECT id, username, email, verification_expires FROM users
+             WHERE verification_token = ?`,
             [token]
         );
 
         if (!user) {
-            return res.status(400).json({ error: 'Token inválido o expirado' });
+            return res.status(400).json({ error: 'Token inválido' });
+        }
+
+        // Verificar si el token ha expirado
+        if (new Date(user.verification_expires) < new Date()) {
+            return res.status(400).json({ error: 'Token expirado. Solicita uno nuevo.' });
         }
 
         // Marcar email como verificado
@@ -350,13 +355,18 @@ router.post('/reset-password', async (req, res) => {
 
         // Buscar token válido
         const resetRecord = await getQuery(
-            `SELECT user_id FROM password_resets
-             WHERE token = ? AND expires_at > datetime('now') AND used = 0`,
+            `SELECT user_id, expires_at FROM password_resets
+             WHERE token = ? AND used = 0`,
             [token]
         );
 
         if (!resetRecord) {
-            return res.status(400).json({ error: 'Token inválido o expirado' });
+            return res.status(400).json({ error: 'Token inválido o ya utilizado' });
+        }
+
+        // Verificar si el token ha expirado
+        if (new Date(resetRecord.expires_at) < new Date()) {
+            return res.status(400).json({ error: 'Token expirado. Solicita uno nuevo.' });
         }
 
         // Hash nueva contraseña
