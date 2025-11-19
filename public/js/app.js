@@ -590,8 +590,10 @@ function updateNavForLoggedUser() {
     } else {
         userInfo.style.display = 'none';
 
-        // Ocultar botón "Iniciar Sesión" desktop
-        authBtn.style.display = 'none';
+        // Mostrar botón "Iniciar Sesión" desktop
+        authBtn.textContent = 'Iniciar Sesión';
+        authBtn.onclick = showAuthModal;
+        authBtn.style.display = 'inline-block';
 
         // Mostrar botón móvil destacado como "Iniciar Sesión"
         if (mobileAuthBtn) {

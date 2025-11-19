@@ -27,6 +27,10 @@
             </ul>
             <div class="nav-user" id="navUser">
                 <span class="user-info" id="userInfo" style="display: none;"></span>
+                <!-- Simulaciones Públicas en desktop -->
+                <button class="btn btn-secondary" id="simulacionesPublicasBtn" onclick="navigateTo('rifas')" style="margin-right: 10px;">
+                    🎲 Simulaciones Públicas
+                </button>
                 <!-- Mis Simulaciones en desktop -->
                 <button class="btn btn-secondary" id="misSimulacionesBtn" onclick="navigateToPerfilOrLogin()" style="margin-right: 10px;">
                     📋 Mis Simulaciones
@@ -35,7 +39,8 @@
                 <button class="btn" id="codigoBtn" onclick="navigateTo('codigo')" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-weight: 600; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); margin-right: 10px;">
                     🔑 Acceso por Código
                 </button>
-                <button class="btn btn-secondary" id="authBtn" onclick="showAuthModal()" style="display: none;">Iniciar Sesión</button>
+                <!-- Iniciar Sesión en desktop -->
+                <button class="btn btn-secondary" id="authBtn" onclick="showAuthModal()">Iniciar Sesión</button>
             </div>
             <!-- Botón Iniciar Sesión visible en móvil (entre logo y hamburguesa) -->
             <button class="btn mobile-auth-btn" id="mobileAuthBtn" onclick="showAuthModal()">Iniciar Sesión</button>
