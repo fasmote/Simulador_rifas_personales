@@ -812,8 +812,19 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             const data = await response.json();
-            showNotification(data.message || 'Revisa tu email');
-            closeForgotPasswordModal();
+
+            if (response.ok && data.resetToken) {
+                // Proyecto educativo: abrir modal de reset con el token
+                closeForgotPasswordModal();
+                document.getElementById('resetToken').value = data.resetToken;
+                showResetPasswordModal();
+                showNotification('Token generado. Ingresa tu nueva contraseña.');
+            } else if (response.ok) {
+                showNotification(data.message || 'Revisa tu email');
+                closeForgotPasswordModal();
+            } else {
+                showNotification(data.error || 'Error al procesar solicitud', 'error');
+            }
         } catch (error) {
             console.error('Error en forgot password:', error);
             showNotification('Error de conexión', 'error');

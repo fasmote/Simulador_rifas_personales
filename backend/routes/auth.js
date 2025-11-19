@@ -113,27 +113,25 @@ router.post('/register', checkHoneypot, validateEmail, authLimiter, async (req, 
         // Encriptar contraseña
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Generar token de verificación
-        const verificationToken = generateToken();
-        const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(); // 24 horas
-
-        // Crear usuario (email_verified = 0 por defecto)
+        // Crear usuario (auto-verificado para proyecto educativo)
         const result = await runQuery(
-            `INSERT INTO users (username, email, password_hash, email_verified, verification_token, verification_expires)
-             VALUES (?, ?, ?, 0, ?, ?)`,
-            [username.toLowerCase(), email.toLowerCase(), hashedPassword, verificationToken, verificationExpires]
+            `INSERT INTO users (username, email, password_hash, email_verified)
+             VALUES (?, ?, ?, 1)`,
+            [username.toLowerCase(), email.toLowerCase(), hashedPassword]
         );
 
-        // Enviar email de verificación
-        const emailResult = await sendVerificationEmail(email, verificationToken);
+        // Generar token JWT para auto-login
+        const token = jwt.sign(
+            { id: result.id, username: username.toLowerCase(), email: email.toLowerCase() },
+            process.env.JWT_SECRET,
+            { expiresIn: '24h' }
+        );
 
-        // Responder sin token JWT (debe verificar primero)
+        // Responder con token JWT (usuario ya verificado)
         res.status(201).json({
-            message: emailResult.success
-                ? 'Cuenta creada. Revisa tu email para verificar tu cuenta.'
-                : 'Cuenta creada. Por favor contacta soporte para verificar tu cuenta.',
+            message: 'Cuenta creada exitosamente. Ya puedes usar la aplicación.',
             user: { id: result.id, username: username.toLowerCase(), email: email.toLowerCase() },
-            needsVerification: true
+            token
         });
 
     } catch (error) {
@@ -303,9 +301,6 @@ router.post('/forgot-password', checkHoneypot, forgotLimiter, async (req, res) =
             return res.status(400).json({ error: 'Email requerido' });
         }
 
-        // Mensaje genérico (no revelar si existe)
-        const genericMessage = 'Si el email existe, recibirás instrucciones para recuperar tu contraseña.';
-
         // Buscar usuario
         const user = await getQuery(
             'SELECT id FROM users WHERE email = ?',
@@ -313,7 +308,7 @@ router.post('/forgot-password', checkHoneypot, forgotLimiter, async (req, res) =
         );
 
         if (!user) {
-            return res.json({ message: genericMessage });
+            return res.status(404).json({ error: 'No existe una cuenta con ese email' });
         }
 
         // Generar token
@@ -326,10 +321,13 @@ router.post('/forgot-password', checkHoneypot, forgotLimiter, async (req, res) =
             [user.id, resetToken, expiresAt]
         );
 
-        // Enviar email
-        await sendResetPasswordEmail(email, resetToken);
-
-        res.json({ message: genericMessage });
+        // Para proyecto educativo: devolver el token directamente
+        // En producción real, esto se enviaría por email
+        res.json({
+            message: 'Se ha generado un enlace para restablecer tu contraseña.',
+            resetToken: resetToken,
+            note: 'Proyecto educativo - En producción real este token se enviaría por email'
+        });
 
     } catch (error) {
         console.error('Error en forgot password:', error);
