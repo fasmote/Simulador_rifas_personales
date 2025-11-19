@@ -111,6 +111,11 @@ body {
     color: #333;
 }
 
+/* Botón Iniciar Sesión móvil - oculto en desktop */
+.mobile-auth-btn {
+    display: none;
+}
+
 /* ========== LAYOUT PRINCIPAL ========== */
 .container {
     max-width: 1200px;
@@ -1027,9 +1032,23 @@ h3 {
         min-height: 44px;
     }
 
+    /* Botón Iniciar Sesión destacado en móvil */
+    .mobile-auth-btn {
+        display: block;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 600;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        margin-right: 10px;
+        white-space: nowrap;
+    }
+
     .nav-user {
-        gap: 8px;
-        min-width: 150px;
+        display: none !important;
     }
 
     .user-info {

@@ -547,6 +547,7 @@ function updateNavForLoggedUser() {
     const userInfo = document.getElementById('userInfo');
     const authBtn = document.getElementById('authBtn');
     const authLinkMobile = document.getElementById('authLinkMobile');
+    const mobileAuthBtn = document.getElementById('mobileAuthBtn');
     const codigoBtn = document.getElementById('codigoBtn');
     const codigoLinkMobile = document.getElementById('codigoLinkMobile');
 
@@ -567,7 +568,13 @@ function updateNavForLoggedUser() {
             codigoLinkMobile.style.display = 'block';
         }
 
-        // Cambiar "Iniciar Sesión" a "Cerrar Sesión" en móvil
+        // Cambiar botón móvil destacado a "Cerrar Sesión"
+        if (mobileAuthBtn) {
+            mobileAuthBtn.textContent = 'Cerrar Sesión';
+            mobileAuthBtn.onclick = logout;
+        }
+
+        // Cambiar "Iniciar Sesión" a "Cerrar Sesión" en menú hamburguesa
         if (authLinkMobile) {
             const authLinkA = authLinkMobile.querySelector('a');
             if (authLinkA) {
@@ -585,6 +592,12 @@ function updateNavForLoggedUser() {
 
         // Ocultar botón "Iniciar Sesión" desktop
         authBtn.style.display = 'none';
+
+        // Mostrar botón móvil destacado como "Iniciar Sesión"
+        if (mobileAuthBtn) {
+            mobileAuthBtn.textContent = 'Iniciar Sesión';
+            mobileAuthBtn.onclick = showAuthModal;
+        }
 
         // Mostrar "Iniciar Sesión" en hamburguesa móvil
         if (authLinkMobile) {
