@@ -971,19 +971,15 @@ function showDemoPage() {
             <p class="subtitle">Simula sorteos para eventos, fiestas y actividades grupales</p>
         </header>
 
-        <div class="code-access-section" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 20px; margin-bottom: 25px; color: white; text-align: center;">
-            <h3 style="margin: 0 0 10px 0; font-size: 1.1rem;">🔑 ¿Tienes un código de acceso?</h3>
-            <p style="margin: 0 0 15px 0; font-size: 0.9rem; opacity: 0.9;">
-                Si el organizador de una rifa te compartió un código, ingrésalo aquí para participar.
-            </p>
-            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-                <input type="text" id="homeAccessCode" placeholder="Ingresa el código"
-                       style="padding: 10px 15px; border: none; border-radius: 8px; font-size: 1rem;
-                              text-transform: uppercase; width: 180px; text-align: center;"
+        <div class="legal-notice">
+            <strong>🔑 ¿Tienes un código de acceso?</strong> Si el organizador de una rifa te compartió un código, ingrésalo aquí para participar.
+            <div style="display: flex; gap: 10px; margin-top: 10px; align-items: center; flex-wrap: wrap;">
+                <input type="text" id="homeAccessCode" placeholder="XXXXXX"
+                       style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem;
+                              text-transform: uppercase; width: 100px; text-align: center;"
                        maxlength="6" oninput="this.value = this.value.toUpperCase()">
-                <button class="btn" onclick="accessByCodeFromHome()"
-                        style="background: white; color: #667eea; font-weight: 600; padding: 10px 20px;">
-                    Acceder
+                <button class="btn btn-primary" onclick="accessByCodeFromHome()" style="padding: 8px 16px;">
+                    🚀 Acceder
                 </button>
             </div>
         </div>
