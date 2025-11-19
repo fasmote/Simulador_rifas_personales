@@ -828,8 +828,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const data = await response.json();
 
+            console.log('🔑 Forgot password response:', data);
+
             if (response.ok && data.resetToken) {
                 // Proyecto educativo: abrir modal de reset con el token
+                console.log('✅ Token recibido:', data.resetToken);
                 closeForgotPasswordModal();
                 document.getElementById('resetToken').value = data.resetToken;
                 showResetPasswordModal();
@@ -838,6 +841,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 showNotification(data.message || 'Revisa tu email');
                 closeForgotPasswordModal();
             } else {
+                console.log('❌ Error en forgot password:', data.error);
                 showNotification(data.error || 'Error al procesar solicitud', 'error');
             }
         } catch (error) {
@@ -854,12 +858,16 @@ document.addEventListener('DOMContentLoaded', function() {
         const newPassword = document.getElementById('newPassword').value;
         const confirmPassword = document.getElementById('confirmPassword').value;
 
+        console.log('🔄 Reset password - Token a enviar:', token);
+        console.log('🔄 Reset password - Token length:', token.length);
+
         if (newPassword !== confirmPassword) {
             showNotification('Las contraseñas no coinciden', 'error');
             return;
         }
 
         try {
+            console.log('📤 Enviando reset password request...');
             const response = await fetch(`${API_BASE}/auth/reset-password`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -867,12 +875,15 @@ document.addEventListener('DOMContentLoaded', function() {
             });
 
             const data = await response.json();
+            console.log('📥 Reset password response:', data);
 
             if (response.ok) {
+                console.log('✅ Password reset exitoso');
                 showNotification(data.message);
                 closeResetPasswordModal();
                 showAuthModal();
             } else {
+                console.log('❌ Error en reset password:', data.error);
                 showNotification(data.error, 'error');
             }
         } catch (error) {
