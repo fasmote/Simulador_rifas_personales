@@ -87,11 +87,9 @@ body {
 .nav-user {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     white-space: nowrap;
     flex-shrink: 0;
-    min-width: 200px;
-    justify-content: flex-end;
 }
 
 .user-info {
