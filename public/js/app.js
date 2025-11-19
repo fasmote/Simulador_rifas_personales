@@ -2223,9 +2223,13 @@ async function editRifa(rifaId) {
 
             // FASE 8: Cargar imagen existente
             if (rifa.image_url) {
+                console.log('📸 Cargando imagen existente:', rifa.image_url);
                 document.getElementById('editRifaImageUrl').value = rifa.image_url;
                 showImagePreview(rifa.image_url, true);
+                // Seleccionar método URL para mostrar el input
+                switchImageMethodEdit('url');
             } else {
+                console.log('📸 No hay imagen existente');
                 document.getElementById('editRifaImageUrl').value = '';
                 removeImagePreviewEdit();
             }
@@ -4029,8 +4033,13 @@ async function getFinalImageUrl(isEdit = false) {
         document.getElementById('editRifaImageFile') :
         document.getElementById('rifaImageFile');
 
+    console.log('📸 getFinalImageUrl - isEdit:', isEdit);
+    console.log('📸 getFinalImageUrl - urlInput:', urlInput);
+    console.log('📸 getFinalImageUrl - fileInput files:', fileInput.files ? fileInput.files.length : 0);
+
     // Si hay URL, usarla
     if (urlInput) {
+        console.log('📸 Usando URL existente:', urlInput);
         return urlInput;
     }
 
