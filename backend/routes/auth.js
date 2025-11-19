@@ -302,6 +302,8 @@ router.post('/forgot-password', checkHoneypot, forgotLimiter, async (req, res) =
     try {
         const { email } = req.body;
 
+        console.log('🔑 Forgot password request for:', email);
+
         if (!email) {
             return res.status(400).json({ error: 'Email requerido' });
         }
@@ -312,6 +314,8 @@ router.post('/forgot-password', checkHoneypot, forgotLimiter, async (req, res) =
             [email.toLowerCase()]
         );
 
+        console.log('👤 User found:', user ? `ID ${user.id}` : 'NOT FOUND');
+
         if (!user) {
             return res.status(404).json({ error: 'No existe una cuenta con ese email' });
         }
@@ -320,11 +324,27 @@ router.post('/forgot-password', checkHoneypot, forgotLimiter, async (req, res) =
         const resetToken = generateToken();
         const expiresAt = new Date(Date.now() + 30 * 60 * 1000).toISOString(); // 30 minutos
 
+        console.log('🎫 Generated token:', resetToken.substring(0, 10) + '...');
+        console.log('⏰ Expires at:', expiresAt);
+
         // Guardar token
-        await runQuery(
-            `INSERT INTO password_resets (user_id, token, expires_at) VALUES (?, ?, ?)`,
-            [user.id, resetToken, expiresAt]
+        try {
+            const insertResult = await runQuery(
+                `INSERT INTO password_resets (user_id, token, expires_at) VALUES (?, ?, ?)`,
+                [user.id, resetToken, expiresAt]
+            );
+            console.log('💾 Token saved to database, result:', JSON.stringify(insertResult));
+        } catch (insertError) {
+            console.error('❌ Error saving token to database:', insertError);
+            throw insertError;
+        }
+
+        // Verificar que el token se guardó
+        const savedToken = await getQuery(
+            'SELECT * FROM password_resets WHERE token = ?',
+            [resetToken]
         );
+        console.log('✅ Token verification:', savedToken ? 'FOUND IN DB' : 'NOT FOUND IN DB');
 
         // Para proyecto educativo: devolver el token directamente
         // En producción real, esto se enviaría por email
@@ -335,7 +355,7 @@ router.post('/forgot-password', checkHoneypot, forgotLimiter, async (req, res) =
         });
 
     } catch (error) {
-        console.error('Error en forgot password:', error);
+        console.error('❌ Error en forgot password:', error);
         res.status(500).json({ error: 'Error al procesar solicitud' });
     }
 });
