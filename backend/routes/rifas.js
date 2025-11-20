@@ -364,6 +364,16 @@ router.put('/:id', authenticateToken, async (req, res) => {
         const { title, description, scheduled_draw_date, owner_message, timezone, image_url } = req.body;
         const rifaId = req.params.id;
 
+        console.log('📝 PUT /rifas/:id - Datos recibidos:', {
+            rifaId,
+            title,
+            description,
+            scheduled_draw_date,
+            owner_message,
+            timezone,
+            image_url
+        });
+
         // Verificar que la simulación pertenece al usuario
         const rifa = await getQuery(
             'SELECT * FROM rifas WHERE id = ? AND user_id = ?',
