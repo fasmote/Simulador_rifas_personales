@@ -2687,12 +2687,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Event listener para editar simulación
     document.getElementById('editRifaForm').addEventListener('submit', async function(e) {
         e.preventDefault();
+        console.log('📤 Submit editRifaForm - Iniciando...');
 
         const rifaId = this.dataset.rifaId;
         const title = document.getElementById('editRifaTitle').value;
         const description = document.getElementById('editRifaDescription').value;
         const scheduled_draw_date = document.getElementById('editRifaScheduledDate').value || '';
         const owner_message = document.getElementById('editRifaOwnerMessage').value || '';
+
+        console.log('📤 Valores del formulario:', { rifaId, title, description, scheduled_draw_date, owner_message });
+        console.log('📤 Estado del input editRifaImageUrl:', document.getElementById('editRifaImageUrl').value);
+        console.log('📤 Estado del input editRifaImageFile:', document.getElementById('editRifaImageFile').files.length, 'archivos');
 
         if (!rifaId) {
             showNotification('Error: ID de simulación no válido', 'error');
@@ -2701,7 +2706,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
         try {
             // FASE 8: Obtener URL de imagen (si existe)
+            console.log('📤 Llamando a getFinalImageUrl(true)...');
             const image_url = await getFinalImageUrl(true);
+            console.log('📤 image_url obtenido:', image_url);
+
+            const bodyData = {
+                title,
+                description,
+                scheduled_draw_date,
+                owner_message,
+                image_url  // FASE 8: Incluir imagen
+            };
+            console.log('📤 Datos a enviar al servidor:', bodyData);
 
             const response = await fetch(`${API_BASE}/rifas/${rifaId}`, {
                 method: 'PUT',
@@ -2709,13 +2725,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('authToken')}`
                 },
-                body: JSON.stringify({
-                    title,
-                    description,
-                    scheduled_draw_date,
-                    owner_message,
-                    image_url  // FASE 8: Incluir imagen
-                })
+                body: JSON.stringify(bodyData)
             });
 
             if (response.ok) {
